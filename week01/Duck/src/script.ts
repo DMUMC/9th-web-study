@@ -7,22 +7,22 @@ const doneList = document.getElementById("done-list") as HTMLUListElement;
 type Todo = {
   id: number;
   text: string;
+  isDone: boolean;
 };
 
-let todos: Todo[] = [];
-let doneTasks: Todo[] = [];
+let allTasks: Todo[] = [];
 
 // 할 일 렌더링
 const renderTask = (): void => {
   todoList.innerHTML = "";
   doneList.innerHTML = "";
 
-  todos.forEach((todo): void => {
+  allTasks.forEach((todo): void => {
     const li = createTodoElement(todo, false);
     todoList.appendChild(li);
   });
 
-  doneTasks.forEach((todo): void => {
+  allTasks.forEach((todo): void => {
     const li = createTodoElement(todo, true);
     doneList.appendChild(li);
   });
@@ -35,21 +35,21 @@ const getTodoText = (): string => {
 
 // 할 일 추가
 const addTodo = (text: string): void => {
-  todos.push({ id: Date.now(), text });
+  allTasks.push({ id: Date.now(), text, isDone: false });
   todoInput.value = "";
   renderTask();
 };
 
 // 상태 변경
 const compleTodo = (todo: Todo): void => {
-  todos = todos.filter((item): boolean => item.id !== todo.id);
-  doneTasks.push(todo);
+  allTasks = allTasks.filter((item): boolean => item.id !== todo.id);
+  allTasks.push(todo);
   renderTask();
 };
 
 // 할 일 삭제
 const deleteTodo = (todo: Todo): void => {
-  doneTasks = doneTasks.filter((item): boolean => item.id !== todo.id);
+  allTasks = allTasks.filter((item): boolean => item.id !== todo.id);
   renderTask();
 };
 
