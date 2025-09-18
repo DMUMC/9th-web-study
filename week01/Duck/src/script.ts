@@ -48,7 +48,7 @@ const compleTodo = (todo: Todo): void => {
 
 // 할 일 삭제
 const deleteTodo = (todo: Todo): void => {
-  allTasks = allTasks.filter((item): boolean => item.id !== todo.id);
+  todo.isDone = false;
   renderTask();
 };
 
