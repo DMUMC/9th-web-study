@@ -18,13 +18,13 @@ const renderTask = (): void => {
   doneList.innerHTML = "";
 
   allTasks.forEach((todo): void => {
-    const li = createTodoElement(todo, false);
-    todoList.appendChild(li);
-  });
-
-  allTasks.forEach((todo): void => {
-    const li = createTodoElement(todo, true);
-    doneList.appendChild(li);
+    if (todo.isDone) {
+      const li = createTodoElement(todo, true);
+      doneList.appendChild(li);
+    } else {
+      const li = createTodoElement(todo, false);
+      todoList.appendChild(li);
+    }
   });
 };
 
@@ -42,8 +42,7 @@ const addTodo = (text: string): void => {
 
 // 상태 변경
 const compleTodo = (todo: Todo): void => {
-  allTasks = allTasks.filter((item): boolean => item.id !== todo.id);
-  allTasks.push(todo);
+  todo.isDone = true;
   renderTask();
 };
 
