@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <link rel="stylesheet" href="./style.css" />
+        <title>todo</title>
+    </head>
+    <body>
+        <div class="todo-container">
+            <h1 class="todo-header">GANGBEAN TODO</h1>
+            <form id="todo-form" class="todo-form">
+                <input
+                    type="text"
+                    class="todo-form__input"
+                    placeholder="할 일 입력"
+                    id="todo-input"
+                /><button class="todo-form__button">
+                    할 일 추가
+                </button>
+            </form>
+            <div class="todo-board">
+                <section class="todo-board-column">
+                    <h2 class="todo-board__title">할 일</h2>
+                    <ul
+                        id="todo-list"
+                        class="todo-board__list"
+                    ></ul>
+                </section>
+                <section class="todo-board-column">
+                    <h2 class="todo-board__title">완료</h2>
+                    <ul
+                        id="done-list"
+                        class="todo-board__list"
+                    ></ul>
+                </section>
+            </div>
+        </div>
+    </body>
+    <script type="module" src="./dist/script.js"></script>
+</html>
