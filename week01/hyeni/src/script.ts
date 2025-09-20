@@ -29,7 +29,7 @@ const renderTasks = (): void => {
   });
 };
 
-// 3. 할 일 텍스트 입력 처리 함수
+// 3. 할 일 텍스트 입력 처리 함수 (공백 잘라줌)
 const getTodoText = (): string => {
   return todoInput.value.trim();
 };
@@ -42,7 +42,7 @@ const addTodo = (text: string): void => {
 }
 
 // 5. 할 일 상태 변경 (완료로 이동)
-const compleTask = (todo: Todo): void => {
+const completeTask = (todo: Todo): void => {
   todos = todos.filter((t): boolean => t.id !== todo.id);
   doneTasks.push(todo);
   renderTasks();
@@ -75,7 +75,7 @@ const createTodoElement = (todo: Todo, isDone: boolean): HTMLElement => {
     if (isDone) {
       deleteTodo(todo);
     } else {
-      compleTask(todo);
+      completeTask(todo);
     }
   });
 
