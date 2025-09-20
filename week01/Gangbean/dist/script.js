@@ -9,7 +9,7 @@ const getTodoText = () => {
     return todoInput.value.trim();
 };
 const addTodo = (text) => {
-    todos.push({ id: Date.now(), text });
+    todos = [...todos, { id: Date.now(), text }];
     console.log(todos);
     todoInput.value = '';
     TaskList();

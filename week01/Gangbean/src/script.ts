@@ -24,7 +24,7 @@ const getTodoText = (): string => {
 };
 
 const addTodo = (text: string): void => {
-    todos.push({ id: Date.now(), text });
+    todos = [...todos, { id: Date.now(), text }];
     console.log(todos);
     todoInput.value = '';
     TaskList();
