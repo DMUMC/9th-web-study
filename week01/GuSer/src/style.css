@@ -101,7 +101,7 @@ body{
 }
 
 .render-container__item-text{
-  float: 1;
+  flex: 1;
 }
 
 .render-container__item-button{
