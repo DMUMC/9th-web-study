@@ -1,3 +1,4 @@
+import { useThemeContext } from '../context/ThemeProvider'
 import { useTodoContext } from '../context/TodoProvider'
 
 interface TodoListProps {
@@ -9,6 +10,7 @@ interface TodoListProps {
 
 export const TodoList = ({ isDone, title, buttonColor, buttonText }: TodoListProps) => {
     const context = useTodoContext()
+    const { theme } = useThemeContext()
 
     const handleClick = (id: number) => {
         if (isDone) {
@@ -26,7 +28,7 @@ export const TodoList = ({ isDone, title, buttonColor, buttonText }: TodoListPro
             </h2>
             <ul id="todo-list" className="render-container__list">
               {context.todos.filter((todo) => todo.isDone === isDone).map((todo) => (
-                <li className='render-container__item' key={todo.id}>{todo.text}
+                <li className={`render-container__item border-b ${theme === 'light' ? 'bg-gray-100 border-b-gray-300' : 'bg-gray-800 border-b-gray-900'}`} key={todo.id}>{todo.text}
                   <button className='render-container__item-button'
                   style={{ backgroundColor: buttonColor }}
                   onClick={() => handleClick(todo.id)}>{buttonText}</button>
