@@ -62,6 +62,7 @@ const createTodoElement = (todo: Todo, isDone: boolean): HTMLLIElement => {
   li.textContent = todo.text;
 
   const button = document.createElement('button');
+  button.type = 'button';
   button.classList.add('render-container__item-button');
 
   if(isDone){

@@ -2,7 +2,7 @@
 const todoInput = document.getElementById('todo-input');
 const todoForm = document.getElementById('todo-form');
 const todoList = document.getElementById('todo-list');
-const doneList = document.getElementById('todo-list');
+const doneList = document.getElementById('done-list');
 let todos = [];
 let doneTasks = [];
 const renderTasks = () => {
@@ -11,6 +11,10 @@ const renderTasks = () => {
     todos.forEach((todo) => {
         const li = createTodoElement(todo, false);
         todoList.appendChild(li);
+    });
+    doneTasks.forEach((todo) => {
+        const li = createTodoElement(todo, true);
+        doneList.appendChild(li);
     });
 };
 const getTodoText = () => {
@@ -35,6 +39,7 @@ const createTodoElement = (todo, isDone) => {
     li.classList.add('render-container__item');
     li.textContent = todo.text;
     const button = document.createElement('button');
+    button.type = 'button';
     button.classList.add('render-container__item-button');
     if (isDone) {
         button.textContent = '삭제';
@@ -62,3 +67,4 @@ todoForm.addEventListener('submit', (event) => {
         addTodo(text);
     }
 });
+renderTasks();
