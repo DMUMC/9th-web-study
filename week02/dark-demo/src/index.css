@@ -1,0 +1,7 @@
+/* src/index.css */
+@import "tailwindcss";
+
+/* 최소 리셋만 유지 (전역 배경을 Tailwind로 제어하기 쉽게) */
+html, body, #root { height: 100%; }
+body { margin: 0; }
+
