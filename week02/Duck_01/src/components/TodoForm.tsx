@@ -3,15 +3,17 @@ import { useTodo } from "../context/TodoContext";
 
 const TodoForm = () => {
   const [input, setInput] = useState<string>("");
-  const { addTodo } = useTodo();
+  const { dispatch } = useTodo();
+  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const text = input.trim();
     if (text) {
-      addTodo(text);
+      dispatch({ type: 'ADD', text });
       setInput("");
     }
   };
+  
   return (
     <form onSubmit={handleSubmit} className="todo-container__form">
       <input

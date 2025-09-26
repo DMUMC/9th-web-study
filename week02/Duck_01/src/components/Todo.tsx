@@ -3,28 +3,34 @@ import TodoForm from "./TodoForm";
 import { useTodo } from "../context/TodoContext";
 
 const Todo = () => {
-  const { todos, doneTodos, completeTodo, deleteTodo } = useTodo();
-  // const context = useTodo();
+  const { state, dispatch } = useTodo();
+
+  const handleComplete = (id: number) => {
+    dispatch({ type: 'COMPLETE', id });
+  };
+
+  const handleDelete = (id: number) => {
+    dispatch({ type: 'DELETE', id });
+  };
 
   return (
     <div className="todo-container">
-      <h1 className="todo-container_ _header">Duck</h1>
-      {/* </TodoForm> */}
+      <h1 className="todo-container__header">Duck</h1>
       <TodoForm />
       <div className="render-container">
         <TodoList
           title="할 일"
-          todos={todos}
+          todos={state.todos}
           buttonLabel="완료"
           buttonColor="#28a745"
-          onClick={completeTodo}
+          onClick={handleComplete}
         />
         <TodoList
           title="완료"
-          todos={doneTodos}
+          todos={state.done}
           buttonLabel="삭제"
           buttonColor="#dc3545"
-          onClick={deleteTodo}
+          onClick={handleDelete}
         />
       </div>
     </div>
