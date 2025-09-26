@@ -7,7 +7,7 @@ const ThemeContent = () => {
     return (
         <div
             className={clsx(
-                'p-4 h-dvh w-full',
+                'p-4 w-full',
                 isLightMode ? 'bg-white' : 'bg-gray-800'
             )}
         >
