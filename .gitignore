@@ -1,0 +1,5 @@
+# macOS 관련 파일
+.DS_Store
+
+# 종속성 폴더
+node_modules/
