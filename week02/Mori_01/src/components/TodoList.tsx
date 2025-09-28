@@ -29,14 +29,18 @@ const TodoList = ({ listType }: TodoListProps) => {
     <div className="render-container__section">
       <h2 className="render-container__title">{title}</h2>
       <ul className="render-container__list">
-        {tasks.map(todo => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onAction={onAction}
-            actionLabel={actionLabel}
-          />
-        ))}
+        {tasks.length === 0 && title === '할 일' ? (
+          <li className='render-container__list-nothing'>비어있어요!</li>
+        ) : (
+          tasks.map(todo => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onAction={onAction}
+              actionLabel={actionLabel}
+            />
+          ))
+        )}
       </ul>
     </div>
   );
