@@ -1,5 +1,6 @@
 import { useCount } from '../context/CounterProvider';
 import ButtonGroup from './ButtonGroup';
+import CounterDisplay from './CounterDisplay';
 import clsx from 'clsx';
 import { useTheme } from '../context/ThemeProvider';
 
@@ -15,16 +16,7 @@ const Counter = () => {
                 isLightMode ? 'bg-white' : 'bg-gray-800'
             )}
         >
-            <h1
-                className={clsx(
-                    'text-wxl font-bold',
-                    isLightMode
-                        ? 'text-black'
-                        : 'text-white'
-                )}
-            >
-                누르면 숫자가 올라가요! {count}
-            </h1>
+            <CounterDisplay count={count} />
             <ButtonGroup />
         </div>
     );
