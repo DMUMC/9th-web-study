@@ -3,33 +3,31 @@ import TodoList from './TodoList';
 import { useTodo } from '../context/TodoContext';
 
 const Todo = () => {
-    const {
-        todos,
-        doneTodos,
-        handleCompleteTodo,
-        handleDeleteTodo,
-    } = useTodo();
+    const { todos, doneTodos, handleCompleteTodo, handleDeleteTodo } =
+        useTodo();
 
     return (
         <div className='todo-container'>
-            <h1 className='todo-container__header'>
-                GANGBEAN TODO
-            </h1>
+            <h1 className='todo-container__header'>GANGBEAN TODO</h1>
             <TodoForm />
             <div className='render-container'>
                 <TodoList
                     title='할 일'
                     todos={todos}
-                    buttonLabel='완료'
-                    buttonColor='#28a745'
-                    onClick={handleCompleteTodo}
+                    actions={{
+                        buttonLabel: '완료',
+                        buttonColor: '#28a745',
+                        onClick: handleCompleteTodo,
+                    }}
                 />
                 <TodoList
                     title='완료'
                     todos={doneTodos}
-                    buttonLabel='삭제'
-                    buttonColor='#dc3545'
-                    onClick={handleDeleteTodo}
+                    actions={{
+                        buttonLabel: '삭제',
+                        buttonColor: '#dc3545',
+                        onClick: handleDeleteTodo,
+                    }}
                 />
             </div>
         </div>
