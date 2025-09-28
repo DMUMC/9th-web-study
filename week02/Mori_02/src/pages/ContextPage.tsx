@@ -1,5 +1,5 @@
-import Navbar from './Navbar'
-import ThemeContent from './ThemeContent'
+import Navbar from '../component/Navbar'
+import ThemeContent from '../component/ThemeContent'
 import { ThemeProvider } from '../context/ThemeProvider'
 
 export default function ContextPage() {

@@ -1,6 +1,6 @@
 import { useContext } from "react"
 import { THEME, ThemeContext, useTheme } from "../context/ThemeProvider"
-import ThemeToggleButton from "../component/ThemeToggleButton";
+import ThemeToggleButton from "./ThemeToggleButton";
 import clsx from "clsx";
 
 export default function Navbar() {
