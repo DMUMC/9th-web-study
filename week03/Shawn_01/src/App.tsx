@@ -1,10 +1,11 @@
 import './App.css'
+import MoviePage from './pages/MoviePage'
 
 function App() {
 
   return (
     <>
-      <p className='text-2xl'>test</p>
+      <MoviePage />
     </>
   )
 }
