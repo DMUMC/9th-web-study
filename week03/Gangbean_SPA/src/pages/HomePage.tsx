@@ -1,9 +1,9 @@
 const HomePage = () => {
     return (
-        <>
-            <h1>Home Page</h1>
-            <a href='/user'>{`User Page >>>`}</a>
-        </>
+        <div>
+            <h1>홈 페이지</h1>
+            <p>메인 페이지입니다.</p>
+        </div>
     );
 };
 

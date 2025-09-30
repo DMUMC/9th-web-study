@@ -2,15 +2,16 @@ import './App.css';
 import { Router } from './router/Router';
 import { Route } from './router/Route';
 import { Link } from './router/Link';
-
-const HomePage = () => <h1>Home Page</h1>;
-const UserPage = () => <h1>User Page</h1>;
+import HomePage from './pages/HomePage';
+import UserPage from './pages/UserPage';
+import AboutPage from './pages/AboutPage';
 
 const Header = () => {
     return (
-        <nav style={{ display: 'flex', gap: '10px' }}>
+        <nav className='flex gap-2.5'>
             <Link to='/'>Home</Link>
-            <Link to='/user'>User Page</Link>
+            <Link to='/user'>User</Link>
+            <Link to='/about'>About</Link>
         </nav>
     );
 };
@@ -22,6 +23,7 @@ function App() {
             <Router>
                 <Route path='/' component={HomePage} />
                 <Route path='/user' component={UserPage} />
+                <Route path='/about' component={AboutPage} />
             </Router>
         </>
     );
