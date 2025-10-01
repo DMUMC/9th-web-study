@@ -4,6 +4,7 @@ import MoviePage from './pages/MoviePage'
 import MainPage from './pages/MainPage'
 import ErrorPage from './pages/ErrorPage'
 import { Layout } from './components/layout/Layout'
+import MovieDetailPage from './pages/MovieDetailPage'
 
 function App() {
 	return (
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
 				path: 'movie/:category/:page',
 				element: <MoviePage />,
 			},
+			{
+				path: '/movies/:movieId',
+				element: <MovieDetailPage />,
+			}
 		],
 	},
 ])
