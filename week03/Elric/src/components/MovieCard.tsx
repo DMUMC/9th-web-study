@@ -1,30 +1,33 @@
-import { useState } from "react";
 import type { Movie } from "../types/movie";
 
-interface ImportMetaEnv {
-    movie: Movie;
-}
+type Props = {
+  movie: Movie;
+};
 
-export default function MovieCard({ movie }: ImportMetaEnv) {
+export default function MovieCard({ movie }: Props) {
+  const { title, poster_path, overview } = movie;
 
-    const [isHovered, setIsHovered] = useState(false);  
   return (
-    <div
-    className='relative rounded-xl shadow-lg overflow-hidden cursor-pointer w-44
-    transition-transform duration-500 hover:scale-105'
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}    
-    >
-      <img src ={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
-           alt={`${movie.title}의 이미지`}/>
-        {isHovered && (<div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent
-        backdrop-blur-md flex flex-col justify-center items-center text-white p-4" >
-            <h2 className='test-lg font-bold leading-snug'>{movie.title}</h2>
-            <p className="text-sm text-gray-300 leading-relaxed mt-2 line-clamp-5">{movie.overview}</p>
-            
-            
-        </div>
+    <article className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div className="relative aspect-[2/3] overflow-hidden">
+        {poster_path ? (
+          <img
+            src={`https://image.tmdb.org/t/p/w500${poster_path}`}
+            alt={title}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-sm text-slate-400">
+            이미지 없음
+          </div>
         )}
-    </div>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 p-4 text-center text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <h3 className="text-lg font-semibold leading-snug">{title}</h3>
+          <p className="text-sm text-white/80 line-clamp-5">{overview || "설명이 없습니다."}</p>
+        </div>
+      </div>
+    </article>
   );
 }
