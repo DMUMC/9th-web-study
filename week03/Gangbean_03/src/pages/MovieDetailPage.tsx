@@ -3,36 +3,62 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { MovieDetail } from '../types/movie';
 import LoadingSpinner from '../components/LoadingSpinner';
+import type { Cast, MovieCreditsResponse } from '../types/cast';
+import CastCard from '../components/CastCard';
 
 const MovieDetailPage = () => {
     const { movieId } = useParams();
     const [movieDetails, setMovieDetails] = useState<MovieDetail>();
+    const [movieCasts, setMovieCasts] = useState<Cast[]>([]);
     const [isPending, setIsPending] = useState(false);
     const [isError, setIsError] = useState(false);
 
+    const fetchMovieDetails = async () => {
+        setIsPending(true);
+        try {
+            const { data } = await axios.get<MovieDetail>(
+                `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${
+                            import.meta.env.VITE_TMDB_KEY
+                        }`,
+                    },
+                }
+            );
+            setMovieDetails(data);
+        } catch {
+            setIsError(true);
+        } finally {
+            setIsPending(false);
+        }
+    };
+
+    const fetchMovieCast = async () => {
+        try {
+            const { data } = await axios.get<MovieCreditsResponse>(
+                `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${
+                            import.meta.env.VITE_TMDB_KEY
+                        }`,
+                    },
+                }
+            );
+            setMovieCasts(data.cast);
+        } catch {
+            setIsError(true);
+        } finally {
+            setIsPending(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchMovieDetails = async () => {
-            setIsPending(true);
-            try {
-                const { data } = await axios.get<MovieDetail>(
-                    `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${
-                                import.meta.env.VITE_TMDB_KEY
-                            }`,
-                        },
-                    }
-                );
-                setMovieDetails(data);
-            } catch {
-                setIsError(true);
-            } finally {
-                setIsPending(false);
-            }
-        };
         fetchMovieDetails();
+        fetchMovieCast();
     }, [movieId]);
+
     console.log(movieDetails);
 
     if (isError) {
@@ -63,9 +89,7 @@ const MovieDetailPage = () => {
                     />
 
                     <div className='max-w-6xl mx-auto px-6 py-12'>
-                        {/* 포스터 + 정보 */}
                         <div className='flex flex-col md:flex-row gap-8 animate-fade-in-up'>
-                            {/* 포스터 */}
                             <div className='transform transition-all duration-500 hover:scale-105 hover:rotate-1'>
                                 <img
                                     src={`https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`}
@@ -74,7 +98,6 @@ const MovieDetailPage = () => {
                                 />
                             </div>
 
-                            {/* 텍스트 정보 */}
                             <div className='flex-1 space-y-4 animate-slide-in-right'>
                                 <h1 className='text-3xl md:text-4xl font-bold mb-2 transform transition-all duration-500 hover:scale-105'>
                                     {movieDetails.title}
@@ -117,6 +140,19 @@ const MovieDetailPage = () => {
                                 </p>
                             </div>
                         </div>
+
+                        {!isPending && (
+                            <div className='mt-8'>
+                                <h2 className='text-2xl font-bold mb-4 text-center'>
+                                    출연진
+                                </h2>
+                                <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4'>
+                                    {movieCasts.map((cast) => (
+                                        <CastCard key={cast.id} cast={cast} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
