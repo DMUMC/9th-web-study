@@ -1,8 +1,7 @@
-import { useParams } from "react-router-dom"
+import { useState } from "react"
 
 export const MovieDetailPage = () => {
-  const params = useParams();
-  console.log(params);
+  const [details, setDetails] = useState([]);
   return (
     <div>MovieDetailPage</div>
   )

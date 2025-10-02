@@ -2,10 +2,10 @@ import { useEffect, useState } from "react"
 import axios from "axios";
 import { type MovieResponse, type Movie } from "../types/movies";
 import MovieCard from "../components/MovieCard";
-import { LoadingSpinner } from "../components/LoadingSpinner";
 import { Pagination } from "../components/Pagination";
 import { usePage } from "../contexts/PageProvider";
 import { useParams } from "react-router-dom";
+import { LoadingComponent } from "../components/LoadingComponent";
 
 export default function MoviePage() {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -52,21 +52,11 @@ export default function MoviePage() {
   return (
     <>
       <Pagination totalPage={totalPage} />
-
-      {isPending && (
-        <div className="flex items-center justify-center h-dvh">
-          <LoadingSpinner />
-        </div>
-      )}
-      {!isPending && (
-        <div className="p-10 grid gap-4 grid-cols-2 sm:grid-cols-3 
-        md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {movies && movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
-          ))}
-        </div>
-      )}
-      
+      <LoadingComponent isPending={isPending}>
+        {movies && movies.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+      </LoadingComponent>      
     </>
   );
 };
