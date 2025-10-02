@@ -6,7 +6,6 @@ function HomePage() {
     <>
       <NavBar />
       <Outlet />
-      <div className='flex justify-center'>Homepage</div>
     </>
   )
 }
