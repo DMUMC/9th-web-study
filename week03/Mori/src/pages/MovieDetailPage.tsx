@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { LoadingComponent } from "../components/LoadingComponent";
-import { type MovieCredits, type MovieDetails } from "../types/movies";
+import { type CastMember, type MovieCredits, type MovieDetails } from "../types/movies";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { MovieInfo } from "../components/MovieInfo";
@@ -8,7 +8,7 @@ import { MovieCreditInfo } from "../components/MovieCreditInfo";
 
 export const MovieDetailPage = () => {
   const [details, setDetails] = useState<MovieDetails | null>(null);
-  const [credits, setCredits] = useState<MovieCredits | null>(null);
+  const [casts, setCasts] = useState<CastMember[]>([]);
   const [isPending, setIsPending] = useState(false);
   const [isError, setIsError] = useState(false);
   const { movieId } = useParams();
@@ -30,7 +30,7 @@ export const MovieDetailPage = () => {
             Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
           }},
       );
-      setCredits(data);
+      setCasts(data.cast);
     }
 
     const fetchAllData = async () => {
@@ -64,10 +64,10 @@ export const MovieDetailPage = () => {
   return (
     <>
       <LoadingComponent isPending={isPending}>
-        {details && credits && (
+        {details && casts && (
           <>
             <MovieInfo details={details} />
-            <MovieCreditInfo credits={credits} />
+            <MovieCreditInfo casts={casts} />
           </>
         )}
       </LoadingComponent>      
