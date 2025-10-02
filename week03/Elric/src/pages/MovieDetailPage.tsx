@@ -57,7 +57,7 @@ export default function MovieDetailPage() {
 
   return (
     <div className="space-y-8">
-      {/* Hero */}
+      
       <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-[160px,1fr] gap-6">
           <div className="w-full flex justify-center md:block">
@@ -96,7 +96,7 @@ export default function MovieDetailPage() {
         </div>
       </section>
 
-      {/* Cast */}
+      
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">출연</h2>
         <div className="flex gap-4 overflow-x-auto pb-2">
@@ -117,7 +117,7 @@ export default function MovieDetailPage() {
         </div>
       </section>
 
-      {/* Crew (key roles) */}
+      
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">제작진</h2>
         <div className="flex flex-wrap gap-3">
