@@ -54,10 +54,12 @@ export default function MoviePage() {
                 <button
                     disabled={page === 1}
                     onClick={() => setPage((prev) => prev - 1)}
+                    className="text-white"
                 >{`<`}</button>
-                <span>{page}페이지</span>
+                <span className="text-white">{page}페이지</span>
                 <button
                     onClick={() => setPage((next) => next + 1)}
+                    className="text-white"
                 >{`>`}</button>
             </div>
             {isPending && (
