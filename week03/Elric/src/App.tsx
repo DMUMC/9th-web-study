@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import MoviePage from "./pages/MoviePage";
+import MovieDetailPage from "./pages/MovieDetailPage";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/upcoming" element={<MoviePage category="upcoming" />} />
         <Route path="/top-rated" element={<MoviePage category="top_rated" />} />
         <Route path="/now-playing" element={<MoviePage category="now_playing" />} />
+              <Route path="/movies/:movieId" element={<MovieDetailPage />} />
       </Route>
     </Routes>
   );
