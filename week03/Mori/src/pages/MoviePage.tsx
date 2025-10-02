@@ -53,9 +53,11 @@ export default function MoviePage() {
     <>
       <Pagination totalPage={totalPage} />
       <LoadingComponent isPending={isPending}>
-        {movies && movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
+        <div className="p-10 grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {movies && movies.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
       </LoadingComponent>      
     </>
   );
