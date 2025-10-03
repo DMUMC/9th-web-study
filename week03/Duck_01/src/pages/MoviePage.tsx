@@ -1,67 +1,67 @@
-import { useEffect, useState, useParams } from "react";
-import axios from "axios";
-import type { Movie, MovieResponse } from "../types/movie";
-import { MovieCard } from "../components/MovieCard";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { useEffect, useState } from "react";
+import type { MovieResponseT, MovieT } from "../types/movie";
+import { api } from "../utils/AxiosInstance"
+import { MoivePoster } from "../components/MoivePoster"
+import { useParams, useNavigate } from 'react-router-dom'
+import { Loading } from '../components/Loading'
+import { Pagination } from '../components/Pagination'
 
-export default function MoviePage() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isPending, setIsPending] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [page, setPage] = useState(1);
+const MoviePage = () => {
+	const [movieList, setMovieList] = useState<MovieT[] | null>([])
+	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const [error, setError] = useState<string | null>(null)
+	const { category, page } = useParams()
+	const navigate = useNavigate()
 
-  const { category } = useParams<{ category: string }>();
+	const currentPage = parseInt(page || '1')
 
-  useEffect((): void => {
-    const fetchMovies = async (): Promise<void> => {
-      try {
-        const { data } = await axios.get<MovieResponse>(
-          `https://api.themoviedb.org/3/movie/${params.category}?language=ko-KR&page=${page}`,
-          {
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setMovies(data.results);
-      } catch {
-        setIsError(true);
-      } finally {
-        setIsPending(false);
-      }
-    };
+	// 영화 목록 조회 API 호출
+	useEffect(() => {
+		const getMovieList = async () => {
+			try {
+				setIsLoading(true)
+				setError(null) // 에러 상태 초기화
+				const res = await api.get<MovieResponseT>(`/movie/${category}?language=ko-KR&page=${page}`)
+				setMovieList(res.data.results)
+			} catch (error) {
+				console.error(error)
+				setError('영화 데이터를 불러오는데 실패했습니다.')
+			} finally {
+				setIsLoading(false)
+			}
+		}
+		getMovieList()
+	}, [category, page])
 
-    fetchMovies();
-  }, [page, category]);
+	useEffect(() => {
+		console.log(movieList)
+	}, [movieList])
 
-  console.log(movies[0]?.adult);
-  return (
-    <>
-      <div className="flex justify-center gap-6 mt-5">
-        <button
-          className="bg-[#dda5e3] text-white px-6 py-3 rounded-lg shadow-md cursor-pointer disabled:cursor-not-allowed"
-          disabled={page === 1}
-          onClick={(): void => setPage((prev): number => prev - 1)}
-        >
-          Previous
-        </button>
-        <button
-          disabled={page === 5}
-          onClick={(): void => setPage((prev): number => prev + 1)}
-        >
-          Next
-        </button>
-      </div>
-      {isPending && (
-        <div className="flex justify-center items-center h-dvh">
-          <LoadingSpinner />
-        </div>
-      )}
-      <div className="grid grid-cols-2 sm:grid-cols-3  md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-10 ">
-        {movies &&
-          movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
-      </div>
-    </>
-  );
+	const handlePageChange = (page: number) => {
+		navigate(`/movie/${category}/${page}`)
+	}
+
+	return (
+		<>
+			<Pagination currentPage={currentPage} onPageChange={handlePageChange} />
+
+			{isLoading ? (
+				<Loading />
+			) : error ? (
+				<div className='flex items-center justify-center pt-14'>
+					<div className='text-red-500 text-lg'>{error}</div>
+				</div>
+			) : (
+				<div className='flex items-center justify-center pt-14'>
+					<div className='grid grid-cols-7 gap-8'>
+						{movieList?.map((movie) => (
+							<MoivePoster key={movie.id} movie={movie} />
+						))}
+					</div>
+				</div>
+			)}
+		</>
+	)
 }
+
+export default MoviePage
