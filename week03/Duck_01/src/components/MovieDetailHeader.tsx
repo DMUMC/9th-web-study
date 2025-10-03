@@ -1,4 +1,4 @@
-import type { MovieDetailT } from "../types/movie";
+import type { MovieDetailT } from "../types/types";
 
 interface MovieDetailHeaderProps {
   movie: MovieDetailT;

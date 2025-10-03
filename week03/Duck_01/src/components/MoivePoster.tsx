@@ -1,4 +1,4 @@
-import type { MovieT } from "../types/movie";
+import type { MovieT } from "../types/types";
 import { useNavigate } from "react-router-dom";
 
 export const MoivePoster = ({ movie }: { movie: MovieT }) => {
