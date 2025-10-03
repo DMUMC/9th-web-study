@@ -1,40 +1,25 @@
-import { useState } from 'react'
 import googleLogo from '../assets/Google__G__logo.svg'
 import { useNavigate } from 'react-router'
 import axios from 'axios'
+import { validateSignin, type UserSigninInformation } from '../utils/validate'
+import { useForm } from '../hooks/useForm'
 
 const LoginPage = () => {
     const navigate = useNavigate()
-    const [email, setEmail] = useState<string>('')
-    const [password, setPassword] = useState<string>('')
-    const [emailError, setEmailError] = useState<boolean>(false)
-    const [passwordError, setPasswordError] = useState<boolean>(false)
-    const [emailTouched, setEmailTouched] = useState<boolean>(false)
-    const [passwordTouched, setPasswordTouched] = useState<boolean>(false)
 
-    const handleEmailBlur = () => {
-        setEmailTouched(true)
-        if (!/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i.test(values.email)) {
-            setEmailError(true)
-        } else {
-            setEmailError(false)
-        }
-    }
-
-    const handlePasswordBlur = () => {
-        setPasswordTouched(true)
-        if (password && password.length < 6) {
-            setPasswordError(true)
-        } else {
-            setPasswordError(false)
-        }
-    }
+    const { values, errors, touched, getInputProps } = useForm<UserSigninInformation>({
+        initialValues: {
+            email: '',
+            password: ''
+        },
+        validate: validateSignin
+    })
 
     const handleLogin = () => {
         const login = async () => {
             await axios.post('http://localhost:8000/v1/auth/signin', {
-                email,
-                password
+                email: values.email,
+                password: values.password
             }).catch((e) => {
                 console.log(e)
                 alert('로그인에 실패했습니다.')
@@ -46,6 +31,8 @@ const LoginPage = () => {
     const handleGoBack = () => {
         navigate(-1)
     }
+
+    const isDisabled = Object.values(errors || {}).some((e) => e.length > 0) || Object.values(values).some((value) => value === "")
 
     return (
         <div className='flex flex-col gap-4 w-80'>
@@ -74,22 +61,24 @@ const LoginPage = () => {
                 type="text"
                 placeholder='이메일을 입력해주세요'
                 className='px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={handleEmailBlur}
+                {...getInputProps('email')}
             />
-            {emailTouched && emailError && <p className='text-red-500'>이메일 형식이 올바르지 않습니다.</p>}
+            {touched?.email && errors?.email && <p className='text-red-500'>{errors.email}</p>}
             <input
                 name='password'
                 type="password"
                 placeholder='비밀번호를 입력해주세요'
                 className='px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onBlur={handlePasswordBlur}
+                {...getInputProps('password')}
             />
-            {passwordTouched && passwordError && <p className='text-red-500'>비밀번호는 6자 이상이어야 합니다.</p>}
-            <button className='bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition-colors disabled:bg-neutral-700 disabled:cursor-not-allowed' disabled={!email || !password || emailError || passwordError} onClick={handleLogin}>로그인</button>
+            {touched?.password && errors?.password  && <p className='text-red-500'>{errors.password}</p>}
+            <button
+                className='bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition-colors disabled:bg-neutral-700 disabled:cursor-not-allowed'
+                disabled={isDisabled}
+                onClick={handleLogin}
+            >
+                로그인
+            </button>
         </div>
     )
 }
