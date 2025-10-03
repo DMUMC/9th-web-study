@@ -1,11 +1,14 @@
 import googleLogo from '../assets/Google__G__logo.svg'
 import { useNavigate } from 'react-router'
-import axios from 'axios'
 import { validateSignin, type UserSigninInformation } from '../utils/validate'
 import { useForm } from '../hooks/useForm'
+import { postLogin } from '../apis/auth'
+import { useLocalStorage } from '../hooks/useLocalStorage'
+import { LOCAL_STORAGE_KEY } from '../constant/key'
 
 const LoginPage = () => {
     const navigate = useNavigate()
+    const {setItem} = useLocalStorage(LOCAL_STORAGE_KEY.ACCESS_TOKEN)
 
     const { values, errors, touched, getInputProps } = useForm<UserSigninInformation>({
         initialValues: {
@@ -15,17 +18,16 @@ const LoginPage = () => {
         validate: validateSignin
     })
 
-    const handleLogin = () => {
-        const login = async () => {
-            await axios.post('http://localhost:8000/v1/auth/signin', {
-                email: values.email,
-                password: values.password
-            }).catch((e) => {
-                console.log(e)
-                alert('로그인에 실패했습니다.')
+    const handleLogin = async () => {
+        try{
+            await postLogin(values).then((res) =>{
+               setItem(res.data.accessToken)
+                console.log(res)
             })
+        } catch(e) {
+            console.log(e)
+            alert('로그인에 실패했습니다.')
         }
-        login()
     }
 
     const handleGoBack = () => {
@@ -42,7 +44,7 @@ const LoginPage = () => {
                 <div className='w-10'></div>
             </div>
 
-            <div className='flex px-4 py-3 border-1 border-gray-300 rounded-md items-center relative'>
+            <div className='flex px-4 py-3 border-1 border-gray-300 rounded-md items-center relative hover:cursor-pointer'>
                 <img src={googleLogo} alt="googleLogo" />
                 <p className='absolute left-1/2 transform -translate-x-1/2'>구글 로그인</p>
             </div>
