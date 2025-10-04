@@ -1,26 +1,35 @@
 import googleLogo from '../assets/Google__G__logo.svg'
 import { useNavigate } from 'react-router'
-import { validateSignin, type UserSigninInformation } from '../utils/validate'
-import { useForm } from '../hooks/useForm'
 import { postLogin } from '../apis/auth'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { LOCAL_STORAGE_KEY } from '../constant/key'
+import z from 'zod'
+import { useForm, type SubmitHandler } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const schema = z.object({
+    email: z.string().email({message: '이메일 형식이 올바르지 않습니다.'}),
+    password: z.string().min(6, {message: '비밀번호는 6자 이상이어야 합니다.'}).max(20, {message: '비밀번호는 20자 이하이어야 합니다.'})
+})
+
+type Formfields = z.infer<typeof schema>
 
 const LoginPage = () => {
     const navigate = useNavigate()
     const {setItem} = useLocalStorage(LOCAL_STORAGE_KEY.ACCESS_TOKEN)
 
-    const { values, errors, touched, getInputProps } = useForm<UserSigninInformation>({
-        initialValues: {
+    const {register, handleSubmit, formState: {errors}, watch}= useForm<Formfields>({
+        defaultValues: {
             email: '',
             password: ''
         },
-        validate: validateSignin
+        resolver: zodResolver(schema),
+        mode: 'onBlur'
     })
 
-    const handleLogin = async () => {
+    const onSubmit:SubmitHandler<Formfields> = async(data) => {
         try{
-            await postLogin(values).then((res) =>{
+            await postLogin(data).then((res) =>{
                setItem(res.data.accessToken)
                 console.log(res)
             })
@@ -34,7 +43,15 @@ const LoginPage = () => {
         navigate(-1)
     }
 
-    const isDisabled = Object.values(errors || {}).some((e) => e.length > 0) || Object.values(values).some((value) => value === "")
+    const isDisabled = () => {
+        const watchedValues = watch()
+        return (
+            !watchedValues.email ||
+            !!errors.email ||
+            !watchedValues.password ||
+            !!errors.password
+        )
+    }
 
     return (
         <div className='flex flex-col gap-4 w-80'>
@@ -58,29 +75,30 @@ const LoginPage = () => {
                 </div>
             </div>
 
-            <input
-                name='email'
-                type="text"
-                placeholder='이메일을 입력해주세요'
-                className='px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500'
-                {...getInputProps('email')}
-            />
-            {touched?.email && errors?.email && <p className='text-red-500'>{errors.email}</p>}
-            <input
-                name='password'
-                type="password"
-                placeholder='비밀번호를 입력해주세요'
-                className='px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500'
-                {...getInputProps('password')}
-            />
-            {touched?.password && errors?.password  && <p className='text-red-500'>{errors.password}</p>}
-            <button
-                className='bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition-colors disabled:bg-neutral-700 disabled:cursor-not-allowed'
-                disabled={isDisabled}
-                onClick={handleLogin}
-            >
-                로그인
-            </button>
+            <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
+                <input
+                    type="text"
+                    placeholder='이메일을 입력해주세요'
+                    className='px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500'
+                    {...register('email')}
+                />
+                {errors?.email && <p className='text-red-500'>{errors.email.message}</p>}
+                <input
+                    type="password"
+                    placeholder='비밀번호를 입력해주세요'
+                    className='px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500'
+                    {...register('password')}
+                />
+                {errors?.password && <p className='text-red-500'>{errors.password.message}</p>}
+                <button
+                    className='bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition-colors disabled:bg-neutral-700 disabled:cursor-not-allowed'
+                    disabled={isDisabled()}
+                    type='submit'
+                >
+                    로그인
+                </button>
+            </form>
+
         </div>
     )
 }
