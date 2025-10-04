@@ -15,12 +15,13 @@ const router = createBrowserRouter([
         path: 'movies/:category',
         element: <MoviePage />,
       },
-      {
-        path: 'movies/:movieId',
-        element: <MovieDetailPage />
-      }
     ],
   },
+  {
+    path: '/movie/:movieId',
+    element: <MovieDetailPage />,
+    errorElement: <NotFoundPage />,
+  }
 ]);
 
 function App() {
