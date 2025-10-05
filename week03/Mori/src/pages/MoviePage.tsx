@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import axios from "axios";
+import { apiClient } from "../util/AxiosInstance";
 import { type MovieResponse, type Movie } from "../types/movies";
 import MovieCard from "../components/MovieCard";
 import { Pagination } from "../components/Pagination";
@@ -22,14 +22,7 @@ export default function MoviePage() {
       setIsPending(true);
 
       try{
-        const { data } = await axios.get<MovieResponse>(
-          `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=${page}`,
-          {
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-            },
-          },
-        );
+        const { data } = await apiClient.get<MovieResponse>(`/movie/${category}?language=en-US&page=${page}`);
         setMovies(data.results);
         setTotalPage(data.total_pages);
       } catch {

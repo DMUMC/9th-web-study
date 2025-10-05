@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { LoadingComponent } from "../components/LoadingComponent";
 import { type CastMember, type MovieCredits, type MovieDetails } from "../types/movies";
-import axios from "axios";
+import { apiClient } from '../util/AxiosInstance'
 import { useParams } from "react-router-dom";
 import { MovieInfo } from "../components/MovieInfo";
 import { MovieCreditInfo } from "../components/MovieCreditInfo";
@@ -15,21 +15,11 @@ export const MovieDetailPage = () => {
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
-      const { data } = await axios.get<MovieDetails>(
-        `https://api.themoviedb.org/3/movie/${movieId}?language=en-UK`, {
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-          }},
-      );
+     const { data } = await apiClient.get<MovieDetails>(`/movie/${movieId}?language=en-UK`);
       setDetails(data);
     }
     const fetchMovieCredits = async () => {
-      const { data } = await axios.get<MovieCredits>(
-        `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`, {
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-          }},
-      );
+      const { data } = await apiClient.get<MovieCredits>(`/movie/${movieId}/credits?language=ko-KR`);
       setCasts(data.cast);
     }
 
