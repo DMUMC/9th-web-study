@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# 9th-web-study
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🌲브랜치 규칙
+- 브랜치 명 : week00_닉네임(영어)
+- 만약 한 주차에 미션이 여러개라면 닉네임 뒤에 미션 번호를 추가로 붙여주세요! (ex: week00_Shawn_01)
+---
+## 📂폴더 구조
+- 현재 진행하는 주차에 자기 닉네임으로 프로젝트를 생성합니다.
+- 해당 프로젝트에서 실습을 진행해주시면 됩니다.
+```
+├── week01
+│    └── Shawn
+│    └── README.md
+├── week02
+├── week03
+├── week04
+├── week05
+├── week06
+├── week07
+├── week08
+├── week09
+├── week10
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ✅ Pull Request 규칙
+- PR 제목: [week00] 닉네임 n주차 미션
+- 내용 : 워크북 진행 및 실습 진행 간에 느낀 점 한마디
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+PR 작성 이후에 우측부분에서 Reviewer 및 Assignee 지정해주세요!
+<img width="1470" height="826" alt="스크린샷 2025-09-18 오후 1 53 51" src="https://github.com/user-attachments/assets/1f207a3c-00f7-4762-8ec0-077ce8df4e23" />
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Reviewer & Assignee
+- Reviewer : 각 파트장만 지정
+- Assignee : 본인(작성자) 지정
+
+📍 **Merge 규칙 :
+PR 병합은 스터디 진행 후, 해당 파트장이 최종 Merge (그 외 인원은 Merge 하지 않음)**
+  
+---
+
+## ✅ 커밋 메시지 규칙
+| 타입      | 설명 |
+|-----------|------|
+| feat      | 새로운 기능 추가 |
+| fix       | 버그 수정 |
+| docs      | 문서 수정 (README, 주석 등) |
+| style     | 코드 스타일 변경 (포맷, 세미콜론 등) |
+| refactor  | 리팩토링 (기능 변화 없음) |
+| test      | 테스트 코드 추가 / 수정 |
+| chore     | 빌드 설정, 패키지 관리 등 기타 작업 |
+| build     | 빌드 관련 파일 수정 |
+| revert    | 이전 커밋 되돌리기 |
+
+`(ex: feat: 기능 추가)`
+
+---
