@@ -1,0 +1,3 @@
+# Ignore local database store and environment variables
+db_store
+.env
