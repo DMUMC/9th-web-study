@@ -63,7 +63,7 @@ export default function MoviePage() {
                 >{`>`}</button>
             </div>
             {isPending && (
-                <div className="flex items-center justify-center h-dvh">
+                <div className="fnlex items-center justify-center h-dvh">
                     <LoadingSpinner />
                 </div>
             )}
