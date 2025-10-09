@@ -1,59 +1,34 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { MovieDetail } from '../types/movie';
 import LoadingSpinner from '../components/LoadingSpinner';
-import type { Cast, MovieCreditsResponse } from '../types/cast';
+import type { MovieCreditsResponse } from '../types/cast';
 import CastCard from '../components/CastCard';
+import { useCustomFetch } from '../hooks/useCustomFetch';
 
 const MovieDetailPage = () => {
     const { movieId } = useParams();
-    const [movieDetails, setMovieDetails] = useState<MovieDetail>();
-    const [movieCasts, setMovieCasts] = useState<Cast[]>([]);
-    const [isPending, setIsPending] = useState(false);
-    const [isError, setIsError] = useState(false);
 
-    useEffect(() => {
-        const fetchMovieData = async () => {
-            setIsPending(true);
+    const {
+        data: movieDetails,
+        isPending: isDetailsPending,
+        isError: isDetailsError,
+    } = useCustomFetch<MovieDetail>(
+        `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`,
+        [movieId]
+    );
 
-            try {
-                const [detailsResponse, creditsResponse] = await Promise.all([
-                    axios.get<MovieDetail>(
-                        `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${
-                                    import.meta.env.VITE_TMDB_KEY
-                                }`,
-                            },
-                        }
-                    ),
-                    axios.get<MovieCreditsResponse>(
-                        `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${
-                                    import.meta.env.VITE_TMDB_KEY
-                                }`,
-                            },
-                        }
-                    ),
-                ]);
+    const {
+        data: creditsData,
+        isPending: isCreditsPending,
+        isError: isCreditsError,
+    } = useCustomFetch<MovieCreditsResponse>(
+        `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`,
+        [movieId]
+    );
 
-                setMovieDetails(detailsResponse.data);
-                setMovieCasts(creditsResponse.data.cast);
-            } catch {
-                setIsError(true);
-            } finally {
-                setIsPending(false);
-            }
-        };
-
-        fetchMovieData();
-    }, [movieId]);
-
-    console.log(movieDetails);
+    const movieCasts = creditsData?.cast || [];
+    const isPending = isDetailsPending || isCreditsPending;
+    const isError = isDetailsError || isCreditsError;
 
     if (isError) {
         return (
