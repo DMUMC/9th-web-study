@@ -1,3 +1,3 @@
-# Ignore local database store and environment variables
-db_store
+# Ignore macOS metadata and environment variables
+.DS_Store
 .env
