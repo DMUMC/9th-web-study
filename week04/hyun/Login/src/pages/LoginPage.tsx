@@ -1,8 +1,10 @@
 import React from 'react';
 import useForm from '../hooks/useForm';
 import { validateSignin, type UserSigninInformation } from '../utils/validate';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
+    const nav = useNavigate();
     const { values, errors, touched, getInutProps } =
         useForm<UserSigninInformation>({
             initialValue: {
@@ -21,6 +23,10 @@ const LoginPage = () => {
         Object.values(values).some((value) => value === '');
     return (
         <div className="flex flex-col items-center justify-center h-full gap-4">
+            <div className="flex justify-between">
+                <button onClick={() => nav(-1)}>{'<'}</button>
+                <h1 className="text-center">로그인</h1>
+            </div>
             <div className="flex flex-col gap-3">
                 <input
                     {...getInutProps('email')}
