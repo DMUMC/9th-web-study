@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import { postSignup } from '../apis/auth';
+import InputField from '../components/InputField';
 
 const schema = z
     .object({
@@ -50,74 +51,34 @@ const SignupPage = () => {
                 <button className='w-10 h-10 flex items-center justify-center cursor-pointer'>
                     &lt;
                 </button>
-                <input
-                    {...register('email')}
+                <InputField
+                    register={register}
                     name='email'
-                    className={`border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-sm 
-                    ${
-                        errors?.email
-                            ? 'border-red-500 bg-red-200'
-                            : 'border-gray-300'
-                    }`}
                     type='email'
                     placeholder='이메일'
+                    errors={errors}
                 />
-                {errors.email && (
-                    <div className='text-red-500 text-sm'>
-                        {errors.email.message}
-                    </div>
-                )}
-
-                <input
-                    {...register('password')}
-                    className={`border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-sm 
-                    ${
-                        errors?.password
-                            ? 'border-red-500 bg-red-200'
-                            : 'border-gray-300'
-                    }`}
+                <InputField
+                    register={register}
+                    name='password'
                     type='password'
                     placeholder='비밀번호'
+                    errors={errors}
                 />
-                {errors.password && (
-                    <div className='text-red-500 text-sm'>
-                        {errors.password.message}
-                    </div>
-                )}
-
-                <input
-                    {...register('passwordCheck')}
-                    className={`border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-sm 
-                    ${
-                        errors?.passwordCheck
-                            ? 'border-red-500 bg-red-200'
-                            : 'border-gray-300'
-                    }`}
+                <InputField
+                    register={register}
+                    name='passwordCheck'
                     type='password'
                     placeholder='비밀번호 확인'
+                    errors={errors}
                 />
-                {errors.passwordCheck && (
-                    <div className='text-red-500 text-sm'>
-                        {errors.passwordCheck.message}
-                    </div>
-                )}
-
-                <input
-                    {...register('name')}
-                    className={`border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-sm 
-                    ${
-                        errors?.name
-                            ? 'border-red-500 bg-red-200'
-                            : 'border-gray-300'
-                    }`}
+                <InputField
+                    register={register}
+                    name='name'
                     type='text'
                     placeholder='이름'
+                    errors={errors}
                 />
-                {errors.name && (
-                    <div className='text-red-500 text-sm'>
-                        {errors.name.message}
-                    </div>
-                )}
 
                 <button
                     disabled={isSubmitting}
