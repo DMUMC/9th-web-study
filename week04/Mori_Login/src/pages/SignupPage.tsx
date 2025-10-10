@@ -1,7 +1,168 @@
-import React from 'react'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { z } from "zod"
+import { AuthHeader } from "../components/AuthHeader";
+import { SocialLogin } from "../components/SocialLogin";
+import { postSignup } from "../apis/auth";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const schema = z.object({
+  email: z.string().email({message: "올바른 이메일 형식이 아닙니다."}),
+  password: z
+    .string()
+    .min(8, {
+      message: "비밀번호는 8자 이상이어야 합니다."
+    })
+    .max(20, {
+      message: "비밀번호는 20자 이하여야 합니다."
+    }),
+  passwordCheck: z
+    .string()
+    .min(8, {
+      message: "비밀번호는 8자 이상이어야 합니다."
+    })
+    .max(20, {
+      message: "비밀번호는 20자 이하여야 합니다."
+    }),
+  name: z
+    .string()
+    .min(1, { message: "이름을 입력해주세요." })
+})
+.refine((data) => data.password === data.passwordCheck, {
+  message: "비밀번호가 일치하지 않습니다. ",
+  path: ["passwordCheck"],
+})
+
+type FormFields = z.infer<typeof schema>;
 
 export const SignupPage = () => {
+
+  const [step, setStep] = useState(1)
+  const navigate = useNavigate();
+
+  const {
+    register, 
+    handleSubmit, 
+    trigger, 
+    getValues, 
+    formState: { errors, isSubmitting }
+  } = useForm<FormFields>({
+    defaultValues: {
+      email: "",
+      password: "",
+      passwordCheck: "",
+      name: "",
+    },
+    resolver: zodResolver(schema),
+    mode: "onChange",
+  })
+
+  const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {passwordCheck, ...rest} = data;
+    const response = await postSignup(rest)
+    console.log(response)
+    navigate('/'); 
+  }
+
+  const handleNextStep = async () => {
+    let isValid = false;
+    if (step === 1) {
+      isValid = await trigger("email");
+    } else if (step === 2) {
+      isValid = await trigger(["password", "passwordCheck"]);
+    }
+    
+    if (isValid) {
+      setStep(prev => prev + 1);
+    }
+  };
+
   return (
-    <div>SignupPage</div>
+    <div className='flex flex-col items-center justify-center h-full gap-4 bg-black'>
+      <div className='flex flex-col gap-3 w-70 my-12'>
+        <AuthHeader title="회원가입" />
+        
+        {step === 1 && (
+          <SocialLogin />
+        )}
+
+        {step === 1 && (
+          <>
+            <input 
+              {...register('email')}
+              type={'email'} 
+              className={`border border-white bg-[#202020] w-full p-3 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
+                ${errors?.email ? 'border-red-500': ''}`}
+              placeholder={'이메일을 입력해주세요'}
+            />
+            {errors.email && <div className={`text-red-500 text-sm`}>{errors.email.message}</div>}
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="mb-4">
+              <label className="text-sm text-gray-400">이메일</label>
+              <p className="text-lg font-medium text-gray-200">{getValues('email')}</p>
+            </div>
+            <input 
+              {...register('password')}
+              type={'password'} 
+              className={`border border-white bg-[#202020] w-full p-3 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
+                ${errors?.password ? 'border-red-500': ''}`}
+              placeholder={'비밀번호를 입력해주세요'}
+            />
+            {errors.password && <div className={`text-red-500 text-sm`}>{errors.password.message}</div>}
+            <input 
+              {...register('passwordCheck')}
+              type={'password'} 
+              className={`border border-white bg-[#202020] w-full p-3 mt-2 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
+                ${errors?.passwordCheck ? 'border-red-500': ''}`}
+              placeholder={'비밀번호를 다시 한 번 입력해주세요'}
+            />
+            {errors.passwordCheck && <div className={`text-red-500 text-sm`}>{errors.passwordCheck.message}</div>}
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <input 
+              {...register('name')}
+              type={'text'}
+              className={`border border-white bg-[#202020] w-full p-3 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
+                ${errors?.name ? 'border-red-500': ''}`}
+              placeholder={'닉네임을 입력해주세요'}
+            />
+            {errors.name && <div className={`text-red-500 text-sm`}>{errors.name.message}</div>}
+          </>
+        )}
+
+        {step < 3 ? (
+          <button 
+            type='button' 
+            onClick={handleNextStep} 
+            disabled={
+              (step === 1 && (!!errors.email || getValues('email') === '')) ||
+              (step === 2 && (!!errors.password || !!errors.passwordCheck || getValues('password') === '' || getValues('passwordCheck') === ''))
+            }
+            className='w-full bg-[#ff00b3] text-white py-3 mt-2 rounded-md font-medium 
+            hover:bg-[#b3007d] transition-colors cursor-pointer disabled:bg-[#202020] disabled:text-gray-500'>
+              다음
+          </button>
+        ) : (
+          <button 
+            type='button' 
+            onClick={handleSubmit(onSubmit)}
+            disabled={isSubmitting || !!errors.name || getValues('name') === ''} 
+            className='w-full bg-[#ff00b3] text-white py-3 mt-2 rounded-md font-medium 
+            hover:bg-[#b3007d] transition-colors cursor-pointer disabled:bg-[#202020] disabled:text-gray-500'>
+              회원가입
+          </button>
+        )}
+      </div>
+    </div>
   )
 }
+

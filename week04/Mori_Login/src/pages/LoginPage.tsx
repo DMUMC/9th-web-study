@@ -1,3 +1,4 @@
+import { postSignin } from '../apis/auth';
 import { AuthHeader } from '../components/AuthHeader';
 import { SocialLogin } from '../components/SocialLogin';
 import useForm from '../hooks/useForm';
@@ -13,8 +14,13 @@ export const LoginPage = () => {
     validate: validateSignin,
   });
 
-  const handleSubmit = () => {
-    console.log(values);
+  const handleSubmit = async () => {
+    try{
+      const response = await postSignin(values)
+      localStorage.setItem('accessToken', response.data.accessToken)
+    } catch (error) {
+      alert(error?.message);
+    }
   };
 
   const isDisabled =
@@ -24,15 +30,15 @@ export const LoginPage = () => {
     !values.password;
 
   return (
-    <div className='flex flex-col items-center justify-center h-full gap-4'>
-      <div className='flex flex-col gap-3 w-70'>
+    <div className='flex flex-col items-center justify-center h-full gap-4 bg-black'>
+      <div className='flex flex-col gap-3 w-70 my-12'>
         <AuthHeader title="로그인" />
         <SocialLogin />
 
         <input 
           {...getInputProps('email')}
           type={'email'} 
-          className={`border border-white bg-[#202020] w-full p-3 mb-2 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
+          className={`border border-white bg-[#202020] w-full p-3 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
             ${errors?.email && touched?.email ? 'border-red-500': ''}`}
           placeholder={'이메일을 입력해주세요!'}
         />
@@ -42,7 +48,7 @@ export const LoginPage = () => {
         <input 
           {...getInputProps('password')}
           type={'password'} 
-          className={`border border-white bg-[#202020] w-full p-3 mb-2 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
+          className={`border border-white bg-[#202020] w-full p-3 mt-2 focus:outline-none focus:border-[#ff00b3] rounded-lg text-white placeholder-gray-400
             ${errors?.password && touched?.password ? 'border-red-500': ''}`}
           placeholder={'비밀번호를 입력해주세요!'}
         />
@@ -53,11 +59,11 @@ export const LoginPage = () => {
           type='button' 
           onClick={handleSubmit} 
           disabled={isDisabled} 
-          className='w-full bg-[#ff00b3] text-white py-3 rounded-md font-medium 
+          className='w-full bg-[#ff00b3] text-white py-3 rounded-md mt-2 font-medium 
           hover:bg-[#b3007d] transition-colors cursor-pointer disabled:bg-[#202020] disabled:text-gray-500'>
             로그인
-          </button>
-        </div>
+        </button>
+      </div>
     </div>
   )
 }
