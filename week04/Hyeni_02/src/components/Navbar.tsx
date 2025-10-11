@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 const LINKS = [
     { to: '/login', label: "로그인"},
-    { to: '/login', label: "회원가입"},
+    { to: '/signup', label: "회원가입"},
 ]
 
 export const Navbar = () => {

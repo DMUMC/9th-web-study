@@ -1,4 +1,3 @@
-// src/pages/LoginPage.tsx
 import googleLogo from '../assets/Google__G__logo.svg';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
