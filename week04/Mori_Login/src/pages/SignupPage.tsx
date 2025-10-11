@@ -85,7 +85,9 @@ export const SignupPage = () => {
 
   return (
     <div className='flex flex-col items-center justify-center h-full gap-4 bg-black'>
-      <div className='flex flex-col gap-3 w-70 my-12'>
+      <form 
+        onSubmit={handleSubmit(onSubmit)}
+        className='flex flex-col gap-3 w-70 my-12'>
         <AuthHeader title="회원가입" />
         
         {step === 1 && (
@@ -173,15 +175,14 @@ export const SignupPage = () => {
           </button>
         ) : (
           <button 
-            type='button' 
-            onClick={handleSubmit(onSubmit)}
+            type='submit' 
             disabled={isSubmitting || !!errors.name || getValues('name') === ''} 
             className='w-full bg-[#ff00b3] text-white py-3 mt-2 rounded-md font-medium 
             hover:bg-[#b3007d] transition-colors cursor-pointer disabled:bg-[#202020] disabled:text-gray-500'>
               회원가입 완료
           </button>
         )}
-      </div>
+      </form>
     </div>
   )
 }

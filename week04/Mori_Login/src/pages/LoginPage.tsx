@@ -44,7 +44,10 @@ export const LoginPage = () => {
 
   return (
     <div className='flex flex-col items-center justify-center h-full gap-4 bg-black'>
-      <div className='flex flex-col gap-3 w-70 my-12'>
+      <form 
+        onSubmit={handleSubmit(onSubmit)} 
+        className='flex flex-col gap-3 w-70 my-12'
+      >
         <AuthHeader title="로그인" />
         <SocialLogin />
 
@@ -77,14 +80,13 @@ export const LoginPage = () => {
             <div className='text-red-500 text-sm'>{errors.password.message}</div>
           )}
         <button 
-          type='button' 
-          onClick={handleSubmit(onSubmit)} 
+          type='submit' 
           disabled={!isValid || isSubmitting}
           className='w-full bg-[#ff00b3] text-white py-3 rounded-md mt-2 font-medium 
           hover:bg-[#b3007d] transition-colors cursor-pointer disabled:bg-[#202020] disabled:text-gray-500'>
             {isSubmitting ? '로그인 중...' : '로그인'}
         </button>
-      </div>
+      </form>
     </div>
   )
 }
