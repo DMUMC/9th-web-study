@@ -5,6 +5,7 @@ import NotFound from './pages/NotFound';
 import LoginPage from './pages/LoginPage';
 import HomeLayout from './layouts/HomeLayout';
 import SignupPage from './pages/SignupPage';
+import MyPage from './pages/MyPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -16,6 +17,7 @@ function App() {
                 { index: true, element: <Homepage /> },
                 { path: 'login', element: <LoginPage /> },
                 { path: 'signup', element: <SignupPage /> },
+                { path: 'my', element: <MyPage /> },
             ],
         },
     ]);
