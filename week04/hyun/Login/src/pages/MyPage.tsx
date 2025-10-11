@@ -14,11 +14,7 @@ const MyPage = () => {
         getData();
     }, []);
 
-    return (
-        <>
-            <div>{data.data.name}d</div>
-        </>
-    );
+    return <div>{data.data?.name}님 안녕하세요!</div>;
 };
 
 export default MyPage;

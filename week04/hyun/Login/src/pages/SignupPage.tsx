@@ -46,6 +46,7 @@ const SignupPage = () => {
         const { passwordCheck, ...rest } = data;
 
         const response = await postSignup(rest);
+        nav('/login');
         console.log(response);
     };
 
