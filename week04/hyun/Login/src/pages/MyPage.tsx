@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react';
 import { getMyInfo } from '../apis/auth';
+import type { ResponseMyInfoDto } from '../types/auth';
 
 const MyPage = () => {
-    const [data, setData] = useState([]);
-    console.log(getMyInfo());
+    const [data, setData] = useState<ResponseMyInfoDto>([]);
     useEffect(() => {
         const getData = async () => {
             const response = await getMyInfo();
             console.log(response);
-            // setData(response.data);
+            setData(response);
         };
 
         getData();
     }, []);
 
-    return <div>{}왜 안되는건데</div>;
+    return (
+        <>
+            <div>{data.data.name}d</div>
+        </>
+    );
 };
 
 export default MyPage;

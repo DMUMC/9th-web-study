@@ -8,7 +8,7 @@ import { LOCAL_STORAGE_KEY } from '../constant/key';
 
 const LoginPage = () => {
     const { setItem } = useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
-    const nav = useNavigate();
+    const navigate = useNavigate();
     const { values, errors, touched, getInutProps } =
         useForm<UserSigninInformation>({
             initialValue: {
@@ -21,20 +21,26 @@ const LoginPage = () => {
     const handleSubmit = async () => {
         try {
             const response = await postSignin(values);
+            // setItem 함수가 올바르게 작동하면 토큰에 따옴표가 추가되지 않습니다.
             setItem(response.data.accessToken);
             console.log(response);
+
+            // 로그인 성공 후 MyPage로 이동
+            navigate('/my');
         } catch (error) {
             // alert(error?.message)
+            console.error('로그인 실패:', error);
         }
     };
 
     const isDisabled =
         Object.values(errors || {}).some((error) => error.length > 0) ||
         Object.values(values).some((value) => value === '');
+
     return (
         <div className="flex flex-col items-center justify-center h-full gap-4">
             <div className="flex justify-between">
-                <button onClick={() => nav(-1)}>{'<'}</button>
+                <button onClick={() => navigate(-1)}>{'<'}</button>
                 <h1 className="text-center">로그인</h1>
             </div>
             <div className="flex flex-col gap-3">
