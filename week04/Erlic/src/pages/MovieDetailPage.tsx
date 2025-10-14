@@ -1,39 +1,40 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { MovieDetails, Credits, CastMember } from "../types/credits";
 import Spinner from "../components/Spinner";
 import ErrorBox from "../components/ErrorBox";
-import { tmdb } from "../api/tmdb";
+import { useCustomFetch } from "../hooks/useCustomFetch";
 
 export default function MovieDetailPage() {
   const { movieId } = useParams();
-  const [details, setDetails] = useState<MovieDetails | null>(null);
-  const [credits, setCredits] = useState<Credits | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let aborted = false;
-    async function fetchAll() {
-      try {
-        setLoading(true);
-        setError(null);
-        const [d, c] = await Promise.all([
-          tmdb.get<MovieDetails>(`/movie/${movieId}`).then(r => r.data),
-          tmdb.get<Credits>(`/movie/${movieId}/credits`).then(r => r.data),
-        ]);
-        if (aborted) return;
-        setDetails(d);
-        setCredits(c);
-      } catch (e: any) {
-        if (!aborted) setError(e?.message ?? "데이터를 불러오지 못했어요.");
-      } finally {
-        if (!aborted) setLoading(false);
-      }
-    }
-    if (movieId) fetchAll();
-    return () => { aborted = true; };
-  }, [movieId]);
+  const {
+    data: details,
+    loading: loadingDetails,
+    error: detailsError,
+  } = useCustomFetch<MovieDetails>(
+    movieId ? `/movie/${movieId}` : null,
+    {
+      params: { language: "ko-kr" },
+      enabled: Boolean(movieId),
+      initialData: null,
+    },
+  );
+
+  const {
+    data: credits,
+    loading: loadingCredits,
+    error: creditsError,
+  } = useCustomFetch<Credits>(
+    movieId ? `/movie/${movieId}/credits` : null,
+    {
+      enabled: Boolean(movieId),
+      initialData: null,
+    },
+  );
+
+  const loading = loadingDetails || loadingCredits;
+  const error = detailsError ?? creditsError;
 
   const director = useMemo(() => {
     return credits?.crew.find((m) => m.job === "Director");
@@ -57,18 +58,27 @@ export default function MovieDetailPage() {
 
   return (
     <div className="space-y-8">
-      
-      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-[160px,1fr] gap-6">
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-b from-indigo-50/80 via-white to-white shadow-xl">
+        {details.backdrop_path && (
+          <div className="pointer-events-none absolute inset-0 opacity-40">
+            <img
+              src={`https://image.tmdb.org/t/p/original${details.backdrop_path}`}
+              alt={`${details.title} backdrop`}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-white via-white/60 to-white" />
+          </div>
+        )}
+        <div className="relative grid gap-8 p-8 md:grid-cols-[200px,1fr] md:p-10 lg:gap-10">
           <div className="w-full flex justify-center md:block">
             {details.poster_path ? (
               <img
                 src={`https://image.tmdb.org/t/p/w500${details.poster_path}`}
                 alt={details.title}
-                className="rounded-xl border border-slate-200 w-full max-w-[200px] md:w-auto"
+                className="w-full max-w-[240px] rounded-2xl border border-slate-200 bg-white/60 shadow-lg ring-1 ring-black/5 md:w-auto"
               />
             ) : (
-              <div className="aspect-[2/3] w-full max-w-[200px] rounded-xl grid place-items-center border border-slate-200 text-slate-400">
+              <div className="grid aspect-[2/3] w-full max-w-[240px] place-items-center rounded-2xl border border-dashed border-slate-200 bg-white/60 text-slate-400">
                 이미지 없음
               </div>
             )}
@@ -92,11 +102,22 @@ export default function MovieDetailPage() {
                 감독: <span className="font-medium text-slate-800">{director.name}</span>
               </p>
             )}
+            <div className="inline-flex flex-wrap gap-2 pt-2">
+              {details.homepage && (
+                <a
+                  href={details.homepage}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600 transition hover:bg-indigo-100"
+                >
+                  공식 사이트 방문
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">출연</h2>
         <div className="flex gap-4 overflow-x-auto pb-2">
