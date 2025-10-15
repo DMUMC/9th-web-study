@@ -70,3 +70,12 @@ sketch
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/react,macos,visualstudiocode
+
+# build outputs
+dist/
+build/
+.vite/
+
+# env
+.env
+.env.*.local
