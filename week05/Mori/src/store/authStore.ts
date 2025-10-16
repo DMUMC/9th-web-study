@@ -4,8 +4,10 @@ import { persist } from 'zustand/middleware'
 interface AuthState {
   isLoggedIn: boolean
   accessToken: string | null
-  setLogin: (token: string) => void
+  refreshToken: string | null
+  setLogin: (accessToken: string, refreshToken: string) => void
   setLogout: () => void
+  updateTokens: (accessToken: string, refreshToken: string) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -13,20 +15,28 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       isLoggedIn: false,
       accessToken: null,
-      setLogin: (token: string) => set({ 
+      refreshToken: null,
+      setLogin: (accessToken: string, refreshToken: string) => set({ 
         isLoggedIn: true, 
-        accessToken: token
+        accessToken,
+        refreshToken
       }),
       setLogout: () => set({ 
         isLoggedIn: false, 
-        accessToken: null
+        accessToken: null,
+        refreshToken: null
+      }),
+      updateTokens: (accessToken: string, refreshToken: string) => set({
+        accessToken,
+        refreshToken
       }),
     }),
     {
       name: 'auth-storage', // localStorage 키 이름
       partialize: (state) => ({ 
         isLoggedIn: state.isLoggedIn, 
-        accessToken: state.accessToken 
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken
       }), // 저장할 상태만 선택
     }
   )

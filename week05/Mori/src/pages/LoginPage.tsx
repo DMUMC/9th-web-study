@@ -33,7 +33,7 @@ export const LoginPage = () => {
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
       const response = await postSignin(data)
-      setLogin(response.data.accessToken)
+      setLogin(response.data.accessToken, response.data.refreshToken)
       alert("로그인 성공!")
       navigate('/')
     } catch (error: unknown) {
