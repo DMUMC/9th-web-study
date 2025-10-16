@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { postSignup } from '../apis/auth';
 import InputField from '../components/InputField';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const schema = z
     .object({
@@ -68,12 +69,14 @@ const SignupPage = () => {
         const { passwordCheck, ...rest } = data;
         const response = await postSignup(rest);
         console.log(response);
+        navigate('/');
     };
 
     const [currentStep, setCurrentStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordCheck, setShowPasswordCheck] =
         useState(false);
+    const navigate = useNavigate();
 
     const goToNextStep = () => {
         if (currentStep < 3) {
