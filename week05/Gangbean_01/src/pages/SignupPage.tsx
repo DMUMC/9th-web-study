@@ -1,8 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-    useForm,
-    type SubmitHandler,
-} from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import { postSignup } from '../apis/auth';
 import InputField from '../components/InputField';
@@ -17,8 +14,7 @@ const schema = z
         password: z
             .string()
             .min(8, {
-                message:
-                    '비밀번호는 8자 이상이어야 합니다.',
+                message: '비밀번호는 8자 이상이어야 합니다.',
             })
             .max(20, {
                 message: '비밀번호는 20자 이하여야 합니다.',
@@ -26,23 +22,17 @@ const schema = z
         passwordCheck: z
             .string()
             .min(8, {
-                message:
-                    '비밀번호는 8자 이상이어야 합니다.',
+                message: '비밀번호는 8자 이상이어야 합니다.',
             })
             .max(20, {
                 message: '비밀번호는 20자 이하여야 합니다.',
             }),
-        name: z
-            .string()
-            .min(1, { message: '이름을 입력해주세요.' }),
+        name: z.string().min(1, { message: '이름을 입력해주세요.' }),
     })
-    .refine(
-        (data) => data.password === data.passwordCheck,
-        {
-            message: '비밀번호가 일치하지 않습니다.',
-            path: ['passwordCheck'],
-        }
-    );
+    .refine((data) => data.password === data.passwordCheck, {
+        message: '비밀번호가 일치하지 않습니다.',
+        path: ['passwordCheck'],
+    });
 
 type FormFields = z.infer<typeof schema>;
 
@@ -63,9 +53,7 @@ const SignupPage = () => {
         mode: 'onChange',
     });
 
-    const onSubmit: SubmitHandler<FormFields> = async (
-        data
-    ) => {
+    const onSubmit: SubmitHandler<FormFields> = async (data) => {
         const { passwordCheck, ...rest } = data;
         const response = await postSignup(rest);
         console.log(response);
@@ -74,8 +62,7 @@ const SignupPage = () => {
 
     const [currentStep, setCurrentStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
-    const [showPasswordCheck, setShowPasswordCheck] =
-        useState(false);
+    const [showPasswordCheck, setShowPasswordCheck] = useState(false);
     const navigate = useNavigate();
 
     const goToNextStep = () => {
@@ -95,16 +82,11 @@ const SignupPage = () => {
             case 1:
                 // 이메일이 있고 유효성 검사 통과했을 때만
                 const email = watch('email');
-                return (
-                    email &&
-                    email.trim() !== '' &&
-                    !errors.email
-                );
+                return email && email.trim() !== '' && !errors.email;
             case 2:
                 // 비밀번호와 비밀번호 확인이 있고 유효성 검사 통과했을 때만
                 const password = watch('password');
-                const passwordCheck =
-                    watch('passwordCheck');
+                const passwordCheck = watch('passwordCheck');
                 return (
                     password &&
                     password.trim() !== '' &&
@@ -116,11 +98,7 @@ const SignupPage = () => {
             case 3:
                 // 이름이 있고 유효성 검사 통과했을 때만
                 const name = watch('name');
-                return (
-                    name &&
-                    name.trim() !== '' &&
-                    !errors.name
-                );
+                return name && name.trim() !== '' && !errors.name;
             default:
                 return false;
         }
@@ -136,9 +114,7 @@ const SignupPage = () => {
                     >
                         &lt;
                     </button>
-                    <h1 className='text-lg font-medium'>
-                        회원가입
-                    </h1>
+                    <h1 className='text-lg font-medium'>회원가입</h1>
                     <div className='w-10'></div>
                 </div>
                 {currentStep === 2 && (
@@ -174,20 +150,12 @@ const SignupPage = () => {
                             ? 'border-red-500 bg-red-200'
                             : 'border-gray-300'
                     }`}
-                                type={
-                                    showPassword
-                                        ? 'text'
-                                        : 'password'
-                                }
+                                type={showPassword ? 'text' : 'password'}
                                 placeholder='비밀번호'
                             />
                             <button
                                 type='button'
-                                onClick={() =>
-                                    setShowPassword(
-                                        !showPassword
-                                    )
-                                }
+                                onClick={() => setShowPassword(!showPassword)}
                                 className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer'
                             >
                                 {showPassword ? '🙈' : '👁️'}
@@ -201,42 +169,29 @@ const SignupPage = () => {
 
                         <div className='relative'>
                             <input
-                                {...register(
-                                    'passwordCheck'
-                                )}
+                                {...register('passwordCheck')}
                                 className={`border border-[#ccc] w-[300px] p-[10px] pr-10 focus:border-[#807bff] rounded-sm 
                     ${
                         errors?.passwordCheck
                             ? 'border-red-500 bg-red-200'
                             : 'border-gray-300'
                     }`}
-                                type={
-                                    showPasswordCheck
-                                        ? 'text'
-                                        : 'password'
-                                }
+                                type={showPasswordCheck ? 'text' : 'password'}
                                 placeholder='비밀번호 확인'
                             />
                             <button
                                 type='button'
                                 onClick={() =>
-                                    setShowPasswordCheck(
-                                        !showPasswordCheck
-                                    )
+                                    setShowPasswordCheck(!showPasswordCheck)
                                 }
                                 className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer'
                             >
-                                {showPasswordCheck
-                                    ? '🙈'
-                                    : '👁️'}
+                                {showPasswordCheck ? '🙈' : '👁️'}
                             </button>
                         </div>
                         {errors.passwordCheck && (
                             <div className='text-red-500 text-sm'>
-                                {
-                                    errors.passwordCheck
-                                        .message
-                                }
+                                {errors.passwordCheck.message}
                             </div>
                         )}
                     </>
@@ -251,15 +206,10 @@ const SignupPage = () => {
                     />
                 )}
                 <button
-                    disabled={
-                        isSubmitting ||
-                        !isCurrentStepValid()
-                    }
+                    disabled={isSubmitting || !isCurrentStepValid()}
                     type='button'
                     onClick={
-                        currentStep < 3
-                            ? goToNextStep
-                            : handleSubmit(onSubmit)
+                        currentStep < 3 ? goToNextStep : handleSubmit(onSubmit)
                     }
                     className='w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer disabled:bg-gray-300'
                 >
