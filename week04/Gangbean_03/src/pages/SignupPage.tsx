@@ -123,12 +123,31 @@ const SignupPage = () => {
     return (
         <div className='flex flex-col items-center justify-center h-full gap-4'>
             <div className='flex flex-col gap-3'>
-                <button
-                    onClick={goToPrevStep}
-                    className='w-10 h-10 flex items-center justify-center cursor-pointer'
-                >
-                    &lt;
-                </button>
+                <div className='flex items-center justify-between w-full'>
+                    <button
+                        onClick={goToPrevStep}
+                        className='w-10 h-10 flex items-center cursor-pointer'
+                    >
+                        &lt;
+                    </button>
+                    <h1 className='text-lg font-medium'>
+                        회원가입
+                    </h1>
+                    <div className='w-10'></div>
+                </div>
+                {currentStep === 2 && (
+                    <div className='text-gray-600 text-sm flex items-center'>
+                        <svg
+                            className='w-4 h-4 mr-2'
+                            fill='currentColor'
+                            viewBox='0 0 20 20'
+                        >
+                            <path d='M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z' />
+                            <path d='M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z' />
+                        </svg>
+                        {watch('email')}
+                    </div>
+                )}
                 {currentStep === 1 && (
                     <InputField
                         register={register}
