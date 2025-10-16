@@ -30,6 +30,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         } else {
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
         }
+        
+        window.dispatchEvent(new CustomEvent('localStorageChange'));
       }
     } catch (error) {
       console.error(error);

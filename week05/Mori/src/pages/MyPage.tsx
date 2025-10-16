@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react"
 import { getMyInfo } from "../apis/auth"
 import type { ResponseMyInfoDto } from "../types/auth"
-import { useLocalStorage } from "../hooks/useLocalStorage"
+import { useAuthStore } from "../store/authStore"
 import { useNavigate } from "react-router-dom"
 
 export const MyPage = () => {
   const [userInfo, setUserInfo] = useState<ResponseMyInfoDto["data"] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [, setAccessToken] = useLocalStorage<string | null>('accessToken', null)
+  const { setLogout } = useAuthStore()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export const MyPage = () => {
   }, [])
 
   const handleLogout = () => {
-    setAccessToken(null)
+    setLogout()
     navigate('/')
   }
 

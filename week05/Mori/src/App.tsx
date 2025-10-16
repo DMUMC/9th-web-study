@@ -7,29 +7,27 @@ import { SignupPage } from "./pages/SignupPage"
 import { MyPage } from "./pages/MyPage"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomeLayout />,
-    errorElement: <NotFoundPage />,
-    children: [
-      {index: true, element: <HomePage />},
-      {path: '/login', element: <LoginPage />},
-      {path: '/signup', element: <SignupPage />},
-      {
-        path: '/mypage',
-        element: (
-          <ProtectedRoute>
-            <MyPage />
-          </ProtectedRoute>
-        )
-      },
-    ]
-  },
-])
-
 function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <HomeLayout />,
+      errorElement: <NotFoundPage />,
+      children: [
+        {index: true, element: <HomePage />},
+        {path: '/login', element: <LoginPage />},
+        {path: '/signup', element: <SignupPage />},
+        {
+          path: '/mypage',
+          element: (
+            <ProtectedRoute>
+              <MyPage />
+            </ProtectedRoute>
+          )
+        },
+      ]
+    },
+  ])
 
   return (
     <RouterProvider router={router} />

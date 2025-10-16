@@ -7,7 +7,7 @@ import { SocialLogin } from '../components/SocialLogin';
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useAuthStore } from "../store/authStore";
 
 const schema = z.object({
   email: z.string().email({ message: "올바른 이메일 형식이 아닙니다." }),
@@ -19,7 +19,7 @@ type FormFields = z.infer<typeof schema>;
 export const LoginPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [, setAccessToken] = useLocalStorage<string | null>('accessToken', null);
+  const { setLogin } = useAuthStore();
 
   const { 
     register, 
@@ -33,7 +33,7 @@ export const LoginPage = () => {
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
       const response = await postSignin(data)
-      setAccessToken(response.data.accessToken)
+      setLogin(response.data.accessToken)
       alert("로그인 성공!")
       navigate('/')
     } catch (error: unknown) {

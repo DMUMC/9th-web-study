@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useAuthStore } from "../store/authStore";
 
 export const Header = () => {
-  const [accessToken] = useLocalStorage<string | null>('accessToken', null);
+  const { isLoggedIn } = useAuthStore()
 
   return (
     <div className='h-12 bg-[#202020] flex justify-between items-center'>
@@ -11,7 +11,7 @@ export const Header = () => {
       </Link>
       
       <div className='mr-2 flex gap-2 text-sm text-white'>
-        {accessToken ? (
+        {isLoggedIn ? (
           <Link to="/mypage">
             <div className='bg-[#ff00b3] p-1 px-3 rounded-md'>마이페이지</div>
           </Link>

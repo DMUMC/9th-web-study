@@ -1,15 +1,15 @@
 import { Navigate } from "react-router-dom"
-import { useLocalStorage } from "../hooks/useLocalStorage"
+import { useAuthStore } from "../store/authStore"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const [accessToken] = useLocalStorage("accessToken", "")
+  const { isLoggedIn } = useAuthStore()
 
-  // 토큰이 없으면 로그인 페이지로 리다이렉트
-  if (!accessToken) {
+  // 로그인하지 않았으면 로그인 페이지로 리다이렉트
+  if (!isLoggedIn) {
     return <Navigate to="/login" replace />
   }
 

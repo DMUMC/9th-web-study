@@ -12,11 +12,6 @@ export const postSignin = async (body: RequestSigninDto):Promise<ResponseSigninD
 }
 
 export const getMyInfo = async ():Promise<ResponseMyInfoDto> => {
-  const accessToken = localStorage.getItem("accessToken")
-  const { data } = await axiosInstance.get("/v1/users/me", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  })
+  const { data } = await axiosInstance.get("/v1/users/me")
   return data
 }
