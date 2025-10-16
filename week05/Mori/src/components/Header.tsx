@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
-  const { isLoggedIn } = useAuthStore()
+  const { isLoggedIn, setLogout } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    alert("로그아웃 되었습니다!")
+    setLogout()
+    navigate('/')
+  }
 
   return (
     <div className='h-12 bg-[#202020] flex justify-between items-center'>
@@ -12,9 +20,17 @@ export const Header = () => {
       
       <div className='mr-2 flex gap-2 text-sm text-white'>
         {isLoggedIn ? (
-          <Link to="/mypage">
-            <div className='bg-[#ff00b3] p-1 px-3 rounded-md'>마이페이지</div>
-          </Link>
+          <>
+            <Link to="/mypage">
+              <div className='bg-[#ff00b3] p-1 px-3 rounded-md'>마이페이지</div>
+            </Link>
+            <button 
+              onClick={handleLogout}
+              className='bg-black p-1 px-3 rounded-md'
+            >
+              로그아웃
+            </button>
+          </>
         ) : (
           <>
             <Link to="/login">

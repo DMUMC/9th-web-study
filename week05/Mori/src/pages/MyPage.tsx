@@ -1,37 +1,28 @@
 import { useEffect, useState } from "react"
 import { getMyInfo } from "../apis/auth"
 import type { ResponseMyInfoDto } from "../types/auth"
-import { useAuthStore } from "../store/authStore"
-import { useNavigate } from "react-router-dom"
 
 export const MyPage = () => {
   const [userInfo, setUserInfo] = useState<ResponseMyInfoDto["data"] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { setLogout } = useAuthStore()
-  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        setLoading(true)
-        const response = await getMyInfo()
-        setUserInfo(response.data)
+        setLoading(true);
+        const response = await getMyInfo();
+        setUserInfo(response.data);
       } catch (err) {
-        setError("사용자 정보를 가져오는데 실패했습니다.")
-        console.error("Failed to fetch user info:", err)
+        setError("사용자 정보를 가져오는데 실패했습니다.");
+        console.error("Failed to fetch user info:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUserInfo()
-  }, [])
-
-  const handleLogout = () => {
-    setLogout()
-    navigate('/')
-  }
+     fetchUserInfo();
+   }, []);
 
   if (loading) {
     return (
@@ -73,16 +64,6 @@ export const MyPage = () => {
                {userInfo?.createdAt ? new Date(userInfo.createdAt).toLocaleDateString('ko-KR') : "정보 없음"}
              </p>
            </>
-         </div>
-         
-         <div className="mt-8 pt-4 border-t border-gray-600">
-           <button 
-             onClick={handleLogout}
-             className="bg-[#ff00b3] text-white py-1 px-4 rounded-md text-sm 
-             hover:bg-[#b3007d] transition-colors cursor-pointer"
-           >
-             로그아웃
-           </button>
          </div>
        </div>
      </div>

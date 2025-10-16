@@ -8,8 +8,8 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isLoggedIn } = useAuthStore()
 
-  // 로그인하지 않았으면 로그인 페이지로 리다이렉트
   if (!isLoggedIn) {
+    alert("로그인이 필요합니다.");
     return <Navigate to="/login" replace />
   }
 
