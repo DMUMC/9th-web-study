@@ -5,6 +5,7 @@ import { NotFoundPage } from "./pages/NotFoundPage"
 import { HomeLayout } from "./layouts/HomeLayout"
 import { SignupPage } from "./pages/SignupPage"
 import { MyPage } from "./pages/MyPage"
+import { GoogleCallbackPage } from "./pages/GoogleCallbackPage"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         {index: true, element: <HomePage />},
         {path: '/login', element: <LoginPage />},
         {path: '/signup', element: <SignupPage />},
+        {path: '/v1/auth/google/callback', element: <GoogleCallbackPage />},
         {
           path: '/mypage',
           element: (

@@ -1,10 +1,17 @@
 import GoogleLogin from "../assets/web_dark_sq_SI@2x.png"
 
 export const SocialLogin = () => {
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_SERVER_API_URL}/v1/auth/google/login`
+  }
+
   return (
     <>
-      <button className='w-full flex justify-center'>
-        <img src={GoogleLogin} alt="Google Logo" className='h-12' />
+      <button 
+        onClick={handleGoogleLogin}
+        className='w-full flex justify-center hover:opacity-80 transition-opacity'
+      >
+        <img src={GoogleLogin} alt="Google Logo" className='h-12 cursor-pointer' />
       </button>
 
       <div className='flex items-center my-2'>
