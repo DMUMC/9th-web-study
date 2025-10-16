@@ -71,6 +71,9 @@ const SignupPage = () => {
     };
 
     const [currentStep, setCurrentStep] = useState(1);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordCheck, setShowPasswordCheck] =
+        useState(false);
 
     const goToNextStep = () => {
         if (currentStep < 3) {
@@ -159,20 +162,80 @@ const SignupPage = () => {
                 )}
                 {currentStep === 2 && (
                     <>
-                        <InputField
-                            register={register}
-                            name='password'
-                            type='password'
-                            placeholder='비밀번호'
-                            errors={errors}
-                        />
-                        <InputField
-                            register={register}
-                            name='passwordCheck'
-                            type='password'
-                            placeholder='비밀번호 확인'
-                            errors={errors}
-                        />
+                        <div className='relative'>
+                            <input
+                                {...register('password')}
+                                className={`border border-[#ccc] w-[300px] p-[10px] pr-10 focus:border-[#807bff] rounded-sm 
+                    ${
+                        errors?.password
+                            ? 'border-red-500 bg-red-200'
+                            : 'border-gray-300'
+                    }`}
+                                type={
+                                    showPassword
+                                        ? 'text'
+                                        : 'password'
+                                }
+                                placeholder='비밀번호'
+                            />
+                            <button
+                                type='button'
+                                onClick={() =>
+                                    setShowPassword(
+                                        !showPassword
+                                    )
+                                }
+                                className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer'
+                            >
+                                {showPassword ? '🙈' : '👁️'}
+                            </button>
+                        </div>
+                        {errors.password && (
+                            <div className='text-red-500 text-sm'>
+                                {errors.password.message}
+                            </div>
+                        )}
+
+                        <div className='relative'>
+                            <input
+                                {...register(
+                                    'passwordCheck'
+                                )}
+                                className={`border border-[#ccc] w-[300px] p-[10px] pr-10 focus:border-[#807bff] rounded-sm 
+                    ${
+                        errors?.passwordCheck
+                            ? 'border-red-500 bg-red-200'
+                            : 'border-gray-300'
+                    }`}
+                                type={
+                                    showPasswordCheck
+                                        ? 'text'
+                                        : 'password'
+                                }
+                                placeholder='비밀번호 확인'
+                            />
+                            <button
+                                type='button'
+                                onClick={() =>
+                                    setShowPasswordCheck(
+                                        !showPasswordCheck
+                                    )
+                                }
+                                className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer'
+                            >
+                                {showPasswordCheck
+                                    ? '🙈'
+                                    : '👁️'}
+                            </button>
+                        </div>
+                        {errors.passwordCheck && (
+                            <div className='text-red-500 text-sm'>
+                                {
+                                    errors.passwordCheck
+                                        .message
+                                }
+                            </div>
+                        )}
                     </>
                 )}
                 {currentStep === 3 && (
