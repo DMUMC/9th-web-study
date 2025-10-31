@@ -1,0 +1,7 @@
+
+<!-- src/assets/profile.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <circle cx="64" cy="64" r="62" stroke="#ccc" stroke-width="4"/>
+  <circle cx="64" cy="50" r="22" fill="#ddd"/>
+  <path d="M20 110c8-22 28-32 44-32s36 10 44 32" fill="#ddd"/>
+</svg>
