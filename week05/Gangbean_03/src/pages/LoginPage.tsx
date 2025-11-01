@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import useForm from '../hooks/useForm';
 import { validateSignin, type UserSigninInformation } from '../utils/validate';
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const LoginPage = () => {
     const { login, accessToken } = useAuth();
     const navigate = useNavigate();
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
     useEffect(() => {
         if (accessToken) {
@@ -25,6 +26,8 @@ const LoginPage = () => {
     };
 
     const handleGoogleLogin = () => {
+        if (isGoogleLoading) return;
+        setIsGoogleLoading(true);
         window.location.href =
             import.meta.env.VITE_SERVER_API_URL + '/v1/auth/google/login';
     };
@@ -91,7 +94,12 @@ const LoginPage = () => {
                             alt='google logo image'
                             className='w-6'
                         />
-                        <span>구글 로그인</span>
+
+                        <span>
+                            {isGoogleLoading
+                                ? '구글 로그인 중...'
+                                : '구글 로그인'}
+                        </span>
                     </div>
                 </button>
             </div>
