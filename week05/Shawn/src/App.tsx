@@ -1,21 +1,23 @@
 import './App.css'
-import { createBrowserRouter, RouterProvider } from 'react-router'
+import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
 import { Layout } from './components/layout/Layout'
 import LoginPage from './pages/LoginPage'
 import MainPage from './pages/MainPage'
 import SignupPage from './pages/SignupPage'
 import MyPage from './pages/MyPage'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedLayout from './components/layout/ProtectedLayout'
 
 function App() {
 
   return (
-    <>
+    <AuthProvider>
       <RouterProvider router={router} />
-    </>
+    </AuthProvider>
   )
 }
 
-const router = createBrowserRouter([
+const publicRoutes: RouteObject[] = [
   {
     path: '/',
     element: <Layout />,
@@ -31,13 +33,27 @@ const router = createBrowserRouter([
       {
         path: '/signup',
         element: <SignupPage />
-      },
+      }
+    ]
+  }
+]
+
+const protectedRoutes: RouteObject[] = [
+  {
+    path: '/',
+    element: <ProtectedLayout />,
+    children: [
       {
-        path: '/mypage',
+        path: 'mypage',
         element: <MyPage />
       }
     ]
   }
+]
+
+const router = createBrowserRouter([
+  ...publicRoutes,
+  ...protectedRoutes
 ])
 
 export default App

@@ -1,11 +1,10 @@
 import googleLogo from '../assets/Google__G__logo.svg'
 import { useNavigate } from 'react-router'
-import { postLogin } from '../apis/auth'
-import { useLocalStorage } from '../hooks/useLocalStorage'
-import { LOCAL_STORAGE_KEY } from '../constant/key'
 import z from 'zod'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useAuth } from '../context/AuthContext'
+import { useEffect } from 'react'
 
 const schema = z.object({
     email: z.string().email({message: '이메일 형식이 올바르지 않습니다.'}),
@@ -16,7 +15,13 @@ type Formfields = z.infer<typeof schema>
 
 const LoginPage = () => {
     const navigate = useNavigate()
-    const {setItem} = useLocalStorage(LOCAL_STORAGE_KEY.ACCESS_TOKEN)
+    const {login, accessToken} = useAuth()
+
+    useEffect(() => {
+        if(accessToken) {
+            navigate('/')
+        }
+    }, [accessToken])
 
     const {register, handleSubmit, formState: {errors}, watch}= useForm<Formfields>({
         defaultValues: {
@@ -28,15 +33,7 @@ const LoginPage = () => {
     })
 
     const onSubmit:SubmitHandler<Formfields> = async(data) => {
-        try{
-            await postLogin(data).then((res) =>{
-               setItem(res.data.accessToken)
-                console.log(res)
-            })
-        } catch(e) {
-            console.log(e)
-            alert('로그인에 실패했습니다.')
-        }
+        await login(data)
     }
 
     const handleGoBack = () => {
