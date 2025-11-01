@@ -5,8 +5,6 @@ export default function Header() {
   const { isLoggedIn } = useAuth();
 
   return (
-    // ⬇️ 여기에는 "네가 원래 쓰던" 헤더 래퍼 클래스 문자열을 그대로 넣어줘.
-    // 예: className="w-full sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200"
     <div className='h-12 bg-white flex justify-between items-center'>
       <Link to="/">
         <div className='text-xl text-black font-bold text-center ml-2'>돌려돌려LP판</div>
