@@ -7,6 +7,7 @@ import SignupPage from './pages/SignupPage'
 import MyPage from './pages/MyPage'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedLayout from './components/layout/ProtectedLayout'
+import GoogleLoginRedirectPage from './pages/GoogleLoginRedirectPage'
 
 function App() {
 
@@ -33,6 +34,10 @@ const publicRoutes: RouteObject[] = [
       {
         path: '/signup',
         element: <SignupPage />
+      },
+      {
+        path: '/v1/auth/google/callback',
+        element: <GoogleLoginRedirectPage />
       }
     ]
   }

@@ -36,6 +36,10 @@ const LoginPage = () => {
         await login(data)
     }
 
+    const handleGoogleLogin = async () => {
+        window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/google/login`
+    }
+
     const handleGoBack = () => {
         navigate(-1)
     }
@@ -58,7 +62,7 @@ const LoginPage = () => {
                 <div className='w-10'></div>
             </div>
 
-            <div className='flex px-4 py-3 border-1 border-gray-300 rounded-md items-center relative hover:cursor-pointer'>
+            <div className='flex px-4 py-3 border-1 border-gray-300 rounded-md items-center relative hover:cursor-pointer' onClick={handleGoogleLogin}>
                 <img src={googleLogo} alt="googleLogo" />
                 <p className='absolute left-1/2 transform -translate-x-1/2'>구글 로그인</p>
             </div>
