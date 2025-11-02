@@ -1,7 +1,12 @@
 import GoogleLogin from "../assets/web_dark_sq_SI@2x.png"
+import { useState } from "react";
 
 export const SocialLogin = () => {
+  const [isClicked, setIsClicked] = useState(false);
+
   const handleGoogleLogin = () => {
+    if (isClicked) return;
+    setIsClicked(true);
     window.location.href = `${import.meta.env.VITE_SERVER_API_URL}/v1/auth/google/login`
   }
 
@@ -9,7 +14,8 @@ export const SocialLogin = () => {
     <>
       <button 
         onClick={handleGoogleLogin}
-        className='w-full flex justify-center hover:opacity-80 transition-opacity'
+        className={`w-full flex justify-center hover:opacity-80 transition-opacity
+          ${isClicked ? "opacity-60 cursor-not-allowed" : ""}`}
       >
         <img src={GoogleLogin} alt="Google Logo" className='h-12 cursor-pointer' />
       </button>
