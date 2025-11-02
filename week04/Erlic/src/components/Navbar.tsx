@@ -11,7 +11,7 @@ export default function Navbar() {
   return (
     <header className="bg-white/95 backdrop-blur border-b border-slate-200">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-2">
-        <NavLink to="/" className={linkCls}>홈</NavLink>
+        <NavLink to="/popular" className={linkCls}>홈</NavLink>
         <NavLink to="/popular" className={linkCls}>인기 영화</NavLink>
         <NavLink to="/upcoming" className={linkCls}>개봉 예정</NavLink>
         <NavLink to="/top-rated" className={linkCls}>평점 높은</NavLink>
