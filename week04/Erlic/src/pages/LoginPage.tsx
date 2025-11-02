@@ -1,14 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "../hooks/useForm";
-
-type LoginFormValues = {
-  email: string;
-  password: string;
-};
-
-const EMAIL_PATTERN =
-  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { loginSchema, type LoginFormValues } from "../types/auth";
 
 type GoogleCredentialResponse = {
   credential: string;
@@ -43,13 +38,40 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const [, setAuthToken] = useLocalStorage<string>("umc-auth-token", null);
+  const [, setAuthProfile] = useLocalStorage<{
+    provider: "local" | "google";
+    email?: string;
+    credential?: string;
+    nickname?: string;
+  }>("umc-auth-profile", null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   const handleSuccessfulLogin = useCallback(
     (values: LoginFormValues) => {
       console.info("로그인 요청", values);
+      const encodedToken =
+        typeof window !== "undefined"
+          ? window.btoa(`${values.email}:${values.password}`)
+          : `${values.email}-token`;
+      setAuthToken(`basic-${encodedToken}`);
+      setAuthProfile({ provider: "local", email: values.email });
       navigate("/popular", { replace: true });
     },
-    [navigate],
+    [navigate, setAuthProfile, setAuthToken],
   );
 
   const handleGoogleCredential = useCallback(
@@ -60,9 +82,11 @@ export default function LoginPage() {
       }
 
       console.info("구글 로그인 성공", response);
+      setAuthToken(response.credential);
+      setAuthProfile({ provider: "google", credential: response.credential });
       navigate("/popular", { replace: true });
     },
-    [navigate],
+    [navigate, setAuthProfile, setAuthToken],
   );
 
   useEffect(() => {
@@ -139,43 +163,6 @@ export default function LoginPage() {
     };
   }, [handleGoogleCredential]);
 
-  const { register, errors, touched, isValid, handleSubmit } =
-    useForm<LoginFormValues>({
-      initialValues: {
-        email: "",
-        password: "",
-      },
-      validators: {
-        email: (value) => {
-          const trimmed = String(value).trim();
-          if (!trimmed) {
-            return "이메일을 입력해주세요.";
-          }
-          if (!EMAIL_PATTERN.test(trimmed)) {
-            return "유효하지 않은 이메일 형식입니다.";
-          }
-          return "";
-        },
-        password: (value) => {
-          const password = String(value);
-          if (!password) {
-            return "비밀번호를 입력해주세요.";
-          }
-          if (password.length < 6) {
-            return "비밀번호는 최소 6자 이상이어야 합니다.";
-          }
-          return "";
-        },
-      },
-      onSubmit: handleSuccessfulLogin,
-    });
-
-  const emailField = register("email");
-  const passwordField = register("password");
-
-  const emailError = touched.email && errors.email;
-  const passwordError = touched.password && errors.password;
-
   const handleBack = () => {
     if (window.history.length > 1) {
       navigate(-1);
@@ -183,6 +170,8 @@ export default function LoginPage() {
       navigate("/popular", { replace: true });
     }
   };
+
+  const onSubmit = handleSubmit(handleSuccessfulLogin);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-purple-100 px-6 py-12">
@@ -208,7 +197,7 @@ export default function LoginPage() {
           </p>
         </header>
 
-        <form className="space-y-7" onSubmit={handleSubmit()}>
+        <form className="space-y-7" onSubmit={onSubmit} noValidate>
           <div className="space-y-2">
             <label
               htmlFor="email"
@@ -221,15 +210,15 @@ export default function LoginPage() {
               type="email"
               autoComplete="email"
               placeholder="name@example.com"
-              {...emailField}
+              {...register("email")}
               className={`w-full rounded-2xl border px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-                emailError
+                errors.email
                   ? "border-red-400 focus:border-red-400 focus:ring-red-300"
                   : "border-slate-200 focus:border-indigo-400 focus:ring-indigo-300"
               }`}
             />
-            {emailError ? (
-              <p className="text-sm text-red-500">{errors.email}</p>
+            {errors.email ? (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
             ) : (
               <p className="text-xs text-slate-400">
                 가입 시 사용한 이메일 주소를 입력해주세요.
@@ -249,15 +238,15 @@ export default function LoginPage() {
               type="password"
               autoComplete="current-password"
               placeholder="6자 이상 입력하세요."
-              {...passwordField}
+              {...register("password")}
               className={`w-full rounded-2xl border px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-                passwordError
+                errors.password
                   ? "border-red-400 focus:border-red-400 focus:ring-red-300"
                   : "border-slate-200 focus:border-indigo-400 focus:ring-indigo-300"
               }`}
             />
-            {passwordError ? (
-              <p className="text-sm text-red-500">{errors.password}</p>
+            {errors.password ? (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
             ) : (
               <p className="text-xs text-slate-400">
                 안전한 계정을 위해 특수문자와 숫자를 함께 사용해보세요.
@@ -267,7 +256,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={!isValid}
+            disabled={!isValid || isSubmitting}
             className={`w-full rounded-2xl px-4 py-3 text-base font-semibold text-white shadow-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
               isValid
                 ? "bg-slate-900 hover:-translate-y-0.5 hover:bg-slate-800 focus:ring-slate-900"
@@ -297,7 +286,12 @@ export default function LoginPage() {
 
         <footer className="text-center text-xs text-slate-400">
           계정이 없으신가요?{" "}
-          <span className="font-medium text-indigo-500">지금 가입하기</span>
+          <Link
+            to="/signup"
+            className="font-medium text-indigo-500 underline underline-offset-2"
+          >
+            지금 가입하기
+          </Link>
         </footer>
       </div>
     </div>
