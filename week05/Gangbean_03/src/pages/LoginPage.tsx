@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const LoginPage = () => {
     const { login, accessToken } = useAuth();
     const navigate = useNavigate();
+    const [isFormLoading, setIsFormLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
     useEffect(() => {
@@ -22,6 +23,8 @@ const LoginPage = () => {
         });
 
     const handleSubmit = async () => {
+        if (isFormLoading) return;
+        setIsFormLoading(true);
         await login(values);
     };
 
@@ -78,10 +81,10 @@ const LoginPage = () => {
                 <button
                     type='button'
                     onClick={handleSubmit}
-                    disabled={isDisabled}
+                    disabled={isDisabled || isFormLoading}
                     className='w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer disabled:bg-gray-300'
                 >
-                    로그인
+                    {isFormLoading ? '로그인 중...' : '로그인'}
                 </button>
                 <button
                     type='button'
