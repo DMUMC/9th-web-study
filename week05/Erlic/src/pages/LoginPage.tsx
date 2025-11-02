@@ -79,8 +79,10 @@ export default function LoginPage() {
     }
 
     const loginUrl = new URL(GOOGLE_LOGIN_URL);
+    const encodedRedirect = encodeURIComponent(redirectPath);
     loginUrl.searchParams.set("redirect_uri", redirectUri);
-    loginUrl.searchParams.set("state", encodeURIComponent(redirectPath));
+    loginUrl.searchParams.set("state", encodedRedirect);
+    loginUrl.searchParams.set("redirect", encodedRedirect);
 
     setGoogleError(null);
     window.location.href = loginUrl.toString();

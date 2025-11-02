@@ -50,13 +50,14 @@ export function useCustomFetch<TData>(
       setError(null);
 
       try {
-        const response = await tmdb.get<TData>(endpoint, {
+        const url = endpoint as string;
+        const response = await tmdb.get<TData>(url, {
           params,
           signal: controller.signal,
         });
 
         if (!canceled) {
-          setData(response.data);
+          setData(response.data as TData);
         }
       } catch (err) {
         if (canceled) return;
@@ -82,4 +83,3 @@ export function useCustomFetch<TData>(
 
   return { data, loading, error };
 }
-

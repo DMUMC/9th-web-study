@@ -34,4 +34,5 @@ export interface MovieDetails {
   runtime: number | null;
   genres: Genre[];
   tagline?: string;
+  homepage?: string | null;
 }
