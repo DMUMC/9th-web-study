@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useForm from '../hooks/useForm';
 import { validateSignin, type UserSigninInformation } from '../utils/validate';
 import { useNavigate } from 'react-router-dom';
 import { postSignin } from '../apis/auth';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { LOCAL_STORAGE_KEY } from '../constant/key';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
-    const { setItem } = useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
+    const { login, accessToken } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log('AccessToken in LoginPage:', accessToken); // 🚨 토큰 값 확인
+        if (accessToken) {
+            console.log("Token exists, navigating to '/'");
+            // 출입증이 있다면
+            navigate('/'); // 메인으로 가라
+        }
+    }, [accessToken, navigate]);
+
     const { values, errors, touched, getInutProps } =
         useForm<UserSigninInformation>({
             initialValue: {
@@ -19,18 +30,7 @@ const LoginPage = () => {
         });
 
     const handleSubmit = async () => {
-        try {
-            const response = await postSignin(values);
-            // setItem 함수가 올바르게 작동하면 토큰에 따옴표가 추가되지 않습니다.
-            setItem(response.data.accessToken);
-            console.log(response);
-
-            // 로그인 성공 후 MyPage로 이동
-            navigate('/my');
-        } catch (error) {
-            // alert(error?.message)
-            console.error('로그인 실패:', error);
-        }
+        await login(values);
     };
 
     const isDisabled =
