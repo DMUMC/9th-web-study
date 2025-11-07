@@ -1,0 +1,9 @@
+DS_Store
+# 의존성 폴더 제외
+node_modules/
+
+# 로그 및 빌드 파일 제외
+dist/
+build/
+.cache/
+npm-debug.log
