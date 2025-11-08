@@ -26,6 +26,7 @@ const MyPage = () => {
     return (
         <div>
             <div>{data?.data?.name}</div>
+            <div>{data?.data?.email}</div>
             <button
                 className='cursor-pointer bg-blue-300 rounded-sm p-5 hover:scale-90'
                 onClick={handleLogout}
