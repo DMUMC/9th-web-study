@@ -1,22 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import useGetLpList from '../hooks/queries/useGetLpList';
 
 const HomePage = () => {
     const [sortOrder, setSortOrder] = useState<
         'desc' | 'asc'
     >('desc');
-    const [selectedLpId, setSelectedLpId] = useState<
-        number | null
-    >(null);
+
     const { data, isPending, isError } = useGetLpList({
         order: sortOrder,
     });
-
-    useEffect(() => {
-        if (data && data.length > 0) {
-            setSelectedLpId((prev) => prev ?? data[0].id);
-        }
-    }, [data]);
 
     const getRelativeTime = (value: string | Date) => {
         const now = Date.now();
@@ -62,8 +55,8 @@ const HomePage = () => {
     }
 
     return (
-        <div className='px-4 pb-24 pt-6 sm:px-6 lg:px-8'>
-            <div className='mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center'>
+        <div className='mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8'>
+            <div className='mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
                 <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
                     LP 목록
                 </h1>
@@ -92,55 +85,44 @@ const HomePage = () => {
                     </button>
                 </div>
             </div>
-            <div className='flex gap-6 '>
-                <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4'>
-                    {data?.map((lp) => {
-                        const isSelected =
-                            lp.id === selectedLpId;
-                        const likesCount =
-                            lp.likes?.length ?? 0;
-                        return (
-                            <button
-                                type='button'
-                                key={lp.id}
-                                onClick={() =>
-                                    setSelectedLpId(lp.id)
-                                }
-                                className={`group relative aspect-square overflow-hidden rounded-lg border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${
-                                    isSelected
-                                        ? 'border-red-500 shadow-lg'
-                                        : 'border-transparent shadow-sm hover:border-red-300'
-                                }`}
-                            >
-                                <img
-                                    src={lp.thumbnail}
-                                    alt={lp.title}
-                                    className='h-full w-full object-cover transition-transform group-hover:scale-105'
-                                />
-                                <div className='pointer-events-none absolute inset-0 flex flex-col justify-between bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/75 group-hover:opacity-100 group-focus-visible:bg-black/75 group-focus-visible:opacity-100'>
-                                    <div className='p-3 text-left text-white'>
-                                        <p className='text-sm font-semibold leading-snug line-clamp-2'>
-                                            {lp.title}
-                                        </p>
-                                    </div>
-                                    <div className='flex items-center justify-between px-3 pb-3 text-xs text-gray-200'>
-                                        <span>
-                                            {getRelativeTime(
-                                                lp.createdAt
-                                            )}
-                                        </span>
-                                        <span className='flex items-center gap-1'>
-                                            <span className='text-sm'>
-                                                ♡
-                                            </span>
-                                            {likesCount}
-                                        </span>
-                                    </div>
+            <div className='grid grid-cols-2 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]'>
+                {data?.map((lp) => {
+                    const likesCount =
+                        lp.likes?.length ?? 0;
+                    return (
+                        <Link
+                            key={lp.id}
+                            to={`/lp/${lp.id}`}
+                            className='group relative aspect-square overflow-hidden rounded-lg border-2 border-transparent shadow-sm transition-all hover:border-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400'
+                        >
+                            <img
+                                src={lp.thumbnail}
+                                alt={lp.title}
+                                className='h-full w-full object-cover transition-transform duration-200 group-hover:scale-105'
+                            />
+                            <div className='pointer-events-none absolute inset-0 flex flex-col justify-between bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/75 group-hover:opacity-100 group-focus-visible:bg-black/75 group-focus-visible:opacity-100'>
+                                <div className='p-3 text-left text-white'>
+                                    <p className='text-sm font-semibold leading-snug line-clamp-2'>
+                                        {lp.title}
+                                    </p>
                                 </div>
-                            </button>
-                        );
-                    })}
-                </div>
+                                <div className='flex items-center justify-between px-3 pb-3 text-xs text-gray-200'>
+                                    <span>
+                                        {getRelativeTime(
+                                            lp.createdAt
+                                        )}
+                                    </span>
+                                    <span className='flex items-center gap-1'>
+                                        <span className='text-sm'>
+                                            ♡
+                                        </span>
+                                        {likesCount}
+                                    </span>
+                                </div>
+                            </div>
+                        </Link>
+                    );
+                })}
             </div>
             <button
                 type='button'
