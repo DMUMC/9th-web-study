@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getMyInfo } from '../apis/auth';
 import type { ResponseMyInfoDto } from '../types/user';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 const MyPage = () => {
-    const navigate = useNavigate();
-    const { logout } = useAuth();
     const [data, setData] = useState<ResponseMyInfoDto | null>(null);
 
     useEffect(() => {
@@ -18,21 +14,10 @@ const MyPage = () => {
         getData();
     }, []);
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/');
-    };
-
     return (
         <div>
             <div>{data?.data?.name}</div>
             <div>{data?.data?.email}</div>
-            <button
-                className='cursor-pointer bg-blue-300 rounded-sm p-5 hover:scale-90'
-                onClick={handleLogout}
-            >
-                로그아웃
-            </button>
         </div>
     );
 };

@@ -1,8 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
     const { accessToken } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
+    };
 
     return (
         <nav className='bg-white dark:bg-gray-900 shadow-md fixed w-full z-10'>
@@ -14,6 +21,12 @@ const Navbar = () => {
                     SpinningSpinning
                 </Link>
                 <div className='space-x-6'>
+                    <Link
+                        to='/search'
+                        className='text-gray-700 dark:text-gray-300 hover:text-blue-500'
+                    >
+                        🔍️
+                    </Link>
                     {!accessToken && (
                         <>
                             <Link
@@ -31,19 +44,21 @@ const Navbar = () => {
                         </>
                     )}
                     {accessToken && (
-                        <Link
-                            to='/my'
-                            className='text-gray-700 dark:text-gray-300 hover:text-blue-500'
-                        >
-                            마이페이지
-                        </Link>
+                        <>
+                            <Link
+                                to='/my'
+                                className='text-gray-700 dark:text-gray-300 hover:text-blue-500'
+                            >
+                                마이페이지
+                            </Link>
+                            <button
+                                className='cursor-pointer bg-blue-300 rounded-sm px-3 py-1 hover:scale-90'
+                                onClick={handleLogout}
+                            >
+                                로그아웃
+                            </button>
+                        </>
                     )}
-                    <Link
-                        to='/search'
-                        className='text-gray-700 dark:text-gray-300 hover:text-blue-500'
-                    >
-                        검색
-                    </Link>
                 </div>
             </div>
         </nav>
