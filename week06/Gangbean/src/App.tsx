@@ -30,10 +30,7 @@ const publicRoutes: RouteObject[] = [
                 index: true,
                 element: <HomePage />,
             },
-            {
-                path: 'lp/:lpId',
-                element: <LpDetailPage />,
-            },
+
             {
                 path: 'login',
                 element: <LoginPage />,
@@ -59,6 +56,10 @@ const protectedRoutes: RouteObject[] = [
             {
                 path: 'my',
                 element: <MyPage />,
+            },
+            {
+                path: 'lp/:lpId',
+                element: <LpDetailPage />,
             },
         ],
     },

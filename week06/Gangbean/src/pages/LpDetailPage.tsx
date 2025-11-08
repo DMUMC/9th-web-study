@@ -81,7 +81,7 @@ const LpDetailPage = () => {
                     </div>
                     <div className='flex flex-col items-end gap-3 text-sm text-gray-400'>
                         <p>{formattedDate}</p>
-                        <div className='flex items-center gap-2'>
+                        <div className='flex flex-wrap items-center justify-end gap-2'>
                             <button
                                 type='button'
                                 className='inline-flex items-center gap-1 rounded-full border border-gray-600 px-3 py-1 text-xs font-medium text-gray-200 transition-colors hover:border-gray-500 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300'
@@ -91,7 +91,7 @@ const LpDetailPage = () => {
                             </button>
                             <button
                                 type='button'
-                                className='inline-flex items-center gap-1 rounded-full border border-gray-600 px-3 py-1 text-xs font-medium text-gray-200 transition-colors hover:border-red-400 hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-400'
+                                className='inline-flex items-center gap-1 rounded-full border border-red-400 px-3 py-1 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-400'
                             >
                                 <span>🗑️</span>
                                 삭제
