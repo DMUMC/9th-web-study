@@ -1,23 +1,20 @@
-import { useEffect, useState } from 'react';
-import { getMyInfo } from '../apis/auth';
-import type { ResponseMyInfoDto } from '../types/user';
+import useGetMyInfo from '../hooks/queries/useGetMyInfo';
 
 const MyPage = () => {
-    const [data, setData] = useState<ResponseMyInfoDto | null>(null);
+    const { data, isPending, isError } = useGetMyInfo();
 
-    useEffect(() => {
-        const getData = async () => {
-            const response = await getMyInfo();
-            console.log(response);
-            setData(response);
-        };
-        getData();
-    }, []);
+    if (isPending) {
+        return <div>로딩 중...</div>;
+    }
+
+    if (isError || !data) {
+        return <div>내 정보를 불러오지 못했습니다.</div>;
+    }
 
     return (
         <div>
-            <div>{data?.data?.name}</div>
-            <div>{data?.data?.email}</div>
+            <div>{data.name}</div>
+            <div>{data.email}</div>
         </div>
     );
 };
