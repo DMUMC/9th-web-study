@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLpListQuery } from '../hooks/queries/useLpListQuery';
 import { LpCard } from '../components/LpCard';
@@ -8,8 +8,39 @@ import { StateMessage } from '../components/StateMessage';
 export const HomePage = () => {
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
-  const { data, isLoading, isFetching, isError, refetch } = useLpListQuery(order);
-  const list = useMemo(() => data?.data?.data ?? [], [data]);
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useLpListQuery(order);
+  const list = useMemo(() => data?.pages.flatMap((page) => page.data?.data ?? []) ?? [], [data]);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasNextPage) return undefined;
+    const node = loadMoreRef.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1 },
+    );
+
+    observer.observe(node);
+    return () => {
+      observer.unobserve(node);
+      observer.disconnect();
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
@@ -46,7 +77,7 @@ export const HomePage = () => {
 
       {isLoading ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 6 }).map((_, index) => (
+          {Array.from({ length: 8 }).map((_, index) => (
             <LpSkeleton key={index} />
           ))}
         </div>
@@ -69,6 +100,16 @@ export const HomePage = () => {
           ))}
         </div>
       )}
+
+      {isFetchingNextPage && !isLoading && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <LpSkeleton key={`next-${index}`} />
+          ))}
+        </div>
+      )}
+
+      <div ref={loadMoreRef} className="h-12 w-full" />
     </div>
   );
 };

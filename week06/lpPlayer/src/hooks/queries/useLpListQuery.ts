@@ -1,10 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { getLpList } from '../../apis/lps';
 
 export const useLpListQuery = (order: 'asc' | 'desc') => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['lps', order],
-    queryFn: () => getLpList({ order, limit: 12 }),
+    initialPageParam: undefined as number | undefined,
+    queryFn: ({ pageParam }) => getLpList({ order, limit: 12, cursor: pageParam ?? undefined }),
+    getNextPageParam: (lastPage) => {
+      if (!lastPage?.data?.hasNext) return undefined;
+      return lastPage.data.nextCursor ?? undefined;
+    },
     staleTime: 1000 * 30,
     gcTime: 1000 * 60 * 5,
   });

@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLpDetailQuery } from '../hooks/queries/useLpDetailQuery';
+import { useLpCommentsQuery } from '../hooks/queries/useLpCommentsQuery';
 import { useAuth } from '../useAuth';
 import { StateMessage } from '../components/StateMessage';
 import { Modal } from '../components/Modal';
 import { formatRelativeTime } from '../utils/date';
+import { CommentCard } from '../components/CommentCard';
+import { CommentSkeleton } from '../components/CommentSkeleton';
 
 export const LpDetailPage = () => {
   const { lpId } = useParams();
@@ -13,6 +16,7 @@ export const LpDetailPage = () => {
   const location = useLocation();
   const { isLoggedIn } = useAuth();
   const [showGuard, setShowGuard] = useState(!isLoggedIn);
+  const [commentOrder, setCommentOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     setShowGuard(!isLoggedIn);
@@ -26,6 +30,42 @@ export const LpDetailPage = () => {
   const likesCount = lp?.likes?.length ?? 0;
   const relativeTime = lp ? formatRelativeTime(lp.createdAt) : '';
   const avatarInitial = lp?.author?.name?.[0] ?? 'U';
+
+  const {
+    data: commentsData,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
+    refetch: refetchComments,
+    fetchNextPage: fetchNextComments,
+    hasNextPage: hasMoreComments,
+    isFetchingNextPage: isFetchingNextComments,
+  } = useLpCommentsQuery(Number.isFinite(numericId) ? numericId : null, commentOrder);
+
+  const comments = useMemo(
+    () => commentsData?.pages.flatMap((page) => page.data?.data ?? []) ?? [],
+    [commentsData],
+  );
+
+  const commentLoadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!commentLoadMoreRef.current || !hasMoreComments) return undefined;
+    const node = commentLoadMoreRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasMoreComments && !isFetchingNextComments) {
+          fetchNextComments();
+        }
+      },
+      { threshold: 1 },
+    );
+    observer.observe(node);
+    return () => {
+      observer.unobserve(node);
+      observer.disconnect();
+    };
+  }, [fetchNextComments, hasMoreComments, isFetchingNextComments]);
 
   const handleLoginRedirect = () => {
     navigate('/login', { state: { from: location } });
@@ -169,6 +209,80 @@ export const LpDetailPage = () => {
                 {action.label}
               </button>
             ))}
+          </section>
+
+          <section className="space-y-6 rounded-[32px] border border-neutral-900 bg-[#181920] p-6 sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <h2 className="text-2xl font-semibold text-white">댓글</h2>
+              <div className="inline-flex items-center rounded-full bg-white/5 p-1 text-sm font-semibold">
+                {[
+                  { value: 'asc', label: '오래된순' },
+                  { value: 'desc', label: '최신순' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setCommentOrder(option.value as 'asc' | 'desc')}
+                    className={`rounded-full px-4 py-1.5 transition-all ${
+                      commentOrder === option.value ? 'bg-white text-black shadow-sm' : 'text-neutral-400'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-neutral-800 bg-[#1f2026] p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <textarea
+                  className="h-20 flex-1 resize-none rounded-2xl border border-neutral-700 bg-transparent px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:border-[#ff2b9c] focus:outline-none"
+                  placeholder="댓글을 입력해주세요"
+                  disabled
+                />
+                <button
+                  type="button"
+                  className="rounded-2xl bg-[#ff2b9c] px-6 py-3 text-sm font-semibold text-white opacity-60"
+                  disabled
+                >
+                  작성
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-neutral-500">UI만 구현된 상태입니다. 로그인 후 기능을 연결해 주세요.</p>
+            </div>
+
+            {isCommentsLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <CommentSkeleton key={idx} />
+                ))}
+              </div>
+            ) : isCommentsError ? (
+              <StateMessage
+                title="댓글을 불러오지 못했습니다"
+                description="잠시 후 다시 시도해주세요."
+                actionLabel="다시 시도"
+                onAction={refetchComments}
+              />
+            ) : comments.length === 0 ? (
+              <StateMessage title="등록된 댓글이 없어요" description="LP에 대한 생각을 가장 먼저 남겨보세요." />
+            ) : (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <CommentCard key={comment.id} comment={comment} />
+                ))}
+              </div>
+            )}
+
+            {isFetchingNextComments && (
+              <div className="space-y-4">
+                {Array.from({ length: 2 }).map((_, idx) => (
+                  <CommentSkeleton key={`comment-next-${idx}`} />
+                ))}
+              </div>
+            )}
+
+            <div ref={commentLoadMoreRef} className="h-8 w-full" />
           </section>
         </div>
       )}
