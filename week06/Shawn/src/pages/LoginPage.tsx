@@ -55,7 +55,7 @@ const LoginPage = () => {
     }
 
     return (
-        <div className='flex flex-col gap-4 w-80'>
+        <div className='flex flex-col gap-4 w-80 my-auto'>
             <div className='flex justify-between items-center'>
                 <button className='text-white w-10' onClick={handleGoBack}>{'<'}</button>
                 <p className='text-2xl font-bold text-center'>로그인</p>

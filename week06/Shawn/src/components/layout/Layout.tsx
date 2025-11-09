@@ -41,7 +41,7 @@ export const Layout = () => {
 			<div className='flex flex-1'>
 				<Sidebar isOpen={isSidebarOpen || isDesktop} onClose={handleCloseSidebar} />
 				<FloatingButton />
-				<div className='flex-1 flex justify-center items-center'>
+				<div className='flex-1 flex justify-center'>
 					<Outlet />
 				</div>
 			</div>

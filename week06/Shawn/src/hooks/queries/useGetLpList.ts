@@ -5,7 +5,7 @@ import { QUERY_KEY } from "../../constant/key";
 
 const useGetLpList = ({cursor, limit, search, order}: PaginationDto) => {
     return useQuery({
-        queryKey: [QUERY_KEY.lps],
+        queryKey: [QUERY_KEY.lps, order],
         queryFn: () => getLpList({cursor, limit, search, order}),
     })
 }
