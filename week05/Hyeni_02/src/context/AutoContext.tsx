@@ -8,8 +8,9 @@ import { postLogin, postLogout } from '../apis/authApi';
 interface AuthContextType {
   token: string | null;
   userEmail: string | null;
+  userName: string | null;
   isLoading: boolean; 
-  login: (data: LoginFormData, redirectPath?: string) => Promise<void>;
+  login: (data: LoginFormData, redirectPath?: string) => Promise<void>; 
   logout: () => void;
 }
 
@@ -18,21 +19,23 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useLocalStorage<string | null>('authToken', null);
   const [userEmail, setUserEmail] = useLocalStorage<string | null>('userEmail', null);
+  const [userName, setUserName] = useLocalStorage<string | null>('userName', null);
   const [isLoading, setIsLoading] = useState(false); 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
-  const login = async (data: LoginFormData, redirectPath?: string) => {
+  const login = async (data: LoginFormData, redirectPath?: string) => { 
     setIsLoading(true);
     try {
-      const response = await postLogin(data);
+      const response = await postLogin(data); 
 
-      if (response.data.accessToken) {
-        setToken(response.data.accessToken);
+      if (response.data.data.accessToken) {
+        setToken(response.data.data.accessToken); 
         setUserEmail(data.email); 
+        setUserName(response.data.data.name);
         
-        navigate(redirectPath || '/mypage');
+        navigate(redirectPath || '/mypage'); 
       } else {
-        alert('로그인에 실패했습니다: 토큰이 없습니다.');
+        alert('로그인에 실패했습니다: 서버가 토큰을 반환하지 않았습니다.');
       }
     } catch (e: any) {
       console.error(e);
@@ -46,27 +49,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = async () => { 
     setIsLoading(true);
     try {
-      await postLogout();
+      await postLogout(); 
     } catch (e) {
-      console.error('로그아웃 API 호출 실패:', e);
+      console.error('로그아웃 API 호출 실패:', e); 
     } finally {
-      setToken(null);
-      setUserEmail(null);
+      setToken(null); 
+      setUserEmail(null); 
+      setUserName(null);
       setIsLoading(false);
       alert('로그아웃 되었습니다.');
       navigate('/');
     }
   };
 
-  const value = { token, userEmail, login, logout, isLoading }; 
+  const value = { token, userEmail, userName, login, logout, isLoading };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuth = () => { 
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
