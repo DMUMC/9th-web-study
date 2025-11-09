@@ -13,9 +13,14 @@ export const Layout = () => {
 					</p>
 					<div className='flex gap-4'>
 						{accessToken ? (
-							<NavLink className='rounded-2xl bg-neutral-900 px-4 py-2 font-bold' to='/mypage'>
-								마이페이지
-							</NavLink>
+							<>
+								<NavLink className='rounded-2xl bg-neutral-900 px-4 py-2 font-bold' to='/search'>
+									검색
+								</NavLink>
+								<NavLink className='rounded-2xl bg-neutral-900 px-4 py-2 font-bold' to='/mypage'>
+									마이페이지
+								</NavLink>
+							</>
 						) : (
 							<>
 								<NavLink className='rounded-2xl bg-neutral-900 px-4 py-2 font-bold' to='/login'>
