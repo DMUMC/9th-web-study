@@ -1,39 +1,67 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../useAuth";
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../useAuth';
+import { useMyInfoQuery } from '../hooks/queries/useMyInfoQuery';
+import { SearchIcon } from './icons/SearchIcon';
+import HamburgerButton from '../assets/hamburger-button.svg';
+
+type HeaderProps = {
+  onMenuClick?: () => void;
+};
 
 const baseButton =
-  "rounded-lg px-5 py-2 text-sm font-semibold transition-colors";
+  'rounded-lg px-5 py-2 text-sm font-semibold transition-colors';
 const outlineButton =
-  "bg-black border border-neutral-700 text-white hover:border-neutral-500";
-const primaryButton =
-  "bg-[#ff2b9c] text-white hover:bg-[#ff4cad] shadow-md";
+  'bg-black border border-neutral-700 text-white hover:border-neutral-500';
+const primaryButton = 'bg-[#ff2b9c] text-white hover:bg-[#ff4cad] shadow-md';
 
-export default function Header() {
+export default function Header({ onMenuClick }: HeaderProps) {
   const { isLoggedIn, setLogout } = useAuth();
+  const { data: myInfo } = useMyInfoQuery();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    alert("로그아웃 되었습니다!");
+    alert('로그아웃 되었습니다!');
     setLogout();
-    navigate("/");
+    navigate('/');
   };
 
   return (
-    <div className="flex h-20 items-center justify-between bg-black px-8">
-      <Link to="/">
-        <div className="text-2xl font-bold text-[#ff2b9c]">돌려돌려LP판</div>
-      </Link>
+    <div className="flex h-20 items-center justify-between bg-[#050505] px-4 sm:px-8">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="rounded-xl border border-neutral-800 p-2 text-white transition-colors hover:border-neutral-600"
+          aria-label="사이드바 열기"
+        >
+          <img
+            src={HamburgerButton}
+            alt="사이드바 열기"
+            className="h-6 w-6 brightness-0 invert"
+          />
+        </button>
+        <Link to="/">
+          <div className="text-2xl font-black tracking-wide text-[#ff2b9c]">DOLIGO</div>
+        </Link>
+      </div>
 
-      <div className="flex items-center gap-3 text-sm text-white">
+      <div className="flex items-center gap-4 text-sm text-white">
+        <button
+          type="button"
+          className="hidden items-center gap-2 rounded-full border border-neutral-800 px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:border-neutral-600 hover:text-white lg:flex"
+        >
+          <SearchIcon className="h-4 w-4" />
+          찾기
+        </button>
         {isLoggedIn ? (
           <>
+            <span className="hidden text-base font-semibold text-white sm:inline">
+              {myInfo?.name ? `${myInfo.name}님 반갑습니다.` : '반갑습니다.'}
+            </span>
             <Link to="/mypage" className={`${baseButton} ${outlineButton}`}>
               마이페이지
             </Link>
-            <button
-              onClick={handleLogout}
-              className={`${baseButton} ${primaryButton}`}
-            >
+            <button onClick={handleLogout} className={`${baseButton} ${primaryButton}`}>
               로그아웃
             </button>
           </>

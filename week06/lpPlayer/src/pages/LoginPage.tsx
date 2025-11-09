@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { authStore } from "../authStore";
 import { postSignin } from "../apis/auth";
@@ -17,9 +17,19 @@ const schema = z.object({
 
 type FormFields = z.infer<typeof schema>;
 
+type RedirectState = {
+  from?: {
+    pathname: string;
+    search?: string;
+    hash?: string;
+  } | null;
+};
+
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const fromState = location.state as RedirectState | null;
 
   const { 
     register, 
@@ -42,7 +52,11 @@ export const LoginPage = () => {
         throw new Error("토큰 정보가 없습니다.");
       }
       authStore.setTokens(accessToken, refreshToken);
-      navigate('/login-success', { replace: true });
+      const fallback =
+        fromState?.from?.pathname
+          ? `${fromState.from.pathname}${fromState.from.search ?? ''}${fromState.from.hash ?? ''}`
+          : '/login-success';
+      navigate(fallback, { replace: true });
     } catch (error: unknown) {
       console.error("로그인 실패:", error);
       alert("로그인 중 오류가 발생했습니다.");

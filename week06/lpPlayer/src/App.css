@@ -7,9 +7,10 @@
 
 body {
   margin: 0;
-  background-color: #000;
+  background-color: #020205;
   color: #fff;
-  font-family: 'Noto Sans KR', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: -0.01em;
 }
 
 * {

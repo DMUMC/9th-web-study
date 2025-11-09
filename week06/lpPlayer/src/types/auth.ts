@@ -30,8 +30,7 @@ export type ResponseSigninDto = CommonResponse<{
   refreshToken: string;
 }>
 
-//내 정보 조회
-export type ResponseMyInfoDto = CommonResponse<{
+export type UserProfileDto = {
   id: number;
   name: string;
   email: string;
@@ -39,4 +38,7 @@ export type ResponseMyInfoDto = CommonResponse<{
   avatar: string | null;
   createdAt: Date;
   updatedAt: Date;
-}>
+};
+
+//내 정보 조회
+export type ResponseMyInfoDto = CommonResponse<UserProfileDto>;
