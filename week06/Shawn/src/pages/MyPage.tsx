@@ -1,22 +1,9 @@
-import { useEffect, useState } from "react"
-import { getMyInfo } from "../apis/auth"
-import type { ResponseMyInfoDto } from "../types/auth"
 import { useAuth } from "../context/AuthContext"
+import useGetMyInfo from "../hooks/queries/useGetMyInfo"
 
 const MyPage = () => {
-    const [data, setData] = useState<ResponseMyInfoDto | null>(null)
     const {logout} = useAuth()
-
-    useEffect(() => {
-        const getData = async () => {
-            await getMyInfo().then((res) => {
-                console.log(res)
-                setData(res)
-            })
-        }
-
-        getData()
-    },[])
+    const { data } = useGetMyInfo()
 
     const handleLogout = async () => {
         await logout()

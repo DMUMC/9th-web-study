@@ -1,42 +1,50 @@
-import { NavLink, Outlet, useNavigate } from "react-router"
-import { useAuth } from '../../context/AuthContext'
+import { Outlet } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Navbar } from './Navbar'
+import { Sidebar } from './Sidebar'
+import { FloatingButton } from '../FloatingButton'
 
 export const Layout = () => {
-    const navigate = useNavigate()
-    const { accessToken } = useAuth()
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+	const [isDesktop, setIsDesktop] = useState(false)
 
-    return (
-			<div className='bg-neutral-900 text-neutral-200 min-h-screen min-w-screen flex flex-col'>
-				<div className='flex justify-between items-center p-4 bg-neutral-800'>
-					<p className='font-bold text-2xl text-teal-500 hover:cursor-pointer' onClick={() => navigate('/')}>
-						돌려돌려 LP판
-					</p>
-					<div className='flex gap-4'>
-						{accessToken ? (
-							<>
-								<NavLink className='rounded-2xl bg-neutral-900 px-4 py-2 font-bold' to='/search'>
-									검색
-								</NavLink>
-								<NavLink className='rounded-2xl bg-neutral-900 px-4 py-2 font-bold' to='/mypage'>
-									마이페이지
-								</NavLink>
-							</>
-						) : (
-							<>
-								<NavLink className='rounded-2xl bg-neutral-900 px-4 py-2 font-bold' to='/login'>
-									로그인
-								</NavLink>
-								<NavLink className='rounded-2xl bg-teal-500 px-4 py-2 font-bold' to='/signup'>
-									회원가입
-								</NavLink>
-							</>
-						)}
-					</div>
-				</div>
+	useEffect(() => {
+		const handleResize = () => {
+			setIsDesktop(window.innerWidth >= 1024)
+		}
 
+		handleResize()
+		window.addEventListener('resize', handleResize)
+
+		return () => {
+			window.removeEventListener('resize', handleResize)
+		}
+	}, [])
+
+	useEffect(() => {
+		if (isDesktop) {
+			setIsSidebarOpen(false)
+		}
+	}, [isDesktop])
+
+	const handleToggleSidebar = () => {
+		setIsSidebarOpen((prev) => !prev)
+	}
+
+	const handleCloseSidebar = () => {
+		setIsSidebarOpen(false)
+	}
+
+	return (
+		<div className='bg-neutral-900 text-neutral-200 min-h-screen min-w-screen flex flex-col'>
+			<Navbar onMenuClick={handleToggleSidebar} />
+			<div className='flex flex-1'>
+				<Sidebar isOpen={isSidebarOpen || isDesktop} onClose={handleCloseSidebar} />
+				<FloatingButton />
 				<div className='flex-1 flex justify-center items-center'>
 					<Outlet />
 				</div>
 			</div>
-		)
+		</div>
+	)
 }
