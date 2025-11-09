@@ -24,20 +24,20 @@ export type Author = {
     updatedAt: Date;
 };
 
-export type ResponseLpListDto = CursorBasedResponse<{
-    data: {
-        id: number;
-        title: string;
-        content: string;
-        thumbnail: string;
-        published: boolean;
-        authorId: number;
-        createdAt: Date;
-        updatedAt: Date;
-        tags: Tags[];
-        likes: Likes[];
-    }[];
-}>;
+export type Lp = {
+    id: number;
+    title: string;
+    content: string;
+    thumbnail: string;
+    published: boolean;
+    authorId: number;
+    createdAt: Date;
+    updatedAt: Date;
+    tags: Tags[];
+    likes: Likes[];
+};
+
+export type ResponseLpListDto = CursorBasedResponse<Lp[]>;
 
 export type ResponseLpDetailDto = CommonResponse<{
     id: number;
@@ -52,3 +52,17 @@ export type ResponseLpDetailDto = CommonResponse<{
     likes: Likes[];
     author: Author;
 }>;
+
+export type LpComment = {
+    id: number;
+    content: string;
+    lpId: number;
+    authorId: number;
+    createdAt: Date;
+    updatedAt: Date;
+    author: Author;
+};
+
+export type ResponseLpCommentListDto = CursorBasedResponse<
+    LpComment[]
+>;

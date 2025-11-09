@@ -1,10 +1,22 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useInView } from 'react-intersection-observer';
+import LpCommentItem from '../components/LpCommentItem';
+import SkeletonCard from '../components/SkeletonCard';
 import useGetLpDetail from '../hooks/queries/useGetLpDetail';
+import useGetInfiniteLpComments from '../hooks/queries/useGetInfiniteLpComments';
+
+const COMMENT_SKELETON_BASE_COUNT = 4;
 
 const LpDetailPage = () => {
     const navigate = useNavigate();
     const { lpId } = useParams<{ lpId: string }>();
+
+    const [commentOrder, setCommentOrder] = useState<
+        'asc' | 'desc'
+    >('asc');
+    const [commentContent, setCommentContent] =
+        useState('');
 
     const numericLpId = useMemo(() => {
         if (!lpId) return undefined;
@@ -14,6 +26,46 @@ const LpDetailPage = () => {
 
     const { data, isPending, isError } =
         useGetLpDetail(numericLpId);
+
+    const {
+        data: commentsData,
+        isPending: areCommentsPending,
+        isError: isCommentsError,
+        fetchNextPage: fetchNextComments,
+        hasNextPage: hasNextComments,
+        isFetchingNextPage: isFetchingNextComments,
+        isFetching: areCommentsFetching,
+    } = useGetInfiniteLpComments(
+        numericLpId,
+        10,
+        commentOrder
+    );
+
+    const { ref: commentsRef, inView: areCommentsInView } =
+        useInView({
+            rootMargin: '160px',
+        });
+
+    const comments = useMemo(
+        () =>
+            commentsData?.pages.flatMap(
+                (page) => page.data.data ?? []
+            ) ?? [],
+        [commentsData]
+    );
+
+    useEffect(() => {
+        if (!areCommentsInView) return;
+        if (!hasNextComments) return;
+        if (isFetchingNextComments) return;
+
+        fetchNextComments();
+    }, [
+        areCommentsInView,
+        fetchNextComments,
+        hasNextComments,
+        isFetchingNextComments,
+    ]);
 
     if (!numericLpId) {
         return (
@@ -38,6 +90,28 @@ const LpDetailPage = () => {
             </div>
         );
     }
+
+    const isCommentsSkeletonVisible =
+        areCommentsPending ||
+        (areCommentsFetching && !commentsData);
+
+    const isCommentValid =
+        commentContent.trim().length >= 5;
+    const commentHelperText = isCommentValid
+        ? '좋은 댓글 감사합니다!'
+        : '댓글은 최소 5자 이상 입력해주세요.';
+
+    const handleChangeCommentOrder = (
+        order: 'asc' | 'desc'
+    ) => {
+        setCommentOrder(order);
+    };
+
+    const handleCommentSubmit: React.FormEventHandler<
+        HTMLFormElement
+    > = (event) => {
+        event.preventDefault();
+    };
 
     const likesCount = data.likes?.length ?? 0;
     const formattedDate = new Intl.RelativeTimeFormat(
@@ -136,6 +210,153 @@ const LpDetailPage = () => {
                     </section>
                 )}
             </article>
+
+            <section className='mt-12 rounded-3xl bg-[#1a1a20] px-6 py-8 shadow-2xl sm:px-8'>
+                <header className='flex flex-wrap items-center justify-between gap-3'>
+                    <h2 className='text-xl font-semibold text-white'>
+                        댓글
+                    </h2>
+                    <span className='text-sm text-gray-400'>
+                        총 {comments.length}개
+                    </span>
+                </header>
+
+                <form
+                    onSubmit={handleCommentSubmit}
+                    className='mt-6 flex flex-col gap-3 rounded-2xl border border-gray-700 bg-gray-900/60 p-4'
+                >
+                    <textarea
+                        value={commentContent}
+                        onChange={(event) =>
+                            setCommentContent(
+                                event.target.value
+                            )
+                        }
+                        placeholder='댓글을 입력해주세요'
+                        maxLength={300}
+                        className='min-h-[96px] w-full resize-y rounded-xl border border-gray-700 bg-[#1f1f25] px-4 py-3 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400/40'
+                    />
+                    <div className='flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400'>
+                        <span
+                            className={
+                                isCommentValid
+                                    ? 'text-emerald-400'
+                                    : 'text-red-400'
+                            }
+                        >
+                            {commentHelperText}
+                        </span>
+                        <span>
+                            {commentContent.trim().length} /
+                            300
+                        </span>
+                    </div>
+                    <div className='flex items-center justify-end gap-2'>
+                        <button
+                            type='button'
+                            onClick={() =>
+                                setCommentContent('')
+                            }
+                            className='rounded-full border border-gray-700 px-4 py-2 text-xs font-medium text-gray-300 transition hover:border-gray-500 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600'
+                        >
+                            취소
+                        </button>
+                        <button
+                            type='submit'
+                            disabled={!isCommentValid}
+                            className='rounded-full border border-blue-500 px-5 py-2 text-xs font-semibold text-blue-200 transition focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:border-gray-700 disabled:bg-gray-800 disabled:text-gray-500'
+                        >
+                            댓글 등록
+                        </button>
+                    </div>
+                </form>
+
+                <div className='mt-6 flex items-center justify-end gap-2 text-xs'>
+                    <button
+                        type='button'
+                        onClick={() =>
+                            handleChangeCommentOrder('asc')
+                        }
+                        className={`rounded-full border px-3 py-1 font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                            commentOrder === 'asc'
+                                ? 'border-blue-500 bg-blue-500/20 text-blue-200'
+                                : 'border-gray-600 bg-transparent text-gray-400 hover:border-gray-500 hover:text-gray-200'
+                        }`}
+                    >
+                        오래된순
+                    </button>
+                    <button
+                        type='button'
+                        onClick={() =>
+                            handleChangeCommentOrder('desc')
+                        }
+                        className={`rounded-full border px-3 py-1 font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                            commentOrder === 'desc'
+                                ? 'border-blue-500 bg-blue-500/20 text-blue-200'
+                                : 'border-gray-600 bg-transparent text-gray-400 hover:border-gray-500 hover:text-gray-200'
+                        }`}
+                    >
+                        최신순
+                    </button>
+                </div>
+
+                <div className='mt-6 space-y-4'>
+                    {isCommentsSkeletonVisible &&
+                        Array.from({
+                            length: COMMENT_SKELETON_BASE_COUNT,
+                        }).map((_, index) => (
+                            <SkeletonCard
+                                key={`comment-skeleton-${index}`}
+                                variant='comment'
+                            />
+                        ))}
+
+                    {!isCommentsSkeletonVisible &&
+                        comments.map((comment) => (
+                            <LpCommentItem
+                                key={comment.id}
+                                comment={comment}
+                            />
+                        ))}
+
+                    {!isCommentsSkeletonVisible &&
+                        comments.length === 0 &&
+                        !areCommentsFetching && (
+                            <div className='rounded-2xl border border-dashed border-gray-700 bg-gray-800/40 px-4 py-10 text-center text-sm text-gray-400'>
+                                아직 댓글이 없습니다.
+                            </div>
+                        )}
+
+                    {isFetchingNextComments &&
+                        Array.from({ length: 2 }).map(
+                            (_, index) => (
+                                <SkeletonCard
+                                    key={`comment-next-skeleton-${index}`}
+                                    variant='comment'
+                                />
+                            )
+                        )}
+                </div>
+
+                <div
+                    ref={commentsRef}
+                    className='h-1 w-full'
+                />
+
+                {hasNextComments && (
+                    <div className='py-4 text-center text-xs text-gray-500'>
+                        {isFetchingNextComments
+                            ? '댓글을 불러오는 중...'
+                            : '아래로 스크롤하면 더 가져옵니다'}
+                    </div>
+                )}
+
+                {isCommentsError && (
+                    <div className='mt-4 text-center text-xs text-red-400'>
+                        댓글을 불러오지 못했습니다.
+                    </div>
+                )}
+            </section>
         </div>
     );
 };

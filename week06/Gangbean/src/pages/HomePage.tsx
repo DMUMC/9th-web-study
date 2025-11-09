@@ -1,15 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import useGetLpList from '../hooks/queries/useGetLpList';
+import { useInView } from 'react-intersection-observer';
+import SkeletonCard from '../components/SkeletonCard';
+import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList';
+
+const SKELETON_BASE_COUNT = 8;
 
 const HomePage = () => {
     const [sortOrder, setSortOrder] = useState<
         'desc' | 'asc'
     >('desc');
+    const [search, setSearch] = useState('');
+    const { ref, inView } = useInView();
 
-    const { data, isPending, isError } = useGetLpList({
-        order: sortOrder,
-    });
+    const {
+        data,
+        isPending,
+        isError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isFetching,
+    } = useGetInfiniteLpList(20, search, sortOrder);
+
+    const lps = useMemo(
+        () =>
+            data?.pages.flatMap(
+                (page) => page.data.data ?? []
+            ) ?? [],
+        [data]
+    );
+
+    useEffect(() => {
+        if (!inView) return;
+        if (!hasNextPage) return;
+        if (isFetchingNextPage) return;
+
+        fetchNextPage();
+    }, [
+        fetchNextPage,
+        hasNextPage,
+        inView,
+        isFetchingNextPage,
+    ]);
 
     const getRelativeTime = (value: string | Date) => {
         const now = Date.now();
@@ -38,10 +71,31 @@ const HomePage = () => {
         return `${diffYears}년 전`;
     };
 
-    if (isPending) {
+    const isSkeletonVisible =
+        isPending || (isFetching && !data);
+
+    if (isSkeletonVisible) {
         return (
-            <div className='px-6 py-10 text-center text-gray-500'>
-                Loading...
+            <div className='mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8'>
+                <div className='mb-6 flex w-full items-center gap-3'>
+                    <div className='h-10 w-full animate-pulse rounded-lg bg-gray-200' />
+                </div>
+                <div className='mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
+                    <div className='h-8 w-32 animate-pulse rounded bg-gray-200' />
+                    <div className='flex items-center gap-2'>
+                        <div className='h-9 w-24 animate-pulse rounded-full border border-gray-200 bg-gray-100' />
+                        <div className='h-9 w-24 animate-pulse rounded-full border border-gray-200 bg-gray-100' />
+                    </div>
+                </div>
+                <div className='grid grid-cols-2 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]'>
+                    {Array.from({
+                        length: SKELETON_BASE_COUNT,
+                    }).map((_, index) => (
+                        <SkeletonCard
+                            key={`lp-skeleton-${index}`}
+                        />
+                    ))}
+                </div>
             </div>
         );
     }
@@ -56,6 +110,17 @@ const HomePage = () => {
 
     return (
         <div className='mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 lg:px-8'>
+            <div className='mb-6 flex w-full items-center gap-3'>
+                <input
+                    type='search'
+                    value={search}
+                    onChange={(event) =>
+                        setSearch(event.target.value)
+                    }
+                    placeholder='검색어를 입력하세요'
+                    className='w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200'
+                />
+            </div>
             <div className='mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
                 <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
                     LP 목록
@@ -86,7 +151,7 @@ const HomePage = () => {
                 </div>
             </div>
             <div className='grid grid-cols-2 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]'>
-                {data?.map((lp) => {
+                {lps.map((lp) => {
                     const likesCount =
                         lp.likes?.length ?? 0;
                     return (
@@ -123,7 +188,28 @@ const HomePage = () => {
                         </Link>
                     );
                 })}
+                {isFetchingNextPage &&
+                    Array.from({ length: 4 }).map(
+                        (_, index) => (
+                            <SkeletonCard
+                                key={`lp-next-skeleton-${index}`}
+                            />
+                        )
+                    )}
             </div>
+            {lps.length === 0 && !isFetching && (
+                <div className='py-16 text-center text-sm text-gray-500'>
+                    표시할 LP가 없습니다.
+                </div>
+            )}
+            <div ref={ref} className='h-1 w-full' />
+            {hasNextPage && (
+                <div className='py-6 text-center text-sm text-gray-500'>
+                    {isFetchingNextPage
+                        ? '불러오는 중...'
+                        : '아래로 스크롤해 더 보기'}
+                </div>
+            )}
             <button
                 type='button'
                 className='fixed right-6 bottom-6 rounded-full px-5 py-3 bg-blue-500 text-white border-0 shadow-lg cursor-pointer focus:outline-none'
