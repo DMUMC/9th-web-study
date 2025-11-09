@@ -21,19 +21,21 @@ export interface Author {
     updatedAt: Date
 }
 
-export type ResponseLpListDto = CursorBasedResponse <{
-    data: {
-        id: number
-        title: string
-        content: string
-        thumbnail: string
-        published: boolean
-        createdAt: Date
-        updatedAt: Date
-        tags: Tag[]
-        likes: Likes[]
-    }[]
-}>
+export interface Lp {
+    id: number
+    title: string
+    content: string
+    thumbnail: string
+    published: boolean
+    authorId: number
+    createdAt: Date
+    updatedAt: Date
+    tags: Tag[]
+    likes: Likes[]
+    author: Author
+}
+
+export type ResponseLpListDto = CursorBasedResponse <Lp[]>
 
 export type ResponseLpDetailDto = CommonResponse<{
     id: number

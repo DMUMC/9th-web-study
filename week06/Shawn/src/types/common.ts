@@ -5,9 +5,15 @@ export interface CommonResponse<T> {
     data: T
 }
 
-export interface CursorBasedResponse<T> extends CommonResponse<T> {
-    nextCursor: number
-    hasNext: boolean
+export interface CursorBasedResponse<T> {
+    status: boolean
+    statusCode: number
+    message: string
+    data: {
+        data: T
+        nextCursor: number
+        hasNext: boolean
+    }
 }
 
 export interface PaginationDto {
