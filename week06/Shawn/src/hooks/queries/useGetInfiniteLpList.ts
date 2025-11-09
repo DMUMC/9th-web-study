@@ -8,8 +8,7 @@ function useGetInfiniteLpList(limit: number, search: string, order: 'asc' | 'des
         queryFn: ({pageParam}) => getLpList({cursor: pageParam, limit, search, order}),
         queryKey: [QUERY_KEY.lps, order, search],
         initialPageParam: 0,
-        getNextPageParam: (lastPage, allPages) => {
-            console.log(lastPage, allPages)
+        getNextPageParam: (lastPage) => {
             return lastPage?.data?.hasNext ? lastPage.data.nextCursor : undefined
         }
     })

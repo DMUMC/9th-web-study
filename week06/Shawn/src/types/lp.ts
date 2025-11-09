@@ -50,3 +50,15 @@ export type ResponseLpDetailDto = CommonResponse<{
     likes: Likes[]
     author: Author
 }>
+
+export interface CommentDto {
+    id: number
+    content: string
+    lpId: number
+    authorId: number
+    createdAt: Date
+    updatedAt: Date
+    author: Author
+}
+
+export type ResponseLpCommentsDto = CursorBasedResponse<CommentDto[]>
