@@ -9,7 +9,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isLoggedIn } = useAuthStore()
 
   if (!isLoggedIn) {
-    alert("로그인이 필요합니다.");
+    alert("로그인이 필요한 작업입니다. 로그인 해 주세요.")
     return <Navigate to="/login" replace />
   }
 

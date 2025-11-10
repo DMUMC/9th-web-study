@@ -5,7 +5,8 @@ interface AuthState {
   isLoggedIn: boolean
   accessToken: string | null
   refreshToken: string | null
-  setLogin: (accessToken: string, refreshToken: string) => void
+  userName: string | null
+  setLogin: (accessToken: string, refreshToken: string, userName?: string | null) => void
   setLogout: () => void
   updateTokens: (accessToken: string, refreshToken: string) => void
 }
@@ -16,15 +17,18 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       accessToken: null,
       refreshToken: null,
-      setLogin: (accessToken: string, refreshToken: string) => set({ 
+      userName: null,
+      setLogin: (accessToken: string, refreshToken: string, userName?: string | null) => set({ 
         isLoggedIn: true, 
         accessToken,
-        refreshToken
+        refreshToken,
+        userName: userName ?? null
       }),
       setLogout: () => set({ 
         isLoggedIn: false, 
         accessToken: null,
-        refreshToken: null
+        refreshToken: null,
+        userName: null
       }),
       updateTokens: (accessToken: string, refreshToken: string) => set({
         accessToken,
@@ -36,7 +40,8 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({ 
         isLoggedIn: state.isLoggedIn, 
         accessToken: state.accessToken,
-        refreshToken: state.refreshToken
+        refreshToken: state.refreshToken,
+        userName: state.userName
       }), // 저장할 상태만 선택
     }
   )

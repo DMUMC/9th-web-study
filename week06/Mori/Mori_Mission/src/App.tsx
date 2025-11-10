@@ -8,6 +8,7 @@ import { MyPage } from "./pages/MyPage"
 import { GoogleCallbackPage } from "./pages/GoogleCallbackPage"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { LpDetailPage } from "./pages/LpDetailPage"
 
 const queryClient = new QueryClient()
 
@@ -21,6 +22,14 @@ function App() {
         {index: true, element: <HomePage />},
         {path: '/login', element: <LoginPage />},
         {path: '/signup', element: <SignupPage />},
+        {
+          path: '/lp/:lpid',
+          element: (
+            <ProtectedRoute>
+              <LpDetailPage />
+            </ProtectedRoute>
+          )
+        },
         {path: '/v1/auth/google/callback', element: <GoogleCallbackPage />},
         {
           path: '/mypage',

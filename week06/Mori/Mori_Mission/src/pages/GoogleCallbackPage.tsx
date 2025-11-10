@@ -21,7 +21,7 @@ export const GoogleCallbackPage = () => {
         }
 
         if (accessToken && refreshToken) {
-          setLogin(accessToken, refreshToken)
+          setLogin(accessToken, refreshToken, null)
           alert('구글 로그인 성공!')
           navigate('/')
         } else {
