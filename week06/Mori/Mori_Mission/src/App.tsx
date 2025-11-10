@@ -7,6 +7,9 @@ import { SignupPage } from "./pages/SignupPage"
 import { MyPage } from "./pages/MyPage"
 import { GoogleCallbackPage } from "./pages/GoogleCallbackPage"
 import { ProtectedRoute } from "./components/ProtectedRoute"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+
+const queryClient = new QueryClient()
 
 function App() {
   const router = createBrowserRouter([
@@ -32,7 +35,9 @@ function App() {
   ])
 
   return (
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   )
 }
 
