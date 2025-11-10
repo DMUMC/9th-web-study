@@ -4,7 +4,7 @@ import { z } from "zod";
 import { postSignin } from '../apis/auth';
 import { AuthHeader } from '../components/AuthHeader';
 import { SocialLogin } from '../components/SocialLogin';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, type Location } from "react-router-dom";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useAuthStore } from "../store/authStore";
@@ -18,8 +18,12 @@ type FormFields = z.infer<typeof schema>;
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const { setLogin } = useAuthStore();
+
+  const redirectTo = (location.state as { from?: Location } | undefined)?.from
+
 
   const { 
     register, 
@@ -35,7 +39,11 @@ export const LoginPage = () => {
       const response = await postSignin(data)
       setLogin(response.data.accessToken, response.data.refreshToken, response.data.name)
       alert("로그인 성공!")
-      navigate('/')
+      if (redirectTo?.pathname) {
+        navigate(redirectTo.pathname + redirectTo.search + redirectTo.hash, { replace: true })
+      } else {
+        navigate('/')
+      }
     } catch (error: unknown) {
       console.error("로그인 실패:", error);
       alert("로그인 중 오류가 발생했습니다.");
