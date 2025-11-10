@@ -1,1 +1,72 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+@keyframes lp-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes lp-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.lp-skeleton-shimmer {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background-color: #1f1f1f;
+  overflow: hidden;
+}
+
+.lp-skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(32, 32, 32, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(32, 32, 32, 0) 100%);
+  transform: translateX(-100%);
+  animation: lp-shimmer 1.6s linear infinite;
+}
+
+.lp-skeleton-bar {
+  display: block;
+  border-radius: 9999px;
+  background-color: #2d2d2d;
+  animation: lp-pulse 1.8s ease-in-out infinite;
+}
+
+@layer components {
+  .lp-skeleton-shimmer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    border-radius: inherit;
+    background-color: #1f1f1f;
+    overflow: hidden;
+  }
+
+  .lp-skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(32, 32, 32, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(32, 32, 32, 0) 100%);
+    transform: translateX(-100%);
+    animation: lp-shimmer 1.6s linear infinite;
+  }
+
+  .lp-skeleton-bar {
+    display: block;
+    border-radius: 9999px;
+    background-color: #2d2d2d;
+    animation: lp-pulse 1.8s ease-in-out infinite;
+  }
+}

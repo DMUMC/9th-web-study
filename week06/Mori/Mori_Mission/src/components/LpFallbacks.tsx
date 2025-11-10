@@ -7,12 +7,23 @@ export const LpSkeletonGrid = ({ count = 10, columnsClassName }: LpSkeletonGridP
   const items = Array.from({ length: count })
 
   return (
-    <div className={`grid gap-3 ${columnsClassName ?? "grid-cols-3 md:grid-cols-4 xl:grid-cols-5"}`}>
+    <div className={`grid gap-4 ${columnsClassName ?? "grid-cols-3 md:grid-cols-4 xl:grid-cols-5"}`}>
       {items.map((_, index) => (
         <div
           key={`lp-skeleton-${index}`}
-          className="aspect-square animate-pulse rounded-lg bg-[#202020]"
-        />
+          className="relative overflow-hidden rounded-lg bg-[#202020]"
+        >
+          <div className="aspect-square">
+            <div className="lp-skeleton-shimmer" />
+          </div>
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3">
+            <span className="lp-skeleton-bar h-4 w-3/4" />
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <span className="lp-skeleton-bar h-3 w-20" />
+              <span className="lp-skeleton-bar h-3 w-16" />
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   )

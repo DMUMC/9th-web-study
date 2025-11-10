@@ -47,3 +47,21 @@ export interface LpDetailData extends Omit<LpItem, "tags" | "likes"> {
 }
 
 export type ResponseLpDetailDto = CommonResponse<LpDetailData>
+
+export interface LpCommentItem {
+  id: number
+  content: string
+  lpId: number
+  authorId: number
+  createdAt: string
+  updatedAt: string
+  author: LpAuthor
+}
+
+export interface LpCommentListData {
+  data: LpCommentItem[]
+  nextCursor: number | null
+  hasNext: boolean
+}
+
+export type ResponseLpCommentListDto = CommonResponse<LpCommentListData>
