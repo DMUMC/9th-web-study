@@ -144,6 +144,17 @@ export const HomePage = () => {
             더 이상 불러올 LP가 없습니다.
           </div>
         )}
+        <div className="fixed bottom-6 right-6 z-40">
+          <button
+            type="button"
+            onClick={() => navigate("/mypage")}
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff00b3] text-3xl font-bold text-white shadow-lg transition-transform hover:scale-105"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="36" height="36">
+              <path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z" />
+            </svg>
+          </button>
+        </div>
         </>
       )}
     </div>

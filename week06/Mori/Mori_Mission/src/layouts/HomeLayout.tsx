@@ -42,15 +42,15 @@ export const HomeLayout = () => {
   }, [])
 
   return (
-    <div className="min-h-dvh flex flex-col bg-black">
-      <header className="relative z-50">
+    <div className="min-h-dvh bg-black">
+      <header className="sticky top-0 z-50">
         <Header onSidebarToggle={toggleSidebar} />
       </header>
-      <div className="flex flex-1">
-        <aside className="hidden md:block md:w-56 lg:w-64">
+      <div className="flex">
+        <aside className="sticky top-12 hidden h-[calc(100dvh-3rem)] overflow-y-auto md:block md:w-56 lg:w-64">
           <Sidebar />
         </aside>
-        <main className="flex-1">
+        <main className="min-h-dvh flex-1 overflow-x-hidden">
           <Outlet />
         </main>
       </div>
