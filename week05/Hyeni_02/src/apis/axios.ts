@@ -1,4 +1,3 @@
-// src/apis/axios.ts
 import axios, { type AxiosError } from 'axios';
 
 export const api = axios.create({
@@ -7,7 +6,10 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    if (!config.url?.startsWith('/auth')) {
+    const isSignup = config.url?.startsWith('/auth/signup');
+    const isSignin = config.url?.startsWith('/auth/signin');
+
+    if (!isSignup && !isSignin) {
       const tokenItem = localStorage.getItem('authToken');
       if (tokenItem) {
         const token = JSON.parse(tokenItem);
@@ -16,6 +18,7 @@ api.interceptors.request.use(
         }
       }
     }
+    
     return config;
   },
   (error) => Promise.reject(error)
@@ -32,7 +35,7 @@ api.interceptors.response.use(
 
       const refreshTokenItem = localStorage.getItem('refreshToken');
       if (!refreshTokenItem) {
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        console.error('세션이 만료되었습니다. 다시 로그인해주세요.');
         window.location.href = '/login';
         return Promise.reject(error);
       }
@@ -64,7 +67,7 @@ api.interceptors.response.use(
         localStorage.removeItem('userName');
         localStorage.removeItem('userEmail');
         
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        console.error('세션이 만료되었습니다. 다시 로그인해주세요.');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

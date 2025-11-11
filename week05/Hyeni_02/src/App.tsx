@@ -11,42 +11,39 @@ import { GoogleCallbackPage } from './pages/GoogleCallbackPage';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainPage />,
+    element: <MainPage />, 
     children: [
       {
         index: true,
         element: <div className='p-4'>메인 페이지 콘텐츠입니다.</div>
       },
       {
-        path: '/login',
+        path: 'login',
         element: <LoginPage />
       },
       {
-        path: '/signup',
+        path: 'signup',
         element: <SignupPage />
       },
-      {
-        path: '/auth/google/callback', // 
-        element: <GoogleCallbackPage />
-      },
       {
         element: <ProtectedRoute />,
         children: [
           {
-            path: '/mypage',
+            path: 'mypage', 
             element: <MyPage />
           }
         ]
       }
     ]
   },
+  {
+    path: '/v1/auth/google/callback', 
+    element: <GoogleCallbackPage />
+  },
 ]);
 
 export function App() {
-
   return (
-    <>
-      <RouterProvider router={router} />;
-    </>
+    <RouterProvider router={router} />
   )
 }

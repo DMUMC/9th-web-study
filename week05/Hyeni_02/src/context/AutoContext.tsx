@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (response.data.data.accessToken && response.data.data.refreshToken) {
         setToken(response.data.data.accessToken); 
-        setRefreshToken(response.data.data.refreshToken); // 👈 2. Refresh Token 저장
+        setRefreshToken(response.data.data.refreshToken);
         setUserEmail(data.email); 
         setUserName(response.data.data.name);
         
