@@ -81,3 +81,31 @@ export type ResponseAddLpDto = CommonResponse<{
     createdAt: Date
     updatedAt: Date
 }>
+
+export interface AddLpCommentDto {
+    content: string
+}
+
+export type ResponseAddLpCommentDto = {
+    id: number
+    content: string
+    lpId: number
+    authorId: number
+    createdAt: Date
+    updatedAt: Date
+    author: Author
+}
+
+export type ResponseUpdateLpCommentDto = CommonResponse<{
+    id: number
+    content: string
+    lpId: number
+    authorId: number
+    createdAt: Date
+    updatedAt: Date
+    author: Author
+}>
+
+export type ResponseDeleteLpCommentDto = CommonResponse<{
+    message: string
+}>
