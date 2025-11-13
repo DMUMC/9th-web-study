@@ -6,7 +6,7 @@ import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList'
 import LpCardSkeleton from '../components/LpCard/LpCardSkeleton'
 
 const LpListPage = () => {
-	const [sort, setSort] = useState<'asc' | 'desc'>('asc')
+	const [sort, setSort] = useState<'asc' | 'desc'>('desc')
 	const [search, setSearch] = useState('')
 	//const {data, isLoading, error} = useGetLpList({cursor: undefined, limit: undefined, search: undefined, order: sort});
 	const { data: lps, isFetching, isFetchingNextPage, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpList(10, search, sort)
@@ -46,16 +46,16 @@ const LpListPage = () => {
 			<div className='flex items-center gap-2 justify-end'>
 				<button
 					className={`${
-						sort === 'asc' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
+						sort === 'desc' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
 					} px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-all duration-300`}
-					onClick={() => setSort('asc')}>
+					onClick={() => setSort('desc')}>
 					최신순
 				</button>
 				<button
 					className={`${
-						sort === 'desc' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
+						sort === 'asc' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
 					} px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-all duration-300`}
-					onClick={() => setSort('desc')}>
+					onClick={() => setSort('asc')}>
 					오래된순
 				</button>
 			</div>
