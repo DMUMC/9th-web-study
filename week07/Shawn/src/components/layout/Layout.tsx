@@ -3,10 +3,13 @@ import { useEffect, useState } from 'react'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
 import { FloatingButton } from '../FloatingButton'
+import LpModal from '../LpModal'
+import useLpModal from '../../store/useLpModal'
 
 export const Layout = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 	const [isDesktop, setIsDesktop] = useState(false)
+	const { isOpen } = useLpModal()
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -37,6 +40,7 @@ export const Layout = () => {
 
 	return (
 		<div className='bg-neutral-900 text-neutral-200 min-h-screen min-w-screen flex flex-col'>
+			{isOpen && <LpModal />}
 			<Navbar onMenuClick={handleToggleSidebar} />
 			<div className='flex flex-1'>
 				<Sidebar isOpen={isSidebarOpen || isDesktop} onClose={handleCloseSidebar} />

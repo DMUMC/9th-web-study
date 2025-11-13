@@ -1,5 +1,5 @@
 import type { PaginationDto } from "../types/common";
-import type { ResponseLpCommentsDto, ResponseLpDetailDto, ResponseLpListDto } from "../types/lp";
+import type { AddLpDto, ResponseAddLpDto, ResponseLpCommentsDto, ResponseLpDetailDto, ResponseLpListDto } from "../types/lp";
 import { api } from "../utils/AxiosInstance";
 
 export const getLpList = async (paginationDto: PaginationDto):Promise<ResponseLpListDto> => {
@@ -20,6 +20,12 @@ export const getLpComments = async (lpid: number, paginationDto: PaginationDto):
     const {data} = await api.get(`/lps/${lpid}/comments`, {
         params: paginationDto
     })
+
+    return data
+}
+
+export const addLp = async (lpData: AddLpDto):Promise<ResponseAddLpDto> => {
+    const {data} = await api.post('/lps', lpData)
 
     return data
 }

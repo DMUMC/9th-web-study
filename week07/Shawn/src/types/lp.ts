@@ -62,3 +62,22 @@ export interface CommentDto {
 }
 
 export type ResponseLpCommentsDto = CursorBasedResponse<CommentDto[]>
+
+export interface AddLpDto {
+    title: string
+    content: string
+    thumbnail: string
+    tags: string[]
+    published: boolean
+}
+
+export type ResponseAddLpDto = CommonResponse<{
+    id: number
+    title: string
+    content: string
+    thumbnail: string
+    published: boolean
+    authorId: number
+    createdAt: Date
+    updatedAt: Date
+}>
