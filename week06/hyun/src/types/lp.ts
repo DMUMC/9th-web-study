@@ -19,16 +19,8 @@ export type Likes = {
     lpId: number;
 };
 
-// --- 메인 응답 타입 정의 ---
-
-/**
- * LP 목록 조회 API의 응답 데이터 구조 (CursorBasedResponse를 확장함)
- */
-export type ResponseLPListDto = CursorBasedResponse<{
-    // ResponseLPListDto의 'data' 필드는 배열 객체를 포함합니다.
-
-    data: {
-        id: number;
+export type Lp = {
+    id: number;
         title: string;
         content: string;
         thumbnail: string;
@@ -37,6 +29,12 @@ export type ResponseLPListDto = CursorBasedResponse<{
         createdAt: Date;
         updatedAt: Date;
         tags: Tag[]; // 정의된 Tag 타입의 배열
-        likes: Likes[]; // 정의된 Likes 타입의 배열
-    }[]; // 👈 ResponseLPListDto의 data 필드는 객체의 배열입니다.
-}>;
+        likes: Likes[];
+}
+
+// --- 메인 응답 타입 정의 ---
+
+/**
+ * LP 목록 조회 API의 응답 데이터 구조 (CursorBasedResponse를 확장함)
+ */
+export type ResponseLPListDto = CursorBasedResponse<Lp[]>;
