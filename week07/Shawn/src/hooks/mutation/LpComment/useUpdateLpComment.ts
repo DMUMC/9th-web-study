@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEY } from "../../../constant/key"
-import { updateLpComment } from "../../../apis/lp"
+import { updateLpComment } from "../../../apis/lpComment"
 
 const useUpdateLpComment = () => {
     const qc = useQueryClient()
