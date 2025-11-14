@@ -13,7 +13,10 @@ import MyPage from './pages/MyPage';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedLayout from './layouts/ProtectedLayout';
 import GoogleLoginRedirectPage from './pages/GoogleLoginRedirectPage';
-import { Query, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import SearchPage from './pages/SearchPage';
+import LpDetailPage from './pages/LpDetailPage';
+import LpCreatePage from './pages/LpCreatePage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 // publicRoutes: 인증이 필요하지 않은 라우트
 const publicRoutes: RouteObject[] = [
@@ -25,6 +28,9 @@ const publicRoutes: RouteObject[] = [
             { index: true, element: <Homepage /> },
             { path: 'login', element: <LoginPage /> },
             { path: 'signup', element: <SignupPage /> },
+            { path: 'search', element: <SearchPage /> },
+            { path: 'lp/new', element: <LpCreatePage /> },
+            { path: 'lp/:lpId', element: <LpDetailPage /> },
             {
                 path: 'v1/auth/google/callback',
                 element: <GoogleLoginRedirectPage />,
@@ -48,7 +54,7 @@ const protectedRoutes: RouteObject[] = [
 ];
 const router = createBrowserRouter([...publicRoutes, ...protectedRoutes]);
 
-export const queryClient = new QueryClient();
+const queryClient = new QueryClient();
 
 function App() {
     return (

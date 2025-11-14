@@ -1,24 +1,22 @@
 import React, { useEffect } from 'react';
 import useForm from '../hooks/useForm';
 import { validateSignin, type UserSigninInformation } from '../utils/validate';
-import { useNavigate } from 'react-router-dom';
-import { postSignin } from '../apis/auth';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { LOCAL_STORAGE_KEY } from '../constant/key';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
     const { login, accessToken } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const redirectTo = params.get('redirect');
 
     useEffect(() => {
         console.log('AccessToken in LoginPage:', accessToken); // 🚨 토큰 값 확인
         if (accessToken) {
-            console.log("Token exists, navigating to '/'");
-            // 출입증이 있다면
-            navigate('/'); // 메인으로 가라
+            navigate(redirectTo ?? '/');
         }
-    }, [accessToken, navigate]);
+    }, [accessToken, navigate, redirectTo]);
 
     const { values, errors, touched, getInutProps } =
         useForm<UserSigninInformation>({
@@ -30,7 +28,7 @@ const LoginPage = () => {
         });
 
     const handleSubmit = async () => {
-        await login(values);
+        await login(values, { redirectTo: redirectTo ?? '/my' });
     };
 
     const handleGoogleLogin = () => {

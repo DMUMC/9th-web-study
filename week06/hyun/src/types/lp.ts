@@ -1,4 +1,4 @@
-import type { CursorBasedResponse } from './common';
+import type { CommonResponse, CursorBasedResponse } from './common';
 
 // --- 서브(Sub) 데이터 타입 정의 ---
 
@@ -21,16 +21,16 @@ export type Likes = {
 
 export type Lp = {
     id: number;
-        title: string;
-        content: string;
-        thumbnail: string;
-        published: boolean;
-        authorId: number;
-        createdAt: Date;
-        updatedAt: Date;
-        tags: Tag[]; // 정의된 Tag 타입의 배열
-        likes: Likes[];
-}
+    title: string;
+    content: string;
+    thumbnail: string;
+    published: boolean;
+    authorId: number;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    tags: Tag[]; // 정의된 Tag 타입의 배열
+    likes: Likes[];
+};
 
 // --- 메인 응답 타입 정의 ---
 
@@ -38,3 +38,4 @@ export type Lp = {
  * LP 목록 조회 API의 응답 데이터 구조 (CursorBasedResponse를 확장함)
  */
 export type ResponseLPListDto = CursorBasedResponse<Lp[]>;
+export type ResponseLPDetailDto = CommonResponse<Lp>;

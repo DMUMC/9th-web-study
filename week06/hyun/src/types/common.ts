@@ -1,4 +1,4 @@
-import { PAGINATION_ORDER } from '../enums/common.ts';
+import { PAGINATION_ORDER } from '../enums/common';
 
 export type CommonResponse<T> = {
     status: boolean;
@@ -6,19 +6,14 @@ export type CommonResponse<T> = {
     message: string;
     data: T;
 };
-// export type CursorBasedResponse<T> = {
-//     status: boolean;
-//     statusCode: number;
-//     message: string;
-//     data: T; // 실제 응답 데이터 (배열 형태가 될 수 있음)
-//     nextCursor: number; // 다음 페이지 조회를 위한 커서 값
-//     hasNext: boolean; // 다음 페이지가 있는지 여부
-// };
-export type CursorBasedResponse<T> = CommonResponse<T> & {
-    data:T,
-    nextCursor: number | null; // 다음 페이지 조회를 위한 커서 값
-    hasNext: boolean; // 다음 페이지가 있는지 여부
+
+export type CursorPayload<T> = {
+    data: T;
+    nextCursor: number | null;
+    hasNext: boolean;
 };
+
+export type CursorBasedResponse<T> = CommonResponse<CursorPayload<T>>;
 
 export type PaginationDto = {
     cursor?: number; // 현재 페이지 시작 커서 (옵셔널)

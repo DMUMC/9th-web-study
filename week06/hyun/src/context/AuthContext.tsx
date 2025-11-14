@@ -14,13 +14,17 @@ import { useNavigate } from 'react-router-dom';
 // import { UserData, AuthContextType } from '../types/auth';
 
 // 인증 컨텍스트(Context)가 제공할 값들의 타입을 정의합니다.
+type LoginOptions = {
+    redirectTo?: string | null;
+};
+
 interface AuthContextType {
     // 사용자의 인증 상태를 나타내는 접근 토큰 (단기 티켓)
     accessToken: string | null;
     // 접근 토큰 갱신에 사용되는 갱신 토큰 (장기 티켓)
     refreshToken: string | null;
     // 로그인 기능을 수행하는 비동기 함수
-    login: (signInData: RequestSigninDto) => Promise<void>;
+    login: (signInData: RequestSigninDto, options?: LoginOptions) => Promise<void>;
     // 로그아웃 기능을 수행하는 비동기 함수
     logout: () => Promise<void>;
 }
@@ -68,7 +72,10 @@ export const AuthProvider = ({ children: Children }: PropsWithChildren) => {
     );
 
     // 🚀 로그인 기능:
-    const login = async (signData: RequestSigninDto) => {
+    const login = async (
+        signData: RequestSigninDto,
+        options?: LoginOptions
+    ) => {
         try {
             // 1. 서버에 로그인 요청을 보냅니다.
             const { data } = await postSignin(signData);
@@ -88,7 +95,7 @@ export const AuthProvider = ({ children: Children }: PropsWithChildren) => {
 
             alert('로그인 성공');
             // 5. 로그인 성공 후 '/my' 페이지로 이동합니다.
-            window.location.href = '/my';
+            window.location.href = options?.redirectTo ?? '/my';
         } catch (error) {
             console.error('로그인 오류', error);
             alert('로그인 실패');

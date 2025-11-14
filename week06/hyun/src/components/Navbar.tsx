@@ -8,7 +8,12 @@ import { getMyInfo } from '../apis/auth';
 import type { ResponseMyInfoDto } from '../types/auth';
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
+type NavbarProps = {
+    onToggleSidebar?: () => void;
+    isSidebarOpen?: boolean;
+};
+
+const Navbar = ({ onToggleSidebar, isSidebarOpen = false }: NavbarProps) => {
     const navigate = useNavigate();
     const { accessToken, logout } = useAuth();
 
@@ -50,14 +55,39 @@ const Navbar = () => {
     // Navbar에서는 간단히 '로그아웃' 버튼만 표시합니다.
 
     return (
-        <nav className="bg-white dark:bg-gray-900 shadow-md fixed w-full z-10">
+        <nav className="fixed z-20 w-full bg-white shadow-md dark:bg-gray-900">
             <div className="flex items-center justify-between p-4">
-                <Link
-                    to="/"
-                    className="text-xl font-bold text-gray-900 dark:text-white"
-                >
-                    Spinning Spinning Dolimpan
-                </Link>
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        className="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onClick={onToggleSidebar}
+                        aria-pressed={isSidebarOpen}
+                        aria-label="사이드바 토글"
+                    >
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 48 48"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                fill="none"
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="4"
+                                d="M7.95 11.95h32m-32 12h32m-32 12h32"
+                            />
+                        </svg>
+                    </button>
+                    <Link
+                        to="/"
+                        className="text-xl font-bold text-gray-900 dark:text-white"
+                    >
+                        Spinning Spinning Dolimpan
+                    </Link>
+                </div>
 
                 <div className="space-x-6">
                     {/* 로그인/회원가입 */}

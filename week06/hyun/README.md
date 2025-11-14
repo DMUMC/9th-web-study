@@ -52,3 +52,14 @@ export default tseslint.config({
   },
 })
 ```
+
+## SVG 활용 정리 (Vite)
+
+1. **인라인 임포트**  
+   `import Logo from './logo.svg?url';` 형태로 불러오면 `Logo`에 정적 URL이 담겨 `<img src={Logo} />`로 사용할 수 있습니다.
+2. **컴포넌트로 사용 (SVGR)**  
+   `npm i -D @svgr/rollup` 후 `vite.config.ts`에 `svgr()` 플러그인을 추가하면 `import { ReactComponent as Icon } from './icon.svg';` 로 가져와 `<Icon />`처럼 JSX에서 직접 렌더링할 수 있습니다.
+3. **자산 폴더 사용**  
+   `public` 디렉터리에 SVG를 두고 `<img src="/icons/hamburger.svg" />`처럼 참조하면 빌드 시 자동으로 정적 파일로 제공됩니다.
+
+필요한 방식에 따라 URL, 컴포넌트, 정적 자산 중 하나를 선택해 SVG를 재사용할 수 있습니다.
