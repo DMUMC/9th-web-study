@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useGetLpList from '../hooks/queries/useGetLpList';
-import type { Lp, ResponseLPListDto } from '../types/lp';
+import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList';
+import type { Lp } from '../types/lp';
 import { PAGINATION_ORDER } from '../enums/common';
 import type { PAGINATION_ORDER as PaginationOrderType } from '../enums/common';
 
@@ -10,13 +10,20 @@ const sortOptions = [
     { label: '오래된순', value: PAGINATION_ORDER.ASC },
 ];
 
+const SkeletonCard = () => (
+    <div className="overflow-hidden rounded-xl bg-gray-900 shadow-lg">
+        <div className="aspect-square w-full animate-pulse bg-gray-800" />
+        <div className="p-4">
+            <div className="mb-2 h-4 w-3/4 animate-pulse rounded bg-gray-700" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-gray-700" />
+        </div>
+    </div>
+);
+
 const SkeletonGrid = () => (
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, index) => (
-            <div
-                key={`skeleton-${index}`}
-                className="h-64 animate-pulse rounded-xl bg-gray-200"
-            />
+            <SkeletonCard key={`skeleton-${index}`} />
         ))}
     </div>
 );
@@ -29,19 +36,45 @@ const Homepage = () => {
         () => new Set<number>()
     );
     const navigate = useNavigate();
+    const loadMoreRef = useRef<HTMLDivElement>(null);
 
-    const { data, isPending, isError, refetch, isFetching } = useGetLpList({
-        cursor: 0,
+    const {
+        data,
+        isPending,
+        isError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useGetInfiniteLpList({
         order: sortOrder,
         limit: 12,
     });
 
-    const typedData = data as ResponseLPListDto | undefined;
-
     const lpList: Lp[] = useMemo(() => {
-        const list = typedData?.data?.data;
-        return Array.isArray(list) ? list : [];
-    }, [typedData]);
+        if (!data?.pages) return [];
+        return data.pages.flatMap((page) => page.data.data ?? []);
+    }, [data]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (
+                    entries[0].isIntersecting &&
+                    hasNextPage &&
+                    !isFetchingNextPage
+                ) {
+                    fetchNextPage();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const formatDate = (value: string | Date) =>
         new Intl.DateTimeFormat('ko-KR').format(new Date(value));
@@ -77,19 +110,12 @@ const Homepage = () => {
         );
     }
 
-    if (isError || !data) {
+    if (isError) {
         return (
             <div className="mt-20 space-y-4 text-center">
                 <p className="text-red-500">
                     데이터를 불러오는 중 오류가 발생했습니다.
                 </p>
-                <button
-                    type="button"
-                    onClick={() => refetch()}
-                    className="rounded-md bg-gray-900 px-4 py-2 text-white"
-                >
-                    다시 시도
-                </button>
             </div>
         );
     }
@@ -125,65 +151,80 @@ const Homepage = () => {
                 </div>
             </header>
 
-            {isFetching && <SkeletonGrid />}
+            {lpList.length === 0 && renderEmpty}
 
-            {!isFetching && lpList.length === 0 && renderEmpty}
+            {lpList.length > 0 && (
+                <>
+                    <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                        {lpList.map((lp) => {
+                            const isLiked = likedLpIds.has(lp.id);
+                            const likeCount =
+                                (lp.likes?.length ?? 0) + (isLiked ? 1 : 0);
 
-            {!isFetching && lpList.length > 0 && (
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {lpList.map((lp) => {
-                        const isLiked = likedLpIds.has(lp.id);
-                        const likeCount =
-                            (lp.likes?.length ?? 0) + (isLiked ? 1 : 0);
-
-                        return (
-                            <article
-                                key={lp.id}
-                                className="group relative cursor-pointer overflow-hidden rounded-xl bg-gray-900 shadow-lg transition duration-200 hover:-translate-y-1 hover:shadow-pink-500/40"
-                                onClick={() => navigate(`/lp/${lp.id}`)}
-                            >
-                                <figure className="aspect-square w-full overflow-hidden bg-gray-800">
-                                    {lp.thumbnail ? (
-                                        <img
-                                            src={lp.thumbnail}
-                                            alt={`${lp.title} 앨범 커버`}
-                                            className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900 text-sm text-white/70">
-                                            이미지 준비 중
+                            return (
+                                <article
+                                    key={lp.id}
+                                    className="group relative cursor-pointer overflow-hidden rounded-xl bg-gray-900 shadow-lg transition duration-200 hover:-translate-y-1 hover:shadow-pink-500/40"
+                                    onClick={() => {
+                                        if (lp?.id) {
+                                            navigate(`/lp/${lp.id}`);
+                                        }
+                                    }}
+                                >
+                                    <figure className="aspect-square w-full overflow-hidden bg-gray-800">
+                                        {lp.thumbnail ? (
+                                            <img
+                                                src={lp.thumbnail}
+                                                alt={`${lp.title} 앨범 커버`}
+                                                className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900 text-sm text-white/70">
+                                                이미지 준비 중
+                                            </div>
+                                        )}
+                                    </figure>
+                                    <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 opacity-0 transition group-hover:opacity-100">
+                                        <h2 className="truncate text-lg font-semibold text-white">
+                                            {lp.title}
+                                        </h2>
+                                        <div className="mt-2 flex items-center justify-between text-sm text-white/80">
+                                            <span>
+                                                {formatDate(lp.createdAt)}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                aria-pressed={isLiked}
+                                                className={`flex items-center gap-1 rounded-full px-3 py-1 transition ${
+                                                    isLiked
+                                                        ? 'bg-pink-500 text-white'
+                                                        : 'bg-white/20 text-white hover:bg-pink-500/80'
+                                                }`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleLike(lp.id);
+                                                }}
+                                            >
+                                                <span aria-hidden>❤️</span>
+                                                <span>{likeCount}</span>
+                                            </button>
                                         </div>
-                                    )}
-                                </figure>
-                                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 opacity-0 transition group-hover:opacity-100">
-                                    <h2 className="truncate text-lg font-semibold text-white">
-                                        {lp.title}
-                                    </h2>
-                                    <div className="mt-2 flex items-center justify-between text-sm text-white/80">
-                                        <span>{formatDate(lp.createdAt)}</span>
-                                        <button
-                                            type="button"
-                                            aria-pressed={isLiked}
-                                            className={`flex items-center gap-1 rounded-full px-3 py-1 transition ${
-                                                isLiked
-                                                    ? 'bg-pink-500 text-white'
-                                                    : 'bg-white/20 text-white hover:bg-pink-500/80'
-                                            }`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleLike(lp.id);
-                                            }}
-                                        >
-                                            <span aria-hidden>❤️</span>
-                                            <span>{likeCount}</span>
-                                        </button>
                                     </div>
-                                </div>
-                            </article>
-                        );
-                    })}
-                </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+
+                    <div ref={loadMoreRef} className="py-8">
+                        {isFetchingNextPage && <SkeletonGrid />}
+                        {!hasNextPage && lpList.length > 0 && (
+                            <p className="text-center text-sm text-gray-500">
+                                모든 LP를 불러왔습니다.
+                            </p>
+                        )}
+                    </div>
+                </>
             )}
         </section>
     );

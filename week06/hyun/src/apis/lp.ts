@@ -1,7 +1,7 @@
 // src/apis/lp.ts
 
 import type { PaginationDto } from '../types/common'; // 요청 파라미터 타입 임포트
-import type { ResponseLPDetailDto, ResponseLPListDto } from '../types/lp'; // 응답 데이터 타입 임포트
+import type { ResponseLPDetailDto, ResponseLPListDto, Comment } from '../types/lp'; // 응답 데이터 타입 임포트
 import { axiosInstance } from './axios'; // axios 인스턴스 임포트 (경로에 맞게 수정 필요)
 
 /**
@@ -24,5 +24,22 @@ export const getLPList = async (
 
 export const getLPDetail = async (lpId: string): Promise<ResponseLPDetailDto> => {
     const { data } = await axiosInstance.get(`/v1/lps/${lpId}`);
+    return data;
+};
+
+export const createComment = async (
+    lpId: string,
+    content: string
+): Promise<{ data: { id: number; content: string } }> => {
+    const { data } = await axiosInstance.post(`/v1/lps/${lpId}/comments`, {
+        content,
+    });
+    return data;
+};
+
+export const getComments = async (
+    lpId: string
+): Promise<{ data: Comment[] }> => {
+    const { data } = await axiosInstance.get(`/v1/lps/${lpId}/comments`);
     return data;
 };

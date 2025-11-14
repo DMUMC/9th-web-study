@@ -19,6 +19,18 @@ export type Likes = {
     lpId: number;
 };
 
+/**
+ * 댓글(Comment) 데이터 구조
+ */
+export type Comment = {
+    id: number;
+    content: string;
+    userId: number;
+    lpId: number;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+};
+
 export type Lp = {
     id: number;
     title: string;
@@ -30,6 +42,7 @@ export type Lp = {
     updatedAt: string | Date;
     tags: Tag[]; // 정의된 Tag 타입의 배열
     likes: Likes[];
+    comments?: Comment[]; // 댓글 배열
 };
 
 // --- 메인 응답 타입 정의 ---

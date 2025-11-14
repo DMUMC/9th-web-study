@@ -1,20 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
-import { getLPDetail } from '../../apis/lp';
 import { QUERY_KEY } from '../../constant/key';
+import { getLPDetail } from '../../apis/lp';
+import type { ResponseLPDetailDto } from '../../types/lp';
 
-const useGetLpDetail = (lpId?: string) => {
+function useGetLpDetail(lpId: string | undefined) {
     return useQuery({
-        queryKey: [QUERY_KEY.lp, lpId],
+        queryKey: [QUERY_KEY.lp, 'detail', lpId],
         queryFn: () => {
             if (!lpId) {
-                throw new Error('lpId가 필요합니다.');
+                throw new Error('LP ID is required');
             }
             return getLPDetail(lpId);
         },
-        enabled: Boolean(lpId),
+        enabled: !!lpId,
         staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
     });
-};
+}
 
 export default useGetLpDetail;
-
