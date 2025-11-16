@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
 import { postSignin } from '../apis/auth';
 import { AuthHeader } from '../components/AuthHeader';
 import { SocialLogin } from '../components/SocialLogin';
@@ -24,19 +25,18 @@ export const LoginPage = () => {
 
   const redirectTo = (location.state as { from?: Location } | undefined)?.from
 
-
   const { 
     register, 
     handleSubmit, 
-    formState: { errors, isSubmitting, isValid } 
+    formState: { errors, isValid } 
   } = useForm<FormFields>({
     resolver: zodResolver(schema),
     mode: 'onChange', 
   });
 
-  const onSubmit: SubmitHandler<FormFields> = async (data) => {
-    try {
-      const response = await postSignin(data)
+  const loginMutation = useMutation({
+    mutationFn: postSignin,
+    onSuccess: (response) => {
       setLogin(response.data.accessToken, response.data.refreshToken, response.data.name)
       alert("로그인 성공!")
       if (redirectTo?.pathname) {
@@ -44,10 +44,15 @@ export const LoginPage = () => {
       } else {
         navigate('/')
       }
-    } catch (error: unknown) {
+    },
+    onError: (error: unknown) => {
       console.error("로그인 실패:", error);
       alert("로그인 중 오류가 발생했습니다.");
-    }
+    },
+  });
+
+  const onSubmit: SubmitHandler<FormFields> = (data) => {
+    loginMutation.mutate(data)
   };
 
   return (
@@ -89,10 +94,10 @@ export const LoginPage = () => {
           )}
         <button 
           type='submit' 
-          disabled={!isValid || isSubmitting}
+          disabled={!isValid || loginMutation.isPending}
           className='w-full bg-[#ff00b3] text-white py-3 rounded-md mt-2 font-medium 
           hover:bg-[#b3007d] transition-colors cursor-pointer disabled:bg-[#202020] disabled:text-gray-500'>
-            {isSubmitting ? '로그인 중...' : '로그인'}
+            {loginMutation.isPending ? '로그인 중...' : '로그인'}
         </button>
       </form>
     </div>

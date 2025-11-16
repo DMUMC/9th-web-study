@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 
@@ -10,10 +11,25 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
   const { isLoggedIn, setLogout, userName } = useAuthStore()
   const navigate = useNavigate()
 
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      // 로그아웃은 클라이언트에서만 처리 (토큰 삭제)
+      setLogout()
+    },
+    onSuccess: () => {
+      alert("로그아웃 되었습니다!")
+      navigate('/')
+    },
+    onError: (error) => {
+      console.error("로그아웃 실패:", error)
+      // 에러가 발생해도 로그아웃 처리
+      setLogout()
+      navigate('/')
+    },
+  })
+
   const handleLogout = () => {
-    alert("로그아웃 되었습니다!")
-    setLogout()
-    navigate('/')
+    logoutMutation.mutate()
   }
 
   return (
@@ -44,9 +60,10 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
             </span>
             <button 
               onClick={handleLogout}
-              className='bg-black p-1 px-3 rounded-md cursor-pointer'
+              disabled={logoutMutation.isPending}
+              className='bg-black p-1 px-3 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              로그아웃
+              {logoutMutation.isPending ? '로그아웃 중...' : '로그아웃'}
             </button>
           </>
         ) : (
