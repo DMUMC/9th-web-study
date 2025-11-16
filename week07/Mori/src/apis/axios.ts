@@ -11,6 +11,7 @@ const PUBLIC_API_PATHS = [
   '/v1/auth/signin',
   '/v1/auth/signup',
   '/v1/auth/refresh',
+  '/v1/uploads/public',
 ]
 
 // 토큰 갱신 확인

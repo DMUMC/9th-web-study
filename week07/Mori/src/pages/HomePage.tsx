@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import type { InfiniteData } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
-import { getLpList } from "../apis/lp"
+import { createLp, getLpList } from "../apis/lp"
 import { LpErrorState, LpLoadingNotice, LpSkeletonGrid } from "../components/LpFallbacks"
+import { CreateLpModal } from "../components/CreateLpModal"
 import type { LpOrder, ResponseLpListDto } from "../types/lp"
 
 export const HomePage = () => {
   const [sort, setSort] = useState<LpOrder>("desc")
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const {
     data,
@@ -42,6 +45,28 @@ export const HomePage = () => {
 
   const toggleSort = () => {
     setSort((prev) => (prev === "desc" ? "asc" : "desc"))
+  }
+
+  const createLpMutation = useMutation({
+    mutationFn: createLp,
+    onSuccess: () => {
+      // LP 목록 새로고침
+      void queryClient.invalidateQueries({ queryKey: ["lps"] })
+      setIsModalOpen(false)
+    },
+    onError: (error) => {
+      console.error("LP 작성 실패:", error)
+      alert("LP 작성에 실패했습니다. 다시 시도해주세요.")
+    },
+  })
+
+  const handleCreateLp = (data: {
+    title: string
+    content: string
+    thumbnail: string | null
+    tags: string[]
+  }) => {
+    createLpMutation.mutate(data)
   }
 
   const infiniteData = data as InfiniteData<ResponseLpListDto, number> | undefined
@@ -147,14 +172,21 @@ export const HomePage = () => {
         <div className="fixed bottom-6 right-6 z-40">
           <button
             type="button"
-            onClick={() => navigate("/mypage")}
+            onClick={() => setIsModalOpen(true)}
             className="flex h-14 w-14 items-center justify-center rounded-full bg-[#ff00b3] text-3xl font-bold text-white shadow-lg transition-transform hover:scale-105"
+            aria-label="새 LP 작성"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="36" height="36">
               <path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z" />
             </svg>
           </button>
         </div>
+        <CreateLpModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleCreateLp}
+          isSubmitting={createLpMutation.isPending}
+        />
         </>
       )}
     </div>
