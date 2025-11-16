@@ -6,7 +6,7 @@ import { StateMessage } from '../components/StateMessage';
 import { patchMyInfo, postSignout } from '../apis/auth';
 import { uploadImage } from '../apis/uploads';
 import { useAuth } from '../useAuth';
-import type { UpdateProfilePayload } from '../types/auth';
+import type { UpdateProfilePayload, UserProfileDto } from '../types/auth';
 
 export const MyPage = () => {
   const navigate = useNavigate();
@@ -58,13 +58,33 @@ export const MyPage = () => {
     }
   };
 
-  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useMutation({
+  const {
+    mutateAsync: updateProfile,
+    isPending: isUpdatingProfile,
+  } = useMutation({
     mutationFn: patchMyInfo,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+    onMutate: async (payload: UpdateProfilePayload) => {
+      await queryClient.cancelQueries({ queryKey: ['me'] });
+      const previousUser = queryClient.getQueryData<UserProfileDto>(['me']);
+      if (previousUser) {
+        const optimisticUser: UserProfileDto = {
+          ...previousUser,
+          name: payload.name ?? previousUser.name,
+          bio: payload.bio !== undefined ? payload.bio : previousUser.bio,
+          avatar: payload.avatar !== undefined ? payload.avatar : previousUser.avatar,
+        };
+        queryClient.setQueryData(['me'], optimisticUser);
+      }
+      return { previousUser };
     },
-    onError: () => {
+    onError: (_error, _payload, context) => {
+      if (context?.previousUser) {
+        queryClient.setQueryData(['me'], context.previousUser);
+      }
       alert('프로필 수정에 실패했습니다. 다시 시도해주세요.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });
 

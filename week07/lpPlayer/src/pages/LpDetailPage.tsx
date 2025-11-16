@@ -13,6 +13,7 @@ import { CommentSkeleton } from '../components/CommentSkeleton';
 import { postLpComment } from '../apis/comments';
 import { deleteLp, likeLp, unlikeLp } from '../apis/lps';
 import { LpCreateModal } from '../components/LpCreateModal';
+import type { LpDetailResponse } from '../types/lp';
 
 export const LpDetailPage = () => {
   const { lpId } = useParams();
@@ -97,19 +98,46 @@ export const LpDetailPage = () => {
     },
   });
 
-  const { mutate: toggleLike, isPending: isTogglingLike } = useMutation({
+  const {
+    mutate: mutateLike,
+    isPending: isTogglingLike,
+  } = useMutation({
     mutationFn: (liked: boolean) => {
       if (!resolvedLpId) throw new Error('LP 정보가 없습니다.');
       return liked ? unlikeLp(resolvedLpId) : likeLp(resolvedLpId);
+    },
+    onMutate: async (liked: boolean) => {
+      if (!resolvedLpId || !myInfo) return undefined;
+      await queryClient.cancelQueries({ queryKey: ['lp', resolvedLpId] });
+      const previousLp = queryClient.getQueryData<LpDetailResponse>(['lp', resolvedLpId]);
+      if (previousLp?.data) {
+        const updatedLikes = liked
+          ? previousLp.data.likes.filter((like) => like.userId !== myInfo.id)
+          : [
+              ...previousLp.data.likes,
+              { id: Date.now(), userId: myInfo.id, lpId: resolvedLpId },
+            ];
+        queryClient.setQueryData(['lp', resolvedLpId], {
+          ...previousLp,
+          data: {
+            ...previousLp.data,
+            likes: updatedLikes,
+          },
+        });
+      }
+      return { previousLp, lpKey: ['lp', resolvedLpId] as const };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousLp && resolvedLpId) {
+        queryClient.setQueryData(['lp', resolvedLpId], context.previousLp);
+      }
+      alert('좋아요 처리 중 오류가 발생했습니다.');
     },
     onSuccess: () => {
       if (resolvedLpId) {
         queryClient.invalidateQueries({ queryKey: ['lp', resolvedLpId] });
         queryClient.invalidateQueries({ queryKey: ['lps'] });
       }
-    },
-    onError: () => {
-      alert('좋아요 처리 중 오류가 발생했습니다.');
     },
   });
 
@@ -156,7 +184,7 @@ export const LpDetailPage = () => {
       handleLoginRedirect();
       return;
     }
-    toggleLike(isLiked);
+    mutateLike(isLiked);
   };
 
   const handleCommentSubmit = () => {
