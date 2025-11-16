@@ -8,7 +8,7 @@ import { LpDetailContent } from "../components/LpDetailContent"
 import { LpCommentsSection } from "../components/LpCommentsSection"
 import { CreateLpModal } from "../components/CreateLpModal"
 import { ConfirmModal } from "../components/ConfirmModal"
-import type { LpCommentItem, LpOrder } from "../types/lp"
+import type { LpCommentItem, LpOrder, ResponseLpDetailDto } from "../types/lp"
 
 export const LpDetailPage = () => {
   const { lpid } = useParams<{ lpid: string }>()
@@ -114,13 +114,58 @@ export const LpDetailPage = () => {
   // LP 좋아요 토글
   const likeLpMutation = useMutation({
     mutationFn: () => toggleLikeLp(parsedId),
-    onSuccess: () => {
+
+    onMutate: async () => {
+
+      await queryClient.cancelQueries({ queryKey: ["lp", parsedId] })
+      const previousLpDetail = queryClient.getQueryData<ResponseLpDetailDto>(["lp", parsedId])
+
+      if (!previousLpDetail || !currentUserId) {
+        return { previousLpDetail: undefined }
+      }
+
+      const isCurrentlyLiked = previousLpDetail.data.likes.some(
+        (like) => like.userId === currentUserId
+      )
+
+      let optimisticLikes
+      if (isCurrentlyLiked) {
+        optimisticLikes = previousLpDetail.data.likes.filter(
+          (like) => like.userId !== currentUserId
+        )
+      } else {
+        const optimisticLike = {
+          id: Date.now(),
+          userId: currentUserId,
+          lpId: parsedId,
+        }
+        optimisticLikes = [...previousLpDetail.data.likes, optimisticLike]
+      }
+
+      queryClient.setQueryData<ResponseLpDetailDto>(["lp", parsedId], {
+        ...previousLpDetail,
+        data: {
+          ...previousLpDetail.data,
+          likes: optimisticLikes,
+        },
+      })
+
+      return { previousLpDetail }
+    },
+      
+    onError: (error, variables, context) => {
+      console.error("좋아요 실패 (롤백 실행):", error)
+
+      if (context?.previousLpDetail) {
+        queryClient.setQueryData(["lp", parsedId], context.previousLpDetail)
+      }
+      
+      alert("좋아요 처리에 실패했습니다. 다시 시도해주세요.")
+    },
+
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["lp", parsedId] })
       void queryClient.invalidateQueries({ queryKey: ["lps"] })
-    },
-    onError: (error) => {
-      console.error("좋아요 실패:", error)
-      alert("좋아요 처리에 실패했습니다. 다시 시도해주세요.")
     },
   })
 
