@@ -44,37 +44,164 @@ const LpCreateModal = ({ isOpen, onClose }: LpCreateModalProps) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (title.trim() && content.trim()) {
-            const formData = new FormData();
-            formData.append('title', title.trim());
-            formData.append('content', content.trim());
-            if (thumbnail) {
-                formData.append('thumbnail', thumbnail);
-            }
-            tags.forEach((tag) => {
-                formData.append('tags', tag);
-            });
 
-            createLP(formData, {
-                onSuccess: () => {
-                    // 폼 초기화
-                    setTitle('');
-                    setContent('');
-                    setTags([]);
-                    setTagInput('');
-                    setThumbnail(null);
-                    setThumbnailPreview(null);
-                    if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                    }
-                    onClose();
-                },
-                onError: (error) => {
-                    console.error('LP 생성 실패:', error);
-                    alert('LP 생성에 실패했습니다.');
-                },
-            });
+        const trimmedTitle = title.trim();
+        const trimmedContent = content.trim();
+
+        if (!trimmedTitle || !trimmedContent) {
+            alert('제목과 내용을 입력해주세요.');
+            return;
         }
+
+        // thumbnail 파일이 있으면 Base64로 변환
+        if (thumbnail) {
+            // 이미지 파일 크기 제한 (예: 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (thumbnail.size > maxSize) {
+                alert('이미지 파일 크기는 5MB 이하여야 합니다.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // Base64 data URL에서 순수 Base64 문자열만 추출
+                // data:image/png;base64,iVBORw0KG... -> iVBORw0KG...
+                const base64DataUrl = reader.result as string;
+                const base64String = base64DataUrl.includes(',')
+                    ? base64DataUrl.split(',')[1]
+                    : base64DataUrl;
+
+                // JSON 형식으로 데이터 준비
+                const body: {
+                    title: string;
+                    content: string;
+                    thumbnail?: string;
+                    tags?: string[];
+                    published: boolean;
+                } = {
+                    title: trimmedTitle,
+                    content: trimmedContent,
+                    thumbnail: base64String, // 순수 Base64 문자열
+                    published: true,
+                };
+
+                // tags가 있으면 추가
+                if (tags.length > 0) {
+                    body.tags = tags;
+                }
+
+                // 전송 전 데이터 확인
+                console.log('LP 생성 요청 데이터:', {
+                    title: body.title,
+                    content: body.content,
+                    thumbnail: body.thumbnail
+                        ? `${body.thumbnail.substring(0, 50)}... (길이: ${
+                              body.thumbnail.length
+                          })`
+                        : undefined,
+                    tags: body.tags,
+                    published: body.published,
+                });
+
+                // 전송
+                createLP(body, {
+                    onSuccess: () => {
+                        // 폼 초기화
+                        setTitle('');
+                        setContent('');
+                        setTags([]);
+                        setTagInput('');
+                        setThumbnail(null);
+                        setThumbnailPreview(null);
+                        if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                        }
+                        onClose();
+                    },
+                    onError: (error: unknown) => {
+                        console.error('LP 생성 실패:', error);
+                        const axiosError = error as {
+                            response?: {
+                                data?: { message?: string } | unknown;
+                                status?: number;
+                                statusText?: string;
+                            };
+                            message?: string;
+                        };
+                        console.error('에러 응답 전체:', axiosError?.response);
+                        console.error(
+                            '에러 응답 데이터:',
+                            axiosError?.response?.data
+                        );
+                        console.error(
+                            '에러 상태 코드:',
+                            axiosError?.response?.status
+                        );
+                        console.error(
+                            '에러 상태 텍스트:',
+                            axiosError?.response?.statusText
+                        );
+                        console.error('에러 메시지:', axiosError?.message);
+
+                        const errorData = axiosError?.response?.data as
+                            | { message?: string }
+                            | undefined;
+                        const errorMessage =
+                            errorData?.message ||
+                            axiosError?.message ||
+                            'LP 생성에 실패했습니다.';
+                        alert(`LP 생성에 실패했습니다: ${errorMessage}`);
+                    },
+                });
+            };
+            reader.onerror = () => {
+                alert('이미지 파일을 읽는 중 오류가 발생했습니다.');
+            };
+            reader.readAsDataURL(thumbnail);
+            return;
+        }
+
+        // thumbnail이 없으면 바로 전송
+        const body: {
+            title: string;
+            content: string;
+            thumbnail?: string;
+            tags?: string[];
+            published: boolean;
+        } = {
+            title: trimmedTitle,
+            content: trimmedContent,
+            published: true,
+        };
+
+        // tags가 있으면 추가
+        if (tags.length > 0) {
+            body.tags = tags;
+        }
+
+        // 전송 전 데이터 확인
+        console.log('LP 생성 요청 데이터:', body);
+
+        // 전송
+        createLP(body, {
+            onSuccess: () => {
+                // 폼 초기화
+                setTitle('');
+                setContent('');
+                setTags([]);
+                setTagInput('');
+                setThumbnail(null);
+                setThumbnailPreview(null);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                onClose();
+            },
+            onError: (error) => {
+                console.error('LP 생성 실패:', error);
+                alert('LP 생성에 실패했습니다.');
+            },
+        });
     };
 
     const handleClose = () => {

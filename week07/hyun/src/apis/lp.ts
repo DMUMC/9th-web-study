@@ -80,12 +80,14 @@ export const getComments = async (
     return { data: [] };
 };
 
-export const createLP = async (formData: FormData): Promise<ResponseLPDetailDto> => {
-    const { data } = await axiosInstance.post('/v1/lps', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+export const createLP = async (body: {
+    title: string;
+    content: string;
+    thumbnail?: string;
+    tags?: string[];
+    published?: boolean;
+}): Promise<ResponseLPDetailDto> => {
+    const { data } = await axiosInstance.post('/v1/lps', body);
     return data;
 };
 

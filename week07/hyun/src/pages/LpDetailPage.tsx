@@ -6,6 +6,7 @@ import useCreateComment from '../hooks/mutations/useCreateComment';
 import useDeleteLP from '../hooks/mutations/useDeleteLP';
 import { useAuth } from '../context/AuthContext';
 import CommentItem from '../components/CommentItem';
+import { getImageUrl } from '../utils/image';
 
 const LpDetailPage = () => {
     const { lpId } = useParams<{ lpId: string }>();
@@ -146,7 +147,7 @@ const LpDetailPage = () => {
             <figure className="overflow-hidden rounded-xl bg-gray-100">
                 {lp.thumbnail ? (
                     <img
-                        src={lp.thumbnail}
+                        src={getImageUrl(lp.thumbnail)}
                         alt={`${lp.title} 앨범 이미지`}
                         className="w-full object-cover"
                     />

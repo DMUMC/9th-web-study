@@ -4,6 +4,7 @@ import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList';
 import type { Lp } from '../types/lp';
 import { PAGINATION_ORDER } from '../enums/common';
 import type { PAGINATION_ORDER as PaginationOrderType } from '../enums/common';
+import { getImageUrl } from '../utils/image';
 
 const sortOptions = [
     { label: '최신순', value: PAGINATION_ORDER.DESC },
@@ -174,7 +175,7 @@ const Homepage = () => {
                                     <figure className="aspect-square w-full overflow-hidden bg-gray-800">
                                         {lp.thumbnail ? (
                                             <img
-                                                src={lp.thumbnail}
+                                                src={getImageUrl(lp.thumbnail)}
                                                 alt={`${lp.title} 앨범 커버`}
                                                 className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
                                                 loading="lazy"
