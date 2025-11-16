@@ -1,10 +1,25 @@
+import { FiHeart } from "react-icons/fi"
 import type { LpDetailData } from "../types/lp"
 
 interface LpDetailContentProps {
   lpDetail: LpDetailData
+  currentUserId: number | null
+  isLiked: boolean
+  onEdit: () => void
+  onDelete: () => void
+  onLike: () => void
 }
 
-export const LpDetailContent = ({ lpDetail }: LpDetailContentProps) => {
+export const LpDetailContent = ({
+  lpDetail,
+  currentUserId,
+  isLiked,
+  onEdit,
+  onDelete,
+  onLike,
+}: LpDetailContentProps) => {
+  const isMyLp = currentUserId !== null && lpDetail.authorId === currentUserId
+
   return (
     <>
       <header className="flex flex-col gap-4">
@@ -47,26 +62,36 @@ export const LpDetailContent = ({ lpDetail }: LpDetailContentProps) => {
       </section>
 
       <section className="flex flex-wrap gap-3">
-        <div className="flex flex-1 items-center justify-center rounded-md bg-[#202020] px-4 py-2 text-sm font-semibold text-white shadow-inner">
-          <span className="flex items-center gap-2 text-base">
-            <span role="img" aria-label="heart">
-              ❤️
-            </span>
-            {lpDetail.likes.length}
-          </span>
-        </div>
         <button
           type="button"
-          className="rounded-md bg-[#202020] px-4 py-2 text-sm font-semibold transition-colors hover:bg-[#2d2d2d]"
+          onClick={onLike}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold shadow-inner transition-colors ${
+            isLiked
+              ? "bg-[#ff00b3] text-white hover:bg-[#b3007d]"
+              : "bg-[#202020] text-white hover:bg-[#2d2d2d]"
+          }`}
         >
-          신고
+          <FiHeart size={18} fill={isLiked ? "currentColor" : "none"} />
+          {lpDetail.likes.length}
         </button>
-        <button
-          type="button"
-          className="rounded-md bg-[#ff00b3] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#b3007d]"
-        >
-          수정
-        </button>
+        {isMyLp && (
+          <>
+            <button
+              type="button"
+              onClick={onEdit}
+              className="rounded-md bg-[#ff00b3] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#b3007d]"
+            >
+              수정
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+            >
+              삭제
+            </button>
+          </>
+        )}
       </section>
     </>
   )

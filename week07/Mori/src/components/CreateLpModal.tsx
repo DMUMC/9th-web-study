@@ -14,15 +14,39 @@ interface CreateLpModalProps {
     tags: string[]
   }) => void
   isSubmitting?: boolean
+  mode?: "create" | "edit"
+  initialData?: {
+    title: string
+    content: string
+    thumbnail: string | null
+    tags: string[]
+  }
 }
 
-export const CreateLpModal = ({ isOpen, onClose, onSubmit, isSubmitting = false }: CreateLpModalProps) => {
+export const CreateLpModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  isSubmitting = false,
+  mode = "create",
+  initialData,
+}: CreateLpModalProps) => {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [tags, setTags] = useState<string[]>([])
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const modalRef = useModalOutsideClick(isOpen, onClose)
+
+  // 초기 데이터 설정 (수정 모드일 때)
+  useEffect(() => {
+    if (initialData && isOpen) {
+      setTitle(initialData.title)
+      setContent(initialData.content)
+      setTags(initialData.tags)
+      setThumbnailUrl(initialData.thumbnail)
+    }
+  }, [initialData, isOpen])
 
   // 모달이 닫힐 때 상태 초기화
   useEffect(() => {
@@ -69,7 +93,7 @@ export const CreateLpModal = ({ isOpen, onClose, onSubmit, isSubmitting = false 
           <FiX size={24} />
         </button>
 
-        <h2 className="mb-6 text-2xl font-bold text-white">새 LP 작성</h2>
+        <h2 className="mb-6 text-2xl font-bold text-white">{mode === "edit" ? "LP 수정" : "새 LP 작성"}</h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <ImageUpload
@@ -124,7 +148,15 @@ export const CreateLpModal = ({ isOpen, onClose, onSubmit, isSubmitting = false 
               disabled={isUploading || isSubmitting}
               className="rounded-md bg-[#ff00b3] px-6 py-2 font-semibold text-white transition-colors hover:bg-[#b3007d] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploading ? "업로드 중..." : isSubmitting ? "작성 중..." : "작성"}
+              {isUploading
+                ? "업로드 중..."
+                : isSubmitting
+                  ? mode === "edit"
+                    ? "수정 중..."
+                    : "작성 중..."
+                  : mode === "edit"
+                    ? "수정"
+                    : "작성"}
             </button>
           </div>
         </form>

@@ -156,3 +156,45 @@ export const updateComment = async (
 export const deleteComment = async (lpId: number, commentId: number): Promise<void> => {
   await axiosInstance.delete(`/v1/lps/${lpId}/comments/${commentId}`)
 }
+
+// LP 수정
+interface UpdateLpParams {
+  title: string
+  content: string
+  thumbnail?: string | null
+  tags: string[]
+  published?: boolean
+}
+
+export const updateLp = async (
+  lpId: number,
+  params: UpdateLpParams
+): Promise<ResponseLpDetailDto> => {
+  const { data } = await axiosInstance.patch<ResponseLpDetailDto>(
+    `/v1/lps/${lpId}`,
+    {
+      title: params.title,
+      content: params.content,
+      thumbnail: params.thumbnail || undefined,
+      tags: params.tags,
+      published: params.published ?? true,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+  return data
+}
+
+// LP 삭제
+export const deleteLp = async (lpId: number): Promise<void> => {
+  await axiosInstance.delete(`/v1/lps/${lpId}`)
+}
+
+// LP 좋아요 토글
+export const toggleLikeLp = async (lpId: number): Promise<ResponseLpDetailDto> => {
+  const { data } = await axiosInstance.post<ResponseLpDetailDto>(`/v1/lps/${lpId}/likes`)
+  return data
+}

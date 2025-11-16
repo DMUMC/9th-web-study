@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { FiPlus } from "react-icons/fi"
 import { uploadImage } from "../apis/lp"
 
@@ -17,6 +17,16 @@ export const ImageUpload = ({
 }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // 기존 이미지 URL이 있으면 미리보기로 표시
+  useEffect(() => {
+    if (value) {
+      setPreview(value)
+    } else if (!value && preview && !fileInputRef.current?.files?.[0]) {
+      // value가 null이고 새 파일이 선택되지 않았을 때만 preview 초기화
+      setPreview(null)
+    }
+  }, [value])
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
