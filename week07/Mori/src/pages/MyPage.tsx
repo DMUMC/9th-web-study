@@ -3,10 +3,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { FiSettings } from "react-icons/fi"
 import { getMyInfo, updateMyInfo } from "../apis/auth"
 import { ProfileEditModal } from "../components/ProfileEditModal"
+import { useAuthStore } from "../store/authStore";
+import type { ResponseMyInfoDto } from "../types/auth";
 
 export const MyPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const queryClient = useQueryClient()
+
+  const { setLogin, accessToken, refreshToken } = useAuthStore()
 
   const {
     data: userInfoResponse,
@@ -28,13 +32,54 @@ export const MyPage = () => {
         bio: data.bio,
         avatar: data.avatar,
       }),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: ["myInfo"] })
+
+      const previousUserInfo = queryClient.getQueryData<ResponseMyInfoDto>(["myInfo"])
+      const previousUserName = useAuthStore.getState().userName
+
+      if (previousUserInfo) {
+        queryClient.setQueryData<ResponseMyInfoDto>(["myInfo"], {
+          ...previousUserInfo,
+          data: {
+            ...previousUserInfo.data,
+            name: newData.name, 
+          },
+        })
+      }
+      if (accessToken && refreshToken) {
+        setLogin(accessToken, refreshToken, newData.name)
+      }
+
+      return { previousUserInfo, previousUserName }
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["myInfo"] })
       setIsModalOpen(false)
     },
-    onError: (error) => {
+    onError: (error, newData, context) => {
       console.error("프로필 수정 실패:", error)
       alert("프로필 수정에 실패했습니다. 다시 시도해주세요.")
+
+      if (context?.previousUserInfo) {
+        queryClient.setQueryData(["myInfo"], context.previousUserInfo)
+      }
+      
+      if (accessToken && refreshToken) {
+        setLogin(accessToken, refreshToken, context?.previousUserName ?? null)
+      }
+    },
+    onSettled: (data) => {
+      setIsModalOpen(false)
+      
+      queryClient.invalidateQueries({ queryKey: ["myInfo"] }).then(() => {
+        const latestData = queryClient.getQueryData<ResponseMyInfoDto>(["myInfo"]);
+        const serverName = latestData?.data?.name ?? data?.data?.name ?? null;
+
+        if (accessToken && refreshToken) {
+          setLogin(accessToken, refreshToken, serverName)
+        }
+      })
     },
   })
 
