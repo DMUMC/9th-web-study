@@ -37,3 +37,19 @@ export type ResponseMyInfoDto = CommonResponse<{
     createdAt: Date
     updatedAt: Date
 }>
+
+export interface RequestEditMyInfoDto {
+    name: string
+    bio: string | null
+    avatar: string | null
+}
+
+export type ResponseEditMyInfoDto = CommonResponse<{
+    id: number
+    name: string
+    email: string
+    bio: string | null
+    avatar: string | null
+    createdAt: Date
+    updatedAt: Date
+}>
