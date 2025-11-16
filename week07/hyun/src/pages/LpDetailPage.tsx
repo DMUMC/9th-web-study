@@ -4,16 +4,18 @@ import useGetLpDetail from '../hooks/queries/useGetLpDetail';
 import useGetComments from '../hooks/queries/useGetComments';
 import useCreateComment from '../hooks/mutations/useCreateComment';
 import useDeleteLP from '../hooks/mutations/useDeleteLP';
+import useToggleLike from '../hooks/mutations/useToggleLike';
 import { useAuth } from '../context/AuthContext';
+import useGetMyInfo from '../hooks/queries/useGetMyInfo';
 import CommentItem from '../components/CommentItem';
 import { getImageUrl } from '../utils/image';
 
 const LpDetailPage = () => {
     const { lpId } = useParams<{ lpId: string }>();
     const { accessToken } = useAuth();
+    const { data: myInfo } = useGetMyInfo();
     const navigate = useNavigate();
     const location = useLocation();
-    const [isLiked, setIsLiked] = useState(false);
     const [commentInput, setCommentInput] = useState('');
     const [commentOrder, setCommentOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -34,8 +36,23 @@ const LpDetailPage = () => {
     const { mutate: createComment, isPending: isSubmitting } =
         useCreateComment();
     const { mutate: deleteLP, isPending: isDeletingLP } = useDeleteLP();
+    const { mutate: toggleLike, isPending: isTogglingLike } = useToggleLike();
 
     const lp = useMemo(() => data?.data, [data]);
+
+    // 현재 사용자가 게시글 작성자인지 확인
+    const isAuthor = useMemo(() => {
+        if (!lp || !myInfo?.data?.id) return false;
+        return lp.authorId === myInfo.data.id;
+    }, [lp, myInfo]);
+
+    // 현재 사용자가 좋아요를 눌렀는지 확인
+    const isLiked = useMemo(() => {
+        if (!lp || !myInfo?.data?.id) return false;
+        return (
+            lp.likes?.some((like) => like.userId === myInfo.data.id) ?? false
+        );
+    }, [lp, myInfo]);
 
     const handleSubmitComment = (e: React.FormEvent) => {
         e.preventDefault();
@@ -144,15 +161,15 @@ const LpDetailPage = () => {
                 )}
             </header>
 
-            <figure className="overflow-hidden rounded-xl bg-gray-100">
+            <figure className="flex justify-center overflow-hidden rounded-xl bg-gray-100 shadow-lg">
                 {lp.thumbnail ? (
                     <img
                         src={getImageUrl(lp.thumbnail)}
                         alt={`${lp.title} 앨범 이미지`}
-                        className="w-full object-cover"
+                        className="max-h-[70vh] w-full max-w-4xl object-contain"
                     />
                 ) : (
-                    <div className="flex h-72 items-center justify-center text-gray-400">
+                    <div className="flex h-72 w-full items-center justify-center text-gray-400">
                         썸네일 이미지가 없습니다.
                     </div>
                 )}
@@ -163,7 +180,7 @@ const LpDetailPage = () => {
             </section>
 
             <div className="flex flex-wrap gap-3">
-                {accessToken && (
+                {isAuthor && (
                     <>
                         <button
                             type="button"
@@ -185,13 +202,42 @@ const LpDetailPage = () => {
                 <button
                     type="button"
                     aria-pressed={isLiked}
-                    className={`rounded-md px-4 py-2 text-sm font-medium text-white ${
-                        isLiked ? 'bg-pink-600' : 'bg-pink-500'
-                    }`}
-                    onClick={() => setIsLiked((prev) => !prev)}
+                    disabled={isTogglingLike || !accessToken}
+                    className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition ${
+                        isLiked
+                            ? 'bg-pink-600 text-white'
+                            : 'bg-pink-500 text-white hover:bg-pink-600'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    onClick={() => {
+                        if (lpId) {
+                            toggleLike({ lpId, isLiked });
+                        }
+                    }}
                 >
-                    {isLiked ? '좋아요 취소' : '좋아요'}{' '}
-                    {(lp.likes?.length ?? 0) + (isLiked ? 1 : 0)}
+                    {isTogglingLike ? (
+                        <span className="text-xs">처리 중...</span>
+                    ) : (
+                        <>
+                            {isLiked ? (
+                                <svg
+                                    className="h-5 w-5 fill-current"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                            ) : (
+                                <svg
+                                    className="h-5 w-5 fill-none stroke-current stroke-2"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                            )}
+                            <span>{lp.likes?.length ?? 0}</span>
+                        </>
+                    )}
                 </button>
             </div>
 

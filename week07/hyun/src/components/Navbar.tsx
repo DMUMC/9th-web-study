@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useState, useEffect } from 'react';
-import { getMyInfo } from '../apis/auth';
-import type { ResponseMyInfoDto } from '../types/auth';
 import useLogout from '../hooks/mutations/useLogout';
+import useGetMyInfo from '../hooks/queries/useGetMyInfo';
 
 type NavbarProps = {
     onToggleSidebar?: () => void;
@@ -13,33 +11,7 @@ type NavbarProps = {
 const Navbar = ({ onToggleSidebar, isSidebarOpen = false }: NavbarProps) => {
     const { accessToken } = useAuth();
     const { mutate: handleLogout, isPending: isLoggingOut } = useLogout();
-
-    const [data, setData] = useState<ResponseMyInfoDto | null>(null);
-
-    // 2. 주석 처리했던 useEffect 로직 활성화 및 정리
-    useEffect(() => {
-        const getData = async () => {
-            // accessToken이 없으면 호출할 필요 없음
-            if (!accessToken) {
-                setData(null); // 로그아웃 상태면 데이터 초기화
-                return;
-            }
-
-            try {
-                const response = await getMyInfo();
-                setData(response);
-            } catch (error) {
-                // 에러 발생 시 로그아웃 처리 등을 할 수 있으나, 일단 데이터만 초기화
-                console.error('Failed to fetch user info:', error);
-                setData(null);
-            }
-        };
-
-        getData();
-
-        // accessToken이 변경될 때만(로그인/로그아웃 시) 데이터를 다시 가져옴
-        // 빈 배열 [] 대신 [accessToken]을 사용해야 안전하게 동작합니다.
-    }, [accessToken]);
+    const { data } = useGetMyInfo();
 
     // 2. data.data?.name 등 MyPage에서만 필요한 상태 관련 부분을 제거합니다.
     // Navbar에서는 간단히 '로그아웃' 버튼만 표시합니다.

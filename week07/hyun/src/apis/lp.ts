@@ -125,3 +125,17 @@ export const deleteComment = async (
 ): Promise<void> => {
     await axiosInstance.delete(`/v1/lps/${lpId}/comments/${commentId}`);
 };
+
+export const createLike = async (
+    lpId: string
+): Promise<{ data: { liked: boolean; likesCount: number } }> => {
+    const { data } = await axiosInstance.post(`/v1/lps/${lpId}/likes`);
+    return data;
+};
+
+export const deleteLike = async (
+    lpId: string
+): Promise<{ data: { liked: boolean; likesCount: number } }> => {
+    const { data } = await axiosInstance.delete(`/v1/lps/${lpId}/likes`);
+    return data;
+};

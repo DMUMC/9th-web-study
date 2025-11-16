@@ -1,33 +1,12 @@
-import { useEffect, useState } from 'react';
-import { getMyInfo } from '../apis/auth';
-import type { ResponseMyInfoDto } from '../types/auth';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProfileEditModal from '../components/ProfileEditModal';
+import useGetMyInfo from '../hooks/queries/useGetMyInfo';
 
 const MyPage = () => {
-    const [data, setData] = useState<ResponseMyInfoDto | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data, isLoading, isError } = useGetMyInfo();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-                const response = await getMyInfo();
-                setData(response);
-            } catch (err) {
-                console.error('Failed to fetch user info:', err);
-                setError('사용자 정보를 불러오는데 실패했습니다.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
 
     const formatDate = (date: Date | string) => {
         if (!date) return '알 수 없음';
@@ -59,7 +38,7 @@ const MyPage = () => {
         );
     }
 
-    if (error || !data?.data) {
+    if (isError || !data?.data) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center">
                 <div className="space-y-4 rounded-xl bg-white p-8 text-center shadow-lg">
@@ -79,7 +58,7 @@ const MyPage = () => {
                         </svg>
                     </div>
                     <p className="text-lg font-semibold text-gray-900">
-                        {error || '사용자 정보를 불러올 수 없습니다'}
+                        사용자 정보를 불러올 수 없습니다
                     </p>
                     <button
                         type="button"

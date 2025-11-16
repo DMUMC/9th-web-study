@@ -5,6 +5,9 @@ import type { Lp } from '../types/lp';
 import { PAGINATION_ORDER } from '../enums/common';
 import type { PAGINATION_ORDER as PaginationOrderType } from '../enums/common';
 import { getImageUrl } from '../utils/image';
+import useToggleLike from '../hooks/mutations/useToggleLike';
+import useGetMyInfo from '../hooks/queries/useGetMyInfo';
+import { useAuth } from '../context/AuthContext';
 
 const sortOptions = [
     { label: '최신순', value: PAGINATION_ORDER.DESC },
@@ -33,11 +36,11 @@ const Homepage = () => {
     const [sortOrder, setSortOrder] = useState<PaginationOrderType>(
         PAGINATION_ORDER.DESC
     );
-    const [likedLpIds, setLikedLpIds] = useState<Set<number>>(
-        () => new Set<number>()
-    );
     const navigate = useNavigate();
     const loadMoreRef = useRef<HTMLDivElement>(null);
+    const { accessToken } = useAuth();
+    const { data: myInfo } = useGetMyInfo();
+    const { mutate: toggleLike, isPending: isTogglingLike } = useToggleLike();
 
     const {
         data,
@@ -85,18 +88,6 @@ const Homepage = () => {
             아직 등록된 LP가 없습니다. 첫 번째 LP를 추가해보세요!
         </div>
     );
-
-    const toggleLike = (lpId: number) => {
-        setLikedLpIds((prev) => {
-            const next = new Set(prev);
-            if (next.has(lpId)) {
-                next.delete(lpId);
-            } else {
-                next.add(lpId);
-            }
-            return next;
-        });
-    };
 
     if (isPending) {
         return (
@@ -158,9 +149,13 @@ const Homepage = () => {
                 <>
                     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         {lpList.map((lp) => {
-                            const isLiked = likedLpIds.has(lp.id);
-                            const likeCount =
-                                (lp.likes?.length ?? 0) + (isLiked ? 1 : 0);
+                            // 현재 사용자가 좋아요를 눌렀는지 확인
+                            const isLiked =
+                                myInfo?.data?.id &&
+                                lp.likes?.some((like) => like.userId === myInfo.data.id)
+                                    ? true
+                                    : false;
+                            const likeCount = lp.likes?.length ?? 0;
 
                             return (
                                 <article
@@ -197,17 +192,34 @@ const Homepage = () => {
                                             <button
                                                 type="button"
                                                 aria-pressed={isLiked}
+                                                disabled={isTogglingLike || !accessToken}
                                                 className={`flex items-center gap-1 rounded-full px-3 py-1 transition ${
                                                     isLiked
                                                         ? 'bg-pink-500 text-white'
                                                         : 'bg-white/20 text-white hover:bg-pink-500/80'
-                                                }`}
+                                                } disabled:opacity-50 disabled:cursor-not-allowed`}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    toggleLike(lp.id);
+                                                    toggleLike({ lpId: lp.id.toString(), isLiked });
                                                 }}
                                             >
-                                                <span aria-hidden>❤️</span>
+                                                {isLiked ? (
+                                                    <svg
+                                                        className="h-4 w-4 fill-current"
+                                                        viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                    >
+                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg
+                                                        className="h-4 w-4 fill-none stroke-current stroke-2"
+                                                        viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                    >
+                                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                                    </svg>
+                                                )}
                                                 <span>{likeCount}</span>
                                             </button>
                                         </div>
