@@ -90,3 +90,69 @@ export const createLp = async (params: CreateLpParams): Promise<ResponseLpDetail
   )
   return data
 }
+
+// 댓글 생성
+interface CreateCommentParams {
+  content: string
+}
+
+export type ResponseCommentDto = CommonResponse<{
+  id: number
+  content: string
+  lpId: number
+  authorId: number
+  createdAt: string
+  updatedAt: string
+  author: {
+    id: number
+    name: string
+    email: string
+    bio: string | null
+    avatar: string | null
+    createdAt: string
+    updatedAt: string
+  }
+}>
+
+export const createComment = async (
+  lpId: number,
+  params: CreateCommentParams
+): Promise<ResponseCommentDto> => {
+  const { data } = await axiosInstance.post<ResponseCommentDto>(
+    `/v1/lps/${lpId}/comments`,
+    { content: params.content },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+  return data
+}
+
+// 댓글 수정
+interface UpdateCommentParams {
+  content: string
+}
+
+export const updateComment = async (
+  lpId: number,
+  commentId: number,
+  params: UpdateCommentParams
+): Promise<ResponseCommentDto> => {
+  const { data } = await axiosInstance.patch<ResponseCommentDto>(
+    `/v1/lps/${lpId}/comments/${commentId}`,
+    { content: params.content },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  )
+  return data
+}
+
+// 댓글 삭제
+export const deleteComment = async (lpId: number, commentId: number): Promise<void> => {
+  await axiosInstance.delete(`/v1/lps/${lpId}/comments/${commentId}`)
+}

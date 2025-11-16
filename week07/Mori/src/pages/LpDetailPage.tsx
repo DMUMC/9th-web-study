@@ -2,6 +2,7 @@ import { useMemo, useRef, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { getLpComments, getLpDetail } from "../apis/lp"
+import { getMyInfo } from "../apis/auth"
 import { LpErrorState, LpLoadingNotice, LpSkeletonGrid } from "../components/LpFallbacks"
 import { LpDetailContent } from "../components/LpDetailContent"
 import { LpCommentsSection } from "../components/LpCommentsSection"
@@ -29,6 +30,17 @@ export const LpDetailPage = () => {
   })
 
   const lpDetail = useMemo(() => data?.data, [data])
+
+  // 현재 사용자 정보 가져오기
+  const { data: myInfoData } = useQuery({
+    queryKey: ["myInfo"],
+    queryFn: getMyInfo,
+    retry: false,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+  })
+
+  const currentUserId = useMemo(() => myInfoData?.data?.id ?? null, [myInfoData])
 
   const {
     data: commentsData,
@@ -111,6 +123,8 @@ export const LpDetailPage = () => {
         <article className="flex flex-col gap-8">
           <LpDetailContent lpDetail={lpDetail} />
           <LpCommentsSection
+            lpId={parsedId}
+            currentUserId={currentUserId}
             commentOrder={commentOrder}
             onChangeOrder={setCommentOrder}
             isCommentsLoading={isCommentsLoading}

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { createLp, getLpList } from "../apis/lp"
 import { LpErrorState, LpLoadingNotice, LpSkeletonGrid } from "../components/LpFallbacks"
 import { CreateLpModal } from "../components/CreateLpModal"
+import { SortButtons } from "../components/SortButtons"
 import type { LpOrder, ResponseLpListDto } from "../types/lp"
 
 export const HomePage = () => {
@@ -43,9 +44,6 @@ export const HomePage = () => {
     },
   })
 
-  const toggleSort = () => {
-    setSort((prev) => (prev === "desc" ? "asc" : "desc"))
-  }
 
   const createLpMutation = useMutation({
     mutationFn: createLp,
@@ -102,13 +100,7 @@ export const HomePage = () => {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 text-white">
       <header className="flex justify-end">
-        <button
-          type="button"
-          onClick={toggleSort}
-          className="rounded-md bg-[#ff00b3] px-4 py-2 text-sm font-semibold transition-colors hover:bg-[#b3007d]"
-        >
-          정렬: {sort === "desc" ? "최신순" : "오래된순"}
-        </button>
+        <SortButtons order={sort} onChangeOrder={setSort} />
       </header>
 
       {isFetching && !isLoading && <LpLoadingNotice />}
