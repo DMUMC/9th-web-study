@@ -22,7 +22,7 @@ export const getMyInfo = async ():Promise<ResponseMyInfoDto> => {
 }
 
 export const updateMyInfo = async (body: RequestUpdateMyInfoDto):Promise<ResponseMyInfoDto> => {
-  const { data } = await axiosInstance.patch("/v1/users/me", body, {
+  const { data } = await axiosInstance.patch("/v1/users", body, {
     headers: {
       "Content-Type": "application/json",
     },
