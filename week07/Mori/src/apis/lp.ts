@@ -194,7 +194,11 @@ export const deleteLp = async (lpId: number): Promise<void> => {
 }
 
 // LP 좋아요 토글
-export const toggleLikeLp = async (lpId: number): Promise<ResponseLpDetailDto> => {
+export const likeLp = async (lpId: number): Promise<ResponseLpDetailDto> => {
   const { data } = await axiosInstance.post<ResponseLpDetailDto>(`/v1/lps/${lpId}/likes`)
   return data
+}
+
+export const unlikeLp = async (lpId: number): Promise<void> => {
+  await axiosInstance.delete(`/v1/lps/${lpId}/likes`)
 }

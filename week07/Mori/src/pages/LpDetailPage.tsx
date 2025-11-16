@@ -1,7 +1,7 @@
 import { useMemo, useRef, useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { deleteLp, getLpComments, getLpDetail, toggleLikeLp, updateLp } from "../apis/lp"
+import { deleteLp, getLpComments, getLpDetail, likeLp, unlikeLp, updateLp } from "../apis/lp"
 import { getMyInfo } from "../apis/auth"
 import { LpErrorState, LpLoadingNotice, LpSkeletonGrid } from "../components/LpFallbacks"
 import { LpDetailContent } from "../components/LpDetailContent"
@@ -112,11 +112,21 @@ export const LpDetailPage = () => {
   })
 
   // LP 좋아요 토글
-  const likeLpMutation = useMutation({
-    mutationFn: () => toggleLikeLp(parsedId),
+  const likeLpMutation = useMutation<
+    ResponseLpDetailDto | void,
+    Error,
+    boolean,
+    { previousLpDetail: ResponseLpDetailDto | undefined }
+  >({
+    mutationFn: (wasLiked: boolean) => {
+      if (wasLiked) {
+        return unlikeLp(parsedId) 
+      } else {
+        return likeLp(parsedId) 
+      }
+    },
 
-    onMutate: async () => {
-
+    onMutate: async (wasLiked: boolean) => {
       await queryClient.cancelQueries({ queryKey: ["lp", parsedId] })
       const previousLpDetail = queryClient.getQueryData<ResponseLpDetailDto>(["lp", parsedId])
 
@@ -124,24 +134,19 @@ export const LpDetailPage = () => {
         return { previousLpDetail: undefined }
       }
 
-      const isCurrentlyLiked = previousLpDetail.data.likes.some(
-        (like) => like.userId === currentUserId
-      )
-
       let optimisticLikes
-      if (isCurrentlyLiked) {
+      if (wasLiked) {
         optimisticLikes = previousLpDetail.data.likes.filter(
           (like) => like.userId !== currentUserId
         )
       } else {
         const optimisticLike = {
-          id: Date.now(),
+          id: Date.now(), // 임시 ID
           userId: currentUserId,
           lpId: parsedId,
         }
         optimisticLikes = [...previousLpDetail.data.likes, optimisticLike]
       }
-
       queryClient.setQueryData<ResponseLpDetailDto>(["lp", parsedId], {
         ...previousLpDetail,
         data: {
@@ -153,13 +158,11 @@ export const LpDetailPage = () => {
       return { previousLpDetail }
     },
       
-    onError: (error, variables, context) => {
-      console.error("좋아요 실패 (롤백 실행):", error)
-
+    onError: (error, wasLiked, context) => {
+      console.error(`좋아요 ${wasLiked ? '취소' : '추가'} 실패 (롤백 실행):`, error)
       if (context?.previousLpDetail) {
         queryClient.setQueryData(["lp", parsedId], context.previousLpDetail)
       }
-      
       alert("좋아요 처리에 실패했습니다. 다시 시도해주세요.")
     },
 
@@ -235,7 +238,7 @@ export const LpDetailPage = () => {
             isLiked={isLiked}
             onEdit={() => setIsEditModalOpen(true)}
             onDelete={handleDelete}
-            onLike={() => likeLpMutation.mutate()}
+            onLike={() => likeLpMutation.mutate(isLiked)}
           />
           <LpCommentsSection
             lpId={parsedId}
