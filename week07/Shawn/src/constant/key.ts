@@ -9,5 +9,6 @@ export const QUERY_KEY = {
     lpComments: 'lpComments',
     updateLpComment: 'updateLpComment',
     deleteLpComment: 'deleteLpComment',
-    addLpComment: 'addLpComment'
+    addLpComment: 'addLpComment',
+    myinfo: 'myinfo'
 }
