@@ -21,7 +21,7 @@ const LpDetailPage = () => {
 	const { lpid } = useParams()
 	const { data, isLoading, error } = useGetLpDetail({ lpid: Number(lpid) })
 	const { data: myInfo } = useGetMyInfo()
-	const [isLiked, setIsLiked] = useState(false)
+	const isLiked = data?.data.likes.some((like) => like.userId === myInfo?.data.id)
 	const [canEdit, setCanEdit] = useState(false)
     const [sort, setSort] = useState<'asc' | 'desc'>('asc')
     const [comment, setComment] = useState('')
@@ -94,26 +94,6 @@ const LpDetailPage = () => {
 			published: true,
 		}})
 		setIsEditMode(false)
-	}
-
-	// 좋아요 상태 확인
-	useEffect(() => {
-		if (data?.data.likes.find((like) => like.userId === myInfo?.data.id)) {
-			setIsLiked(true)
-		} else {
-			setIsLiked(false)
-		}
-	}, [data?.data.likes, myInfo?.data.id])
-
-	// 좋아요 핸들러
-	const handlePostLike = () => {
-		if (isLiked) {
-			deleteLikeMutation.mutate(Number(lpid))
-			setIsLiked(false)
-		} else {
-			postLikeMutation.mutate(Number(lpid))
-			setIsLiked(true)
-		}
 	}
 
 	if (isLoading) return <Spinner />;
@@ -202,7 +182,7 @@ const LpDetailPage = () => {
 
 				{/*좋아요*/}
 				<div className='flex items-center gap-2 justify-center'>
-					<Heart className='w-6 h-6 cursor-pointer' onClick={handlePostLike} fill={isLiked ? 'red' : 'none'} stroke={isLiked ? 'red' : 'currentColor'} />
+					<Heart className='w-6 h-6 cursor-pointer' onClick={() => isLiked ? deleteLikeMutation.mutate(Number(lpid)) : postLikeMutation.mutate(Number(lpid))} fill={isLiked ? 'red' : 'none'} stroke={isLiked ? 'red' : 'currentColor'} />
 					<p>{data?.data.likes.length}</p>
 				</div>
 			</div>
