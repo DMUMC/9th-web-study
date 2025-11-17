@@ -14,6 +14,8 @@ import useDeleteLp from "../hooks/mutation/Lp/useDeleteLp"
 import { uploadImage } from "../apis/image"
 import { LpTag } from "../components/LpTag"
 import useUpdateLp from "../hooks/mutation/Lp/useUpdateLp"
+import usePostLike from "../hooks/mutation/likes/usePostLike"
+import useDeleteLike from "../hooks/mutation/likes/useDeleteLike"
 
 const LpDetailPage = () => {
 	const { lpid } = useParams()
@@ -37,7 +39,10 @@ const LpDetailPage = () => {
 	const addLpCommentMutation = useAddLpComment()
 	const deleteLpMutation = useDeleteLp()
 	const updateLpMutation = useUpdateLp()
+	const postLikeMutation = usePostLike()
+	const deleteLikeMutation = useDeleteLike()
 
+	// 썸네일 업로드 핸들러
 	const handleUploadThumbnail = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
 		if (file) {
@@ -46,6 +51,7 @@ const LpDetailPage = () => {
 		}
 	}
 
+	// 태그 삭제 핸들러
 	const handleDeleteTag = (tags: string[], tag: string) => {
 		const newTags = tags.filter((t) => t !== tag)
 		setEditData({ ...editData, tags: newTags })
@@ -62,12 +68,14 @@ const LpDetailPage = () => {
 		setComment('')
 	}
 
+    // 댓글 무한 스크롤 핸들러
     useEffect(() => {
         if (inView && !isFetching && hasNextPage) {
             fetchNextPage();
         }
     }, [inView, hasNextPage, isFetching, fetchNextPage])
 
+	// 권한 확인
 	useEffect(() => {
 		if (myInfo?.data.id === data?.data.author.id) {
 			setCanEdit(true)
@@ -76,6 +84,7 @@ const LpDetailPage = () => {
 		}
 	}, [myInfo?.data.id, data?.data.author.id])
 
+	// LP 수정 핸들러
 	const handleUpdateLp = () => {
 		updateLpMutation.mutate({lpid: Number(lpid), lpData: {
 			title: editData.title,
@@ -85,6 +94,26 @@ const LpDetailPage = () => {
 			published: true,
 		}})
 		setIsEditMode(false)
+	}
+
+	// 좋아요 상태 확인
+	useEffect(() => {
+		if (data?.data.likes.find((like) => like.userId === myInfo?.data.id)) {
+			setIsLiked(true)
+		} else {
+			setIsLiked(false)
+		}
+	}, [data?.data.likes, myInfo?.data.id])
+
+	// 좋아요 핸들러
+	const handlePostLike = () => {
+		if (isLiked) {
+			deleteLikeMutation.mutate(Number(lpid))
+			setIsLiked(false)
+		} else {
+			postLikeMutation.mutate(Number(lpid))
+			setIsLiked(true)
+		}
 	}
 
 	if (isLoading) return <Spinner />;
@@ -173,7 +202,7 @@ const LpDetailPage = () => {
 
 				{/*좋아요*/}
 				<div className='flex items-center gap-2 justify-center'>
-					<Heart className='w-6 h-6 cursor-pointer' onClick={() => setIsLiked(!isLiked)} fill={isLiked ? 'red' : 'none'} stroke={isLiked ? 'red' : 'currentColor'} />
+					<Heart className='w-6 h-6 cursor-pointer' onClick={handlePostLike} fill={isLiked ? 'red' : 'none'} stroke={isLiked ? 'red' : 'currentColor'} />
 					<p>{data?.data.likes.length}</p>
 				</div>
 			</div>

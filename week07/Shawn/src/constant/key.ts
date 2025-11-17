@@ -19,5 +19,7 @@ export const MUTATION_KEY = {
     logout: 'logout',
     deleteUser: 'deleteUser',
     deleteLp: 'deleteLp',
-    updateLp: 'updateLp'
+    updateLp: 'updateLp',
+    postLike: 'postLike',
+    deleteLike: 'deleteLike'
 }
