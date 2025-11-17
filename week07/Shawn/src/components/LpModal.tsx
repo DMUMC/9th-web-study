@@ -6,9 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useMemo } from 'react'
 import { LpTag } from './LpTag'
 import useAddLp from '../hooks/mutation/useAddLp'
+import { uploadImage } from '../apis/image'
 
 const schema = z.object({
-    thumbnail: z.instanceof(File),
+    thumbnail: z.string(),
     name: z.string().min(1, {message: 'Name is required'}),
     content: z.string().min(1, {message: 'Content is required'}),
     tags: z.array(z.string()).min(1, {message: 'Tags is required'}),
@@ -23,7 +24,7 @@ const LpModal = () => {
     const {register, handleSubmit, formState: {errors}, control, setValue} = useForm<Formfields>({
         resolver: zodResolver(schema),
         defaultValues: {
-            thumbnail: undefined,
+            thumbnail: '',
             name: '',
             content: '',
             tags: []
@@ -37,7 +38,7 @@ const LpModal = () => {
         addLpMutation.mutate({
             title: data.name,
             content: data.content,
-            thumbnail: data.thumbnail.name,
+            thumbnail: data.thumbnail,
             tags: data.tags,
             published: true
         })
@@ -85,6 +86,14 @@ const LpModal = () => {
         setValue('tags', newTags)
     }
 
+    const handleThumbnailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            const { data } = await uploadImage(file)
+            setValue('thumbnail', data.imageUrl, { shouldValidate: true, shouldDirty: true })
+        }
+    }
+
     return (
         <div className='absolute inset-0 flex justify-center items-center z-60'>
             <form className='flex flex-col gap-4 bg-neutral-600 rounded-md p-4 z-100 w-[500px]' onSubmit={handleSubmit(onSubmit)}>
@@ -94,12 +103,7 @@ const LpModal = () => {
                     className='w-full h-64 object-cover self-center'
                     placeholder='LP Thumbnail'
                     accept='image/*'
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const file = e.target.files?.[0]
-                        if (file) {
-                            setValue('thumbnail', file, { shouldValidate: true, shouldDirty: true })
-                        }
-                    }}
+                    onChange={handleThumbnailChange}
                 />
                 <input type="text" placeholder='LP Name' className='w-full h-10 rounded-md p-2 border-2 border-neutral-400' {...register('name')} />
                 <input type="text" placeholder='LP Content' className='w-full h-10 rounded-md p-2 border-2 border-neutral-400' {...register('content')} />

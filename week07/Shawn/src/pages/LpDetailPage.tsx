@@ -9,11 +9,14 @@ import { LpComment } from "../components/LpComment/LpComment"
 import { LpCommentSkeleton } from "../components/LpComment/LpCommentSkeleton"
 import { Heart, Pencil, Trash } from 'lucide-react'
 import useAddLpComment from '../hooks/mutation/LpComment/useAddLpComment'
+import useGetMyInfo from "../hooks/queries/useGetMyInfo"
 
 const LpDetailPage = () => {
 	const { lpid } = useParams()
 	const { data, isLoading, error } = useGetLpDetail({ lpid: Number(lpid) })
+	const { data: myInfo } = useGetMyInfo()
 	const [isLiked, setIsLiked] = useState(false)
+	const [canEdit, setCanEdit] = useState(false)
     const [sort, setSort] = useState<'asc' | 'desc'>('asc')
     const [comment, setComment] = useState('')
     const { data: comments, isFetching, isFetchingNextPage, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpComment(Number(lpid), 10, '', sort)
@@ -37,7 +40,15 @@ const LpDetailPage = () => {
         if (inView && !isFetching && hasNextPage) {
             fetchNextPage();
         }
-    }, [inView, hasNextPage, isFetching, fetchNextPage]);
+    }, [inView, hasNextPage, isFetching, fetchNextPage])
+
+	useEffect(() => {
+		if (myInfo?.data.id === data?.data.author.id) {
+			setCanEdit(true)
+		} else {
+			setCanEdit(false)
+		}
+	}, [myInfo?.data.id, data?.data.author.id])
 
 	if (isLoading) return <Spinner />;
 
@@ -59,8 +70,12 @@ const LpDetailPage = () => {
 				<div className='flex justify-between items-center'>
 					<p className='text-2xl font-bold'>{data?.data.title}</p>
 					<div className='flex gap-2'>
-						<Pencil className='w-6 h-6 cursor-pointer' strokeWidth='2' />
-						<Trash className='w-6 h-6 cursor-pointer' strokeWidth='2' />
+						{canEdit && (
+							<>
+								<Pencil className='w-6 h-6 cursor-pointer' strokeWidth='2' />
+								<Trash className='w-6 h-6 cursor-pointer' strokeWidth='2' />
+							</>
+						)}
 					</div>
 				</div>
 
