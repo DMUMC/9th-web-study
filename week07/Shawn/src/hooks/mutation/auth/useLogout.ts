@@ -1,0 +1,23 @@
+import { useMutation } from "@tanstack/react-query"
+import { MUTATION_KEY } from "../../../constant/key"
+import { postLogout } from "../../../apis/auth"
+import { useLocalStorage } from "../../useLocalStorage"
+import { LOCAL_STORAGE_KEY } from "../../../constant/key"
+
+export const useLogout = () => {
+    const { removeItem: removeAccessTokenStorage } = useLocalStorage(LOCAL_STORAGE_KEY.ACCESS_TOKEN)
+    const { removeItem: removeRefreshTokenStorage } = useLocalStorage(LOCAL_STORAGE_KEY.REFRESH_TOKEN)
+    return useMutation({
+        mutationKey: [MUTATION_KEY.logout],
+        mutationFn: () => postLogout(),
+        onSuccess: () => {
+            alert('로그아웃에 성공했습니다.')
+            removeAccessTokenStorage()
+            removeRefreshTokenStorage()
+            window.location.href = '/'
+        },
+        onError: () => {
+            alert('로그아웃에 실패했습니다.')
+        },
+    })
+}

@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router"
 import { useAuth } from "../../context/AuthContext"
 import useGetMyInfo from "../../hooks/queries/useGetMyInfo"
+import { useLogout } from "../../hooks/mutation/auth/useLogout"
 
 interface NavbarProps {
     onMenuClick: () => void
@@ -8,11 +9,12 @@ interface NavbarProps {
 
 export const Navbar = ({ onMenuClick }: NavbarProps) => {
     const navigate = useNavigate()
-    const { accessToken, logout } = useAuth()
+    const { accessToken } = useAuth()
     const { data } = useGetMyInfo()
+    const logoutMutation = useLogout()
 
-    const handleLogout = async () => {
-        await logout()
+    const handleLogout = () => {
+        logoutMutation.mutate()
     }
 
     return (
