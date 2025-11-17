@@ -14,5 +14,6 @@ export const QUERY_KEY = {
 }
 
 export const MUTATION_KEY = {
-    login: 'login'
+    login: 'login',
+    deleteUser: 'deleteUser'
 }

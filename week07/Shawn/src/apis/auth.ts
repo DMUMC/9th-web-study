@@ -36,3 +36,9 @@ export const editMyInfo = async (body: RequestEditMyInfoDto):Promise<ResponseEdi
 
     return data
 }
+
+export const deleteUser = async () => {
+    const {data} = await api.delete('/users')
+
+    return data
+}

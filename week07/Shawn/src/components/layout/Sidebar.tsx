@@ -1,5 +1,6 @@
 import { NavLink } from "react-router"
 import { useAuth } from "../../context/AuthContext"
+import { useLeaveModal } from "../../store/useLeaveModal"
 
 interface SidebarProps {
     isOpen: boolean
@@ -8,6 +9,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     const { accessToken } = useAuth()
+    const { setIsLeaveModalOpen } = useLeaveModal()
     return (
         <>
             {isOpen && (
@@ -40,7 +42,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 <button
                     type="button"
                     className='mt-auto text-sm text-neutral-400 transition hover:text-neutral-200'
-                    onClick={onClose}
+                    onClick={() => setIsLeaveModalOpen(true)}
                     >
                         탈퇴하기
                     </button>
