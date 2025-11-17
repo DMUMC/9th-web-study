@@ -5,6 +5,7 @@ export const LOCAL_STORAGE_KEY = {
 
 export const QUERY_KEY = {
     lps: 'lps',
+    lp: 'lp',
     addLp: 'addLp',
     lpComments: 'lpComments',
     updateLpComment: 'updateLpComment',
@@ -16,5 +17,7 @@ export const QUERY_KEY = {
 export const MUTATION_KEY = {
     login: 'login',
     logout: 'logout',
-    deleteUser: 'deleteUser'
+    deleteUser: 'deleteUser',
+    deleteLp: 'deleteLp',
+    updateLp: 'updateLp'
 }

@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useMemo } from 'react'
 import { LpTag } from './LpTag'
-import useAddLp from '../hooks/mutation/useAddLp'
+import useAddLp from '../hooks/mutation/Lp/useAddLp'
 import { uploadImage } from '../apis/image'
 
 const schema = z.object({

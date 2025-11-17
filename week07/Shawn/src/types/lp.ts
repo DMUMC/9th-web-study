@@ -109,3 +109,15 @@ export type ResponseUpdateLpCommentDto = CommonResponse<{
 export type ResponseDeleteLpCommentDto = CommonResponse<{
     message: string
 }>
+
+export type ResponseUpdateLpDto = CommonResponse<{
+    id: number
+    title: string
+    content: string
+    thumbnail: string
+    published: boolean
+    authorId: number
+    createdAt: Date
+    updatedAt: Date
+    tags: Tag[]
+}>

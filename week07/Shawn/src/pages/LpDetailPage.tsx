@@ -7,9 +7,13 @@ import useGetInfiniteLpComment from "../hooks/queries/useGetInfiniteLpComment"
 import { useInView } from "react-intersection-observer"
 import { LpComment } from "../components/LpComment/LpComment"
 import { LpCommentSkeleton } from "../components/LpComment/LpCommentSkeleton"
-import { Heart, Pencil, Trash } from 'lucide-react'
+import { Check, Heart, Pencil, Trash, X } from 'lucide-react'
 import useAddLpComment from '../hooks/mutation/LpComment/useAddLpComment'
 import useGetMyInfo from "../hooks/queries/useGetMyInfo"
+import useDeleteLp from "../hooks/mutation/Lp/useDeleteLp"
+import { uploadImage } from "../apis/image"
+import { LpTag } from "../components/LpTag"
+import useUpdateLp from "../hooks/mutation/Lp/useUpdateLp"
 
 const LpDetailPage = () => {
 	const { lpid } = useParams()
@@ -23,7 +27,29 @@ const LpDetailPage = () => {
     const {ref, inView} = useInView({
         threshold: 0,
     })
+	const [isEditMode, setIsEditMode] = useState(false)
+	const [editData, setEditData] = useState({
+		title: data?.data.title ?? '',
+		content: data?.data.content ?? '',
+		thumbnail: data?.data.thumbnail ?? '',
+		tags: data?.data.tags.map((tag) => tag.name) ?? [],
+	})
 	const addLpCommentMutation = useAddLpComment()
+	const deleteLpMutation = useDeleteLp()
+	const updateLpMutation = useUpdateLp()
+
+	const handleUploadThumbnail = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0]
+		if (file) {
+			const { data } = await uploadImage(file)
+			setEditData({ ...editData, thumbnail: data.imageUrl })
+		}
+	}
+
+	const handleDeleteTag = (tags: string[], tag: string) => {
+		const newTags = tags.filter((t) => t !== tag)
+		setEditData({ ...editData, tags: newTags })
+	}
 
 	// 코멘트 작성 핸들러
 	const handleAddLpComment = () => {
@@ -50,6 +76,17 @@ const LpDetailPage = () => {
 		}
 	}, [myInfo?.data.id, data?.data.author.id])
 
+	const handleUpdateLp = () => {
+		updateLpMutation.mutate({lpid: Number(lpid), lpData: {
+			title: editData.title,
+			content: editData.content,
+			thumbnail: editData.thumbnail,
+			tags: editData.tags,
+			published: true,
+		}})
+		setIsEditMode(false)
+	}
+
 	if (isLoading) return <Spinner />;
 
 	if (error) return <div>에러가 발생했습니다.</div>
@@ -68,13 +105,24 @@ const LpDetailPage = () => {
 
 				{/*제목 및 수정,삭제*/}
 				<div className='flex justify-between items-center'>
-					<p className='text-2xl font-bold'>{data?.data.title}</p>
+					{isEditMode ? (
+						<input type='text' value={editData.title} onChange={(e) => setEditData({ ...editData, title: e.target.value })} className='w-full p-2 rounded-md border-2 border-gray-300' />
+					) : (
+						<p className='text-2xl font-bold'>{data?.data.title}</p>
+					)}
 					<div className='flex gap-2'>
 						{canEdit && (
-							<>
-								<Pencil className='w-6 h-6 cursor-pointer' strokeWidth='2' />
-								<Trash className='w-6 h-6 cursor-pointer' strokeWidth='2' />
-							</>
+							!isEditMode ? (
+								<>
+									<Pencil className='w-6 h-6 cursor-pointer' strokeWidth='2' onClick={() => setIsEditMode(true)} />
+									<Trash className='w-6 h-6 cursor-pointer' strokeWidth='2' onClick={() => deleteLpMutation.mutate(Number(lpid))} />
+								</>
+							) : (
+								<>
+									<Check className='w-6 h-6 cursor-pointer' strokeWidth='2' onClick={handleUpdateLp} />
+									<X className='w-6 h-6 cursor-pointer' strokeWidth='2' onClick={() => setIsEditMode(false)} />
+								</>
+							)
 						)}
 					</div>
 				</div>
@@ -82,26 +130,45 @@ const LpDetailPage = () => {
 				{/*LP */}
 				<div className='flex justify-center items-center'>
 					<div className='bg-neutral-700 shadow-2xl shadow-gray-900 p-4'>
-						<img
-							className='h-100 w-100 rounded-full border-4 border-gray-900 object-cover animate-[spin_12s_linear_infinite]'
-							src={data?.data.thumbnail ?? 'https://via.placeholder.com/200'}
-							alt={data?.data.title ?? ''}
-						/>
+						{isEditMode ? (
+							<>
+								<label htmlFor='thumbnail' className='w-full p-2 rounded-md border-2 border-gray-300 relative'>
+									<img src={editData.thumbnail ?? 'https://via.placeholder.com/200'} alt={editData.title ?? ''} className='w-full h-100 rounded-full border-4 border-gray-900 object-cover'/>
+									<input type='file' accept='image/*' onChange={(e) => handleUploadThumbnail(e)} className='absolute opacity-0 cursor-pointer' id='thumbnail' />
+								</label>
+							</>
+						) : (
+							<img
+								className='h-100 w-100 rounded-full border-4 border-gray-900 object-cover animate-[spin_12s_linear_infinite]'
+								src={data?.data.thumbnail ?? 'https://via.placeholder.com/200'}
+								alt={data?.data.title ?? ''}
+							/>
+						)}
 					</div>
 				</div>
 
 				{/*내용*/}
 				<div className='text-white'>
-					<p className='text-sm'>{data?.data.content}</p>
+					{isEditMode ? (
+						<input type='text' value={editData.content} onChange={(e) => setEditData({ ...editData, content: e.target.value })} className='w-full p-2 rounded-md border-2 border-gray-300' />
+					) : (
+						<p className='text-sm'>{data?.data.content}</p>
+					)}
 				</div>
 
 				{/*태그*/}
 				<div className='flex gap-2'>
-					{data?.data.tags.map((tag) => (
+					{isEditMode ? (
+						editData.tags.map((tag) => (
+							<LpTag key={tag} tag={tag} onDelete={() => handleDeleteTag(editData.tags, tag)} />
+						))
+					) : (
+						data?.data.tags.map((tag) => (
 						<span key={tag.id} className='bg-neutral-700 text-white px-2 py-1 rounded-md'>
 							{tag.name}
-						</span>
-					))}
+							</span>
+						))
+					)}
 				</div>
 
 				{/*좋아요*/}
