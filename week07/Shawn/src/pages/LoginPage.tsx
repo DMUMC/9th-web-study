@@ -5,6 +5,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '../context/AuthContext'
 import { useEffect } from 'react'
+import { useLogin } from '../hooks/mutation/auth/useLogin'
 
 const schema = z.object({
 	email: z.string().email({ message: '이메일 형식이 올바르지 않습니다.' }),
@@ -16,8 +17,8 @@ type Formfields = z.infer<typeof schema>
 const LoginPage = () => {
 	const navigate = useNavigate()
 	const location = useLocation()
-	const { login, accessToken } = useAuth()
-	const from = (location.state as { from?: { pathname?: string } } | undefined)?.from?.pathname ?? '/mypage'
+	const { accessToken } = useAuth()
+	const loginMutation = useLogin()
 
 	useEffect(() => {
 		if (accessToken) {
@@ -43,10 +44,7 @@ const LoginPage = () => {
 	})
 
 	const onSubmit: SubmitHandler<Formfields> = async (data) => {
-		const isSuccess = await login(data)
-		if (isSuccess) {
-			navigate(from, { replace: true })
-		}
+		loginMutation.mutate(data)
 	}
 
 	const handleGoogleLogin = async () => {

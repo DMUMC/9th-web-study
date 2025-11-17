@@ -12,3 +12,7 @@ export const QUERY_KEY = {
     addLpComment: 'addLpComment',
     myinfo: 'myinfo'
 }
+
+export const MUTATION_KEY = {
+    login: 'login'
+}

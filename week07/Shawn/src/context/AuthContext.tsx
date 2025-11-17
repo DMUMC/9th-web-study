@@ -7,14 +7,12 @@ import { createContext, useContext, useState, type PropsWithChildren } from "rea
 export interface AuthContextType {
 	accessToken: string | null
 	refreshToken: string | null
-	login: (signinData: RequestLoginDto) => Promise<boolean>
 	logout: () => void
 }
 
 export const AuthContext = createContext<AuthContextType>({
 	accessToken: null,
 	refreshToken: null,
-	login: async () => false,
 	logout: () => {},
 })
 
@@ -24,22 +22,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
 	const [accessToken, setAccessToken] = useState<string | null>(getAccessTokenStorage())
 	const [refreshToken, setRefreshToken] = useState<string | null>(getRefreshTokenStorage())
-
-	const login = async (signinData: RequestLoginDto) => {
-		try {
-			const { data } = await postLogin(signinData)
-			setAccessToken(data.accessToken)
-			setRefreshToken(data.refreshToken)
-			setAccessTokenStorage(data.accessToken)
-			setRefreshTokenStorage(data.refreshToken)
-			alert('로그인에 성공했습니다.')
-			return true
-		} catch (error) {
-			console.error(error)
-			alert('로그인에 실패했습니다.')
-			return false
-		}
-	}
 
 	const logout = async () => {
 		try {
@@ -56,7 +38,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 		}
 	}
 
-	return <AuthContext.Provider value={{ accessToken, refreshToken, login, logout }}>{children}</AuthContext.Provider>
+	return <AuthContext.Provider value={{ accessToken, refreshToken, logout }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => {
