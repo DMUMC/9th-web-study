@@ -6,11 +6,14 @@ import { LpSkeleton } from '../components/LpSkeleton';
 import { StateMessage } from '../components/StateMessage';
 import { useDebounce } from '../hooks/useDebounce';
 import { SearchIcon } from '../components/icons/SearchIcon';
+import { useThrottle } from '../hooks/useThrottle';
 
 export const HomePage = () => {
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [query, setQuery] = useState('');
+  const [loadSignal, setLoadSignal] = useState(0);
   const debouncedQuery = useDebounce(query, 300);
+  const throttledLoadSignal = useThrottle(loadSignal, 1000);
   const normalizedQuery = debouncedQuery.trim();
   const isSearchMode = normalizedQuery.length > 0;
   const navigate = useNavigate();
@@ -38,7 +41,7 @@ export const HomePage = () => {
       (entries) => {
         const [entry] = entries;
         if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+          setLoadSignal(Date.now());
         }
       },
       { threshold: 1 },
@@ -49,7 +52,12 @@ export const HomePage = () => {
       observer.unobserve(node);
       observer.disconnect();
     };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    if (!throttledLoadSignal || !hasNextPage || isFetchingNextPage) return;
+    fetchNextPage();
+  }, [throttledLoadSignal, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
