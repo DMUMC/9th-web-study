@@ -5,6 +5,12 @@ export type CommonResponse<T> = {
     data: T;
 };
 
+export type CursorPayload<T> = {
+    data: T;
+    nextCursor: number | null;
+    hasNext: boolean;
+};
+
 export type CursorBasedResponse<T> = CommonResponse<{
     data: T;
     nextCursor: number | null;
@@ -17,3 +23,4 @@ export type PaginationDto = {
     search?: string;
     order?: 'asc' | 'desc';
 };
+

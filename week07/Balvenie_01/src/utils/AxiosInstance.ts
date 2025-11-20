@@ -1,4 +1,4 @@
-import axios, { type InternalAxiosRequestConfig, type AxiosRequestHeaders, AxiosHeaders } from 'axios';
+import axios, { type InternalAxiosRequestConfig, type AxiosRequestHeaders } from 'axios';
 
 const LOCAL_STORAGE_KEY = {
   ACCESS_TOKEN: 'accessToken',
@@ -15,14 +15,14 @@ const storage = {
       if (typeof window === 'undefined') return;
       window.localStorage.setItem(key, val);
       window.dispatchEvent(new CustomEvent('localStorageChange'));
-    } catch {}
+    } catch { /* empty */ }
   },
   remove(key: string) {
     try {
       if (typeof window === 'undefined') return;
       window.localStorage.removeItem(key);
       window.dispatchEvent(new CustomEvent('localStorageChange'));
-    } catch {}
+    } catch { /* empty */ }
   },
 };
 

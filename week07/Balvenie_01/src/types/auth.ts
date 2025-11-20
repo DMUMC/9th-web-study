@@ -40,3 +40,16 @@ export type ResponseMyInfoDto = CommonResponse<{
   createdAt: Date;
   updatedAt: Date;
 }>
+
+export interface UserData {
+    id: number;
+    email: string;
+    name: string;      // 👈 환영 문구에 사용될 필드
+}
+
+export interface AuthContextType {
+    accessToken: string | null;
+    user: UserData | null; // 👈 사용자 데이터 객체
+    login: (token: string, userData: UserData) => void;
+    logout: () => void;
+}

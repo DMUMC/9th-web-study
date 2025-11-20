@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import type { LpComment } from '../types/lp';
+import type { Comment } from '../types/lp';
 import useUpdateComment from '../hooks/mutations/useUpdateComment';
 import useDeleteComment from '../hooks/mutations/useDeleteComment';
 import useGetMyInfo from '../hooks/queries/useGetMyInfo';
 
 interface CommentItemProps {
-    comment: LpComment;
+    comment: Comment;
     lpId: string;
     formatDate: (date: string | Date) => string;
 }
