@@ -1,5 +1,5 @@
 import type { PaginationDto } from '../types/common'; // 요청 파라미터 타입 임포트
-import type { ResponseLpDetailDto, ResponseLpListDto, LpComment } from '../types/lp'; // 응답 데이터 타입 임포트
+import type { ResponseLPDetailDto, ResponseLPListDto, Comment } from '../types/lp'; // 응답 데이터 타입 임포트
 import { axiosInstance } from './axios'; // axios 인스턴스 임포트 (경로에 맞게 수정 필요)
 
 /**
@@ -9,7 +9,7 @@ import { axiosInstance } from './axios'; // axios 인스턴스 임포트 (경로
  */
 export const getLPList = async (
     paginationDto: PaginationDto
-): Promise<ResponseLpListDto> => {
+): Promise<ResponseLPListDto> => {
     // API 요청 및 데이터 구조 분해
     const { data } = await axiosInstance.get('/v1/lps', {
         // 쿼리 파라미터(params)로 DTO를 전달하여 GET 요청에 포함
@@ -20,7 +20,7 @@ export const getLPList = async (
     return data;
 };
 
-export const getLPDetail = async (lpId: string): Promise<ResponseLpDetailDto> => {
+export const getLPDetail = async (lpId: string): Promise<ResponseLPDetailDto> => {
     const { data } = await axiosInstance.get(`/v1/lps/${lpId}`);
     return data;
 };
@@ -84,7 +84,7 @@ export const createLP = async (body: {
     thumbnail?: string;
     tags?: string[];
     published?: boolean;
-}): Promise<ResponseLpDetailDto> => {
+}): Promise<ResponseLPDetailDto> => {
     const { data } = await axiosInstance.post('/v1/lps', body);
     return data;
 };
@@ -92,7 +92,7 @@ export const createLP = async (body: {
 export const updateLP = async (
     lpId: string,
     formData: FormData
-): Promise<ResponseLpDetailDto> => {
+): Promise<ResponseLPDetailDto> => {
     const { data } = await axiosInstance.put(`/v1/lps/${lpId}`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -122,4 +122,18 @@ export const deleteComment = async (
     commentId: number
 ): Promise<void> => {
     await axiosInstance.delete(`/v1/lps/${lpId}/comments/${commentId}`);
+};
+
+export const createLike = async (
+    lpId: string
+): Promise<{ data: { liked: boolean; likesCount: number } }> => {
+    const { data } = await axiosInstance.post(`/v1/lps/${lpId}/likes`);
+    return data;
+};
+
+export const deleteLike = async (
+    lpId: string
+): Promise<{ data: { liked: boolean; likesCount: number } }> => {
+    const { data } = await axiosInstance.delete(`/v1/lps/${lpId}/likes`);
+    return data;
 };
