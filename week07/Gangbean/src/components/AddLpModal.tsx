@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import useCreateLp from '../hooks/mutations/useCreateLp';
+import useUploadImage from '../hooks/mutations/useUploadImage';
 
 type AddLpModalProps = {
     isOpen: boolean;
@@ -20,7 +21,11 @@ const AddLpModal = ({
     const [imagePreview, setImagePreview] = useState<
         string | null
     >(null);
+    const [uploadedImageUrl, setUploadedImageUrl] =
+        useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const uploadImageMutation = useUploadImage();
     const createLpMutation = useCreateLp();
 
     const handleImageChange = (
@@ -29,12 +34,33 @@ const AddLpModal = ({
         const file = event.target.files?.[0];
         if (file) {
             setLpImage(file);
+            // 이미지 미리보기 설정
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
             };
             reader.readAsDataURL(file);
+            // 업로드된 URL 초기화 (새 파일 선택 시)
+            setUploadedImageUrl(null);
         }
+    };
+
+    const handleUploadImage = () => {
+        if (!lpImage) {
+            alert('이미지를 먼저 선택해주세요.');
+            return;
+        }
+
+        uploadImageMutation.mutate(lpImage, {
+            onSuccess: (response) => {
+                setUploadedImageUrl(response.data.imageUrl);
+                alert('이미지 업로드 완료!');
+            },
+            onError: (error) => {
+                console.error('이미지 업로드 실패:', error);
+                alert('이미지 업로드에 실패했습니다.');
+            },
+        });
     };
 
     const handleAddTag = () => {
@@ -55,11 +81,22 @@ const AddLpModal = ({
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
+        // 필수 필드 검증
+        if (!lpName.trim()) {
+            alert('LP 이름을 입력해주세요.');
+            return;
+        }
+
+        if (!uploadedImageUrl) {
+            alert('이미지를 업로드해주세요.');
+            return;
+        }
+
         createLpMutation.mutate(
             {
                 title: lpName,
                 content: lpContent,
-                thumbnail: '',
+                thumbnail: uploadedImageUrl,
                 tags: tags,
                 published: true,
             },
@@ -82,6 +119,7 @@ const AddLpModal = ({
         setTags([]);
         setLpImage(null);
         setImagePreview(null);
+        setUploadedImageUrl(null);
         onClose();
     };
 
@@ -127,7 +165,7 @@ const AddLpModal = ({
                     </button>
 
                     {/* LP 이미지 */}
-                    <div className='mb-6 flex justify-center'>
+                    <div className='mb-6 flex flex-col items-center gap-3'>
                         <div
                             onClick={handleImageClick}
                             className='relative cursor-pointer rounded-lg border-2 border-dashed border-gray-600 bg-gray-800/50 p-4 transition-colors hover:border-gray-500'
@@ -172,6 +210,32 @@ const AddLpModal = ({
                                 className='hidden'
                             />
                         </div>
+
+                        {/* 업로드 버튼 */}
+                        {lpImage && !uploadedImageUrl && (
+                            <button
+                                type='button'
+                                onClick={handleUploadImage}
+                                disabled={
+                                    uploadImageMutation.isPending
+                                }
+                                className='rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
+                            >
+                                {uploadImageMutation.isPending
+                                    ? '업로드 중...'
+                                    : '이미지 업로드'}
+                            </button>
+                        )}
+
+                        {/* 업로드 완료 표시 */}
+                        {uploadedImageUrl && (
+                            <div className='flex items-center gap-2 text-sm text-green-400'>
+                                <span>✓</span>
+                                <span>
+                                    이미지 업로드 완료
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* 폼 */}
