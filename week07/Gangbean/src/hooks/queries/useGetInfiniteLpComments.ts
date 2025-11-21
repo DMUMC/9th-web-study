@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { getLpComments } from '../../apis/lp';
+import { getLpComments } from '../../apis/comment';
 import { QUERY_KEY } from '../../constants/key';
 
 function useGetInfiniteLpComments(

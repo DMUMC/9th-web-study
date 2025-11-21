@@ -53,20 +53,6 @@ export type ResponseLpDetailDto = CommonResponse<{
     author: Author;
 }>;
 
-export type LpComment = {
-    id: number;
-    content: string;
-    lpId: number;
-    authorId: number;
-    createdAt: Date;
-    updatedAt: Date;
-    author: Author;
-};
-
-export type ResponseLpCommentListDto = CursorBasedResponse<
-    LpComment[]
->;
-
 export type RequestCreateLpDto = {
     title: string;
     content: string;
