@@ -66,3 +66,22 @@ export type LpComment = {
 export type ResponseLpCommentListDto = CursorBasedResponse<
     LpComment[]
 >;
+
+export type RequestCreateLpDto = {
+    title: string;
+    content: string;
+    thumbnail?: string;
+    tags: string[];
+    published: boolean;
+};
+
+export type ResponseCreateLpDto = CommonResponse<{
+    id: number;
+    title: string;
+    content: string;
+    thumbnail: string;
+    published: boolean;
+    authorId: number;
+    createdAt: Date;
+    updatedAt: Date;
+}>;

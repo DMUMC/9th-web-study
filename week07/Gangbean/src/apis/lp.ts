@@ -1,5 +1,7 @@
 import type { PaginationDto } from '../types/common';
 import type {
+    RequestCreateLpDto,
+    ResponseCreateLpDto,
     ResponseLpCommentListDto,
     ResponseLpDetailDto,
     ResponseLpListDto,
@@ -35,6 +37,17 @@ export const getLpComments = async (
         {
             params: paginationDto,
         }
+    );
+
+    return data;
+};
+
+export const postCreateLp = async (
+    body: RequestCreateLpDto
+): Promise<ResponseCreateLpDto> => {
+    const { data } = await axiosInstance.post(
+        `/v1/lps`,
+        body
     );
 
     return data;

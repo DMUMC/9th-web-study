@@ -1,18 +1,27 @@
 import { useState, useRef } from 'react';
+import useCreateLp from '../hooks/mutations/useCreateLp';
 
 type AddLpModalProps = {
     isOpen: boolean;
     onClose: () => void;
 };
 
-const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
+const AddLpModal = ({
+    isOpen,
+    onClose,
+}: AddLpModalProps) => {
     const [lpName, setLpName] = useState('');
     const [lpContent, setLpContent] = useState('');
     const [lpTag, setLpTag] = useState('');
     const [tags, setTags] = useState<string[]>([]);
-    const [lpImage, setLpImage] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [lpImage, setLpImage] = useState<File | null>(
+        null
+    );
+    const [imagePreview, setImagePreview] = useState<
+        string | null
+    >(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const createLpMutation = useCreateLp();
 
     const handleImageChange = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -43,17 +52,27 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
         fileInputRef.current?.click();
     };
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        // TODO: API 호출로 LP 생성
-        console.log({
-            lpName,
-            lpContent,
-            tags,
-            lpImage,
-        });
-        // 모달 닫기
-        handleClose();
+
+        createLpMutation.mutate(
+            {
+                title: lpName,
+                content: lpContent,
+                thumbnail: '',
+                tags: tags,
+                published: true,
+            },
+            {
+                onSuccess: () => {
+                    handleClose();
+                },
+                onError: (error) => {
+                    console.error('LP 생성 실패:', error);
+                    alert('LP 생성에 실패했습니다.');
+                },
+            }
+        );
     };
 
     const handleClose = () => {
@@ -80,7 +99,9 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
             <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
                 <div
                     className='relative w-full max-w-md rounded-2xl bg-[#1a1a20] p-6 shadow-2xl'
-                    onClick={(event) => event.stopPropagation()}
+                    onClick={(event) =>
+                        event.stopPropagation()
+                    }
                 >
                     {/* X 버튼 */}
                     <button
@@ -130,12 +151,15 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
                                             <path
                                                 strokeLinecap='round'
                                                 strokeLinejoin='round'
-                                                strokeWidth={2}
+                                                strokeWidth={
+                                                    2
+                                                }
                                                 d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
                                             />
                                         </svg>
                                         <p className='mt-2 text-sm text-gray-400'>
-                                            LP 사진을 선택하세요
+                                            LP 사진을
+                                            선택하세요
                                         </p>
                                     </div>
                                 </div>
@@ -151,7 +175,10 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
                     </div>
 
                     {/* 폼 */}
-                    <form onSubmit={handleSubmit} className='space-y-4'>
+                    <form
+                        onSubmit={handleSubmit}
+                        className='space-y-4'
+                    >
                         {/* LP Name */}
                         <div>
                             <label
@@ -165,7 +192,9 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
                                 type='text'
                                 value={lpName}
                                 onChange={(event) =>
-                                    setLpName(event.target.value)
+                                    setLpName(
+                                        event.target.value
+                                    )
                                 }
                                 placeholder='LP 이름을 입력하세요'
                                 className='w-full rounded-lg border border-gray-600 bg-[#1f1f25] px-4 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40'
@@ -184,7 +213,9 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
                                 id='lpContent'
                                 value={lpContent}
                                 onChange={(event) =>
-                                    setLpContent(event.target.value)
+                                    setLpContent(
+                                        event.target.value
+                                    )
                                 }
                                 placeholder='LP 내용을 입력하세요'
                                 rows={4}
@@ -206,11 +237,15 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
                                     type='text'
                                     value={lpTag}
                                     onChange={(event) =>
-                                        setLpTag(event.target.value)
+                                        setLpTag(
+                                            event.target
+                                                .value
+                                        )
                                     }
                                     onKeyDown={(event) => {
                                         if (
-                                            event.key === 'Enter'
+                                            event.key ===
+                                            'Enter'
                                         ) {
                                             event.preventDefault();
                                             handleAddTag();
@@ -268,4 +303,3 @@ const AddLpModal = ({ isOpen, onClose }: AddLpModalProps) => {
 };
 
 export default AddLpModal;
-
