@@ -1,5 +1,9 @@
 import type { PaginationDto } from '../types/common';
-import type { ResponseLpCommentListDto } from '../types/comment';
+import type {
+    LpComment,
+    RequestCreateLpCommentDto,
+    ResponseLpCommentListDto,
+} from '../types/comment';
 import { axiosInstance } from './axios';
 
 export const getLpComments = async (
@@ -13,5 +17,15 @@ export const getLpComments = async (
         }
     );
 
+    return data;
+};
+
+export const postLpComment = async (
+    body: RequestCreateLpCommentDto
+): Promise<LpComment> => {
+    const { data } = await axiosInstance.post(
+        `/v1/lps/${body.lpId}/comments`,
+        { content: body.content }
+    );
     return data;
 };

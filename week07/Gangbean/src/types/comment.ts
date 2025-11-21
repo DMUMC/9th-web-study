@@ -14,3 +14,8 @@ export type LpComment = {
 export type ResponseLpCommentListDto = CursorBasedResponse<
     LpComment[]
 >;
+
+export type RequestCreateLpCommentDto = {
+    lpId: number;
+    content: string;
+};

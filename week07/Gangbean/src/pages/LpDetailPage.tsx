@@ -5,6 +5,7 @@ import LpCommentItem from '../components/LpCommentItem';
 import SkeletonCard from '../components/SkeletonCard';
 import useGetLpDetail from '../hooks/queries/useGetLpDetail';
 import useGetInfiniteLpComments from '../hooks/queries/useGetInfiniteLpComments';
+import useCreateLpComment from '../hooks/mutations/useCreateLpComment';
 
 const COMMENT_SKELETON_BASE_COUNT = 4;
 
@@ -26,6 +27,8 @@ const LpDetailPage = () => {
 
     const { data, isPending, isError } =
         useGetLpDetail(numericLpId);
+
+    const createLpCommentMutation = useCreateLpComment();
 
     const {
         data: commentsData,
@@ -107,10 +110,36 @@ const LpDetailPage = () => {
         setCommentOrder(order);
     };
 
-    const handleCommentSubmit: React.FormEventHandler<
-        HTMLFormElement
-    > = (event) => {
+    const handleCommentSubmit = async (
+        event: React.FormEvent
+    ) => {
         event.preventDefault();
+
+        if (!commentContent.trim() || !isCommentValid) {
+            alert('댓글은 최소 5자 이상 입력해주세요.');
+            return;
+        }
+
+        if (!numericLpId) {
+            alert('LP ID가 없습니다.');
+            return;
+        }
+
+        createLpCommentMutation.mutate(
+            {
+                lpId: numericLpId,
+                content: commentContent,
+            },
+            {
+                onSuccess: () => {
+                    setCommentContent('');
+                },
+                onError: (error) => {
+                    console.error('댓글 생성 실패:', error);
+                    alert('댓글 생성에 실패했습니다.');
+                },
+            }
+        );
     };
 
     const likesCount = data.likes?.length ?? 0;
