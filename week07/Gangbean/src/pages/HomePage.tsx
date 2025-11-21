@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import SkeletonCard from '../components/SkeletonCard';
 import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList';
+import AddLpModal from '../components/AddLpModal';
 
 const SKELETON_BASE_COUNT = 8;
 
@@ -11,6 +12,7 @@ const HomePage = () => {
         'desc' | 'asc'
     >('desc');
     const [search, setSearch] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const { ref, inView } = useInView();
 
     const {
@@ -212,10 +214,15 @@ const HomePage = () => {
             )}
             <button
                 type='button'
-                className='fixed right-6 bottom-6 rounded-full px-5 py-3 bg-blue-500 text-white border-0 shadow-lg cursor-pointer focus:outline-none'
+                onClick={() => setIsModalOpen(true)}
+                className='fixed right-6 bottom-6 rounded-full px-5 py-3 bg-blue-500 text-white border-0 shadow-lg cursor-pointer focus:outline-none hover:bg-blue-600 transition-colors'
             >
                 +
             </button>
+            <AddLpModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
         </div>
     );
 };
