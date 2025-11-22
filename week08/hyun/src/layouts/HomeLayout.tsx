@@ -5,13 +5,17 @@ import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
 import FloatingActionButton from '../components/FloatingActionButton';
 import LpCreateModal from '../components/LpCreateModal';
+import useSidebar from '../hooks/useSidebar';
 
 const HomeLayout = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // useSidebar 커스텀 훅 사용
+    const {
+        isOpen: isSidebarOpen,
+        toggle: toggleSidebar,
+        close: closeSidebar,
+    } = useSidebar();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-    const closeSidebar = () => setIsSidebarOpen(false);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
