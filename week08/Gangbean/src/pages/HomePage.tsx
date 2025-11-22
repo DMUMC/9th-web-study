@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import SkeletonCard from '../components/SkeletonCard';
 import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList';
 import AddLpModal from '../components/AddLpModal';
+import useDebounce from '../hooks/useDebounce';
 
 const SKELETON_BASE_COUNT = 8;
 
@@ -15,6 +16,13 @@ const HomePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { ref, inView } = useInView();
 
+    // 검색어 디바운스 처리 (300ms 지연)
+    const debouncedQuery = useDebounce(search.trim(), 500);
+
+    // 빈 검색어일 때도 전체 목록을 보여주기 위해 항상 쿼리 실행
+    // (디바운스로 불필요한 요청은 이미 방지됨)
+    const enabled = true;
+
     const {
         data,
         isPending,
@@ -23,7 +31,12 @@ const HomePage = () => {
         hasNextPage,
         isFetchingNextPage,
         isFetching,
-    } = useGetInfiniteLpList(20, search, sortOrder);
+    } = useGetInfiniteLpList(
+        20,
+        debouncedQuery,
+        sortOrder,
+        enabled
+    );
 
     const lps = useMemo(
         () =>
