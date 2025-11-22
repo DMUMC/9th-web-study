@@ -8,6 +8,7 @@ import { getImageUrl } from '../utils/image';
 import useToggleLike from '../hooks/mutations/useToggleLike';
 import useGetMyInfo from '../hooks/queries/useGetMyInfo';
 import { useAuth } from '../context/AuthContext';
+import useThrottle from '../hooks/useThrottle';
 
 const sortOptions = [
     { label: '최신순', value: PAGINATION_ORDER.DESC },
@@ -59,26 +60,50 @@ const Homepage = () => {
         return data.pages.flatMap((page) => page.data.data ?? []);
     }, [data]);
 
+    // 스크롤 위치를 추적하여 throttle 적용
+    const [scrollPosition, setScrollPosition] = useState(0);
+    const throttledScrollPosition = useThrottle(scrollPosition, 1000); // 1초에 한 번만 실행
+
+    // 스크롤 이벤트 핸들러: useThrottle을 통해 이벤트 호출 빈도 제한
+    // 사용자가 빠르게 스크롤해도 throttle을 통해 성능 최적화
     useEffect(() => {
+        const handleScroll = () => {
+            // 스크롤 위치 업데이트 (useThrottle이 이를 throttle하여 성능 최적화)
+            setScrollPosition(window.scrollY);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    // throttle된 스크롤 위치가 변경될 때만 IntersectionObserver 체크 및 fetchNextPage 호출
+    // 사용자가 빠르게 스크롤해도 1초에 한 번만 실행되어 성능 최적화
+    useEffect(() => {
+        if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return;
+
         const observer = new IntersectionObserver(
             (entries) => {
-                if (
-                    entries[0].isIntersecting &&
-                    hasNextPage &&
-                    !isFetchingNextPage
-                ) {
+                if (entries[0].isIntersecting) {
+                    // throttle된 스크롤 위치가 변경되었을 때만 fetchNextPage 호출
+                    // useThrottle을 통해 이벤트 호출 빈도가 제한되어 성능 최적화
                     fetchNextPage();
                 }
             },
             { threshold: 0.1 }
         );
 
-        if (loadMoreRef.current) {
-            observer.observe(loadMoreRef.current);
-        }
+        observer.observe(loadMoreRef.current);
 
         return () => observer.disconnect();
-    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+    }, [
+        hasNextPage,
+        isFetchingNextPage,
+        fetchNextPage,
+        throttledScrollPosition, // throttle된 스크롤 위치가 변경될 때만 effect 재실행
+    ]);
 
     const formatDate = (value: string | Date) =>
         new Intl.DateTimeFormat('ko-KR').format(new Date(value));
@@ -152,7 +177,9 @@ const Homepage = () => {
                             // 현재 사용자가 좋아요를 눌렀는지 확인
                             const isLiked =
                                 myInfo?.data?.id &&
-                                lp.likes?.some((like) => like.userId === myInfo.data.id)
+                                lp.likes?.some(
+                                    (like) => like.userId === myInfo.data.id
+                                )
                                     ? true
                                     : false;
                             const likeCount = lp.likes?.length ?? 0;
@@ -192,7 +219,10 @@ const Homepage = () => {
                                             <button
                                                 type="button"
                                                 aria-pressed={isLiked}
-                                                disabled={isTogglingLike || !accessToken}
+                                                disabled={
+                                                    isTogglingLike ||
+                                                    !accessToken
+                                                }
                                                 className={`flex items-center gap-1 rounded-full px-3 py-1 transition ${
                                                     isLiked
                                                         ? 'bg-pink-500 text-white'
@@ -200,7 +230,10 @@ const Homepage = () => {
                                                 } disabled:opacity-50 disabled:cursor-not-allowed`}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    toggleLike({ lpId: lp.id.toString(), isLiked });
+                                                    toggleLike({
+                                                        lpId: lp.id.toString(),
+                                                        isLiked,
+                                                    });
                                                 }}
                                             >
                                                 {isLiked ? (

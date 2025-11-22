@@ -20,7 +20,6 @@ const ProtectedLayout = () => {
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
-
     return (
         <div className="h-dvh flex flex-col">
             <Navbar
