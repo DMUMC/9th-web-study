@@ -91,3 +91,9 @@ export type ResponseUpdateLpDto = CommonResponse<{
     updatedAt: Date;
     tags: Tags[];
 }>;
+
+export type ResponseLikeDto = CommonResponse<{
+    id: number;
+    userId: number;
+    lpId: number;
+}>;

@@ -11,7 +11,8 @@ type SidebarProps = {
 };
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] =
+        useState(false);
     const { accessToken } = useAuth();
     const { removeItem: removeAccessTokenFromStorage } =
         useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
@@ -88,10 +89,16 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                         <div className='mt-auto pt-6'>
                             <button
                                 type='button'
-                                onClick={() => setIsDeleteModalOpen(true)}
+                                onClick={() =>
+                                    setIsDeleteModalOpen(
+                                        true
+                                    )
+                                }
                                 className='flex w-full items-center gap-3 rounded-md px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-900/20 hover:text-red-300'
                             >
-                                <span className='text-lg'>🗑️</span>
+                                <span className='text-lg'>
+                                    🗑️
+                                </span>
                                 탈퇴하기
                             </button>
                         </div>
@@ -104,7 +111,9 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 <>
                     <div
                         className='fixed inset-0 z-50 bg-black/50'
-                        onClick={() => setIsDeleteModalOpen(false)}
+                        onClick={() =>
+                            setIsDeleteModalOpen(false)
+                        }
                         aria-hidden
                     />
                     <div className='fixed left-1/2 top-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-800 p-6 shadow-xl'>
@@ -112,14 +121,17 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                             정말 탈퇴하시겠습니까?
                         </h2>
                         <p className='mb-6 text-sm text-gray-300'>
-                            탈퇴하시면 모든 데이터가 삭제되며 복구할 수
-                            없습니다. 정말 탈퇴하시겠습니까?
+                            탈퇴하시면 모든 데이터가
+                            삭제되며 복구할 수 없습니다.
+                            정말 탈퇴하시겠습니까?
                         </p>
                         <div className='flex justify-end gap-3'>
                             <button
                                 type='button'
                                 onClick={() =>
-                                    setIsDeleteModalOpen(false)
+                                    setIsDeleteModalOpen(
+                                        false
+                                    )
                                 }
                                 className='rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500'
                             >
@@ -127,7 +139,9 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                             </button>
                             <button
                                 type='button'
-                                onClick={handleDeleteAccount}
+                                onClick={
+                                    handleDeleteAccount
+                                }
                                 disabled={
                                     deleteAccountMutation.isPending
                                 }

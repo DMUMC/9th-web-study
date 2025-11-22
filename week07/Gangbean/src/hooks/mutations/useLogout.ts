@@ -1,4 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+    useMutation,
+    useQueryClient,
+} from '@tanstack/react-query';
 import { postLogout } from '../../apis/auth';
 import { QUERY_KEY } from '../../constants/key';
 
@@ -15,4 +18,3 @@ function useLogout() {
 }
 
 export default useLogout;
-

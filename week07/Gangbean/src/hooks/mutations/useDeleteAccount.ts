@@ -18,4 +18,3 @@ function useDeleteAccount() {
 }
 
 export default useDeleteAccount;
-

@@ -9,6 +9,8 @@ import useGetInfiniteLpComments from '../hooks/queries/useGetInfiniteLpComments'
 import useCreateLpComment from '../hooks/mutations/useCreateLpComment';
 import useGetMyInfo from '../hooks/queries/useGetMyInfo';
 import useDeleteLp from '../hooks/mutations/useDeleteLp';
+import useLike from '../hooks/mutations/useLike';
+import useDeleteLike from '../hooks/mutations/useDeleteLike';
 
 const COMMENT_SKELETON_BASE_COUNT = 4;
 
@@ -34,8 +36,20 @@ const LpDetailPage = () => {
     const { data: myInfo } = useGetMyInfo();
     const createLpCommentMutation = useCreateLpComment();
     const deleteLpMutation = useDeleteLp();
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] =
+        useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] =
+        useState(false);
+
+    const isLiked =
+        data && myInfo
+            ? data.likes?.some(
+                  (like) => like.userId === myInfo.id
+              ) ?? false
+            : false;
+
+    const likeMutation = useLike();
+    const deleteLikeMutation = useDeleteLike();
 
     const {
         data: commentsData,
@@ -169,7 +183,11 @@ const LpDetailPage = () => {
     const handleDelete = () => {
         if (!numericLpId) return;
 
-        if (!window.confirm('정말 이 LP를 삭제하시겠습니까?')) {
+        if (
+            !window.confirm(
+                '정말 이 LP를 삭제하시겠습니까?'
+            )
+        ) {
             return;
         }
 
@@ -183,6 +201,53 @@ const LpDetailPage = () => {
                 alert('LP 삭제에 실패했습니다.');
             },
         });
+    };
+
+    const handleToggleLike = () => {
+        if (!numericLpId) return;
+
+        if (!myInfo) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+
+        if (isLiked) {
+            deleteLikeMutation.mutate(
+                {
+                    lpId: numericLpId,
+                    userId: myInfo.id,
+                },
+                {
+                    onError: (error) => {
+                        console.error(
+                            '좋아요 취소 실패:',
+                            error
+                        );
+                        alert(
+                            '좋아요 취소에 실패했습니다.'
+                        );
+                    },
+                }
+            );
+        } else {
+            likeMutation.mutate(
+                {
+                    lpId: numericLpId,
+                    userId: myInfo.id,
+                },
+                {
+                    onError: (error) => {
+                        console.error(
+                            '좋아요 추가 실패:',
+                            error
+                        );
+                        alert(
+                            '좋아요 추가에 실패했습니다.'
+                        );
+                    },
+                }
+            );
+        }
     };
 
     return (
@@ -217,7 +282,11 @@ const LpDetailPage = () => {
                                 <>
                                     <button
                                         type='button'
-                                        onClick={() => setIsEditModalOpen(true)}
+                                        onClick={() =>
+                                            setIsEditModalOpen(
+                                                true
+                                            )
+                                        }
                                         className='inline-flex items-center gap-1 rounded-full border border-gray-600 px-3 py-1 text-xs font-medium text-gray-200 transition-colors hover:border-gray-500 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300'
                                     >
                                         <span>✏️</span>
@@ -226,9 +295,13 @@ const LpDetailPage = () => {
                                     <button
                                         type='button'
                                         onClick={() =>
-                                            setIsDeleteModalOpen(true)
+                                            setIsDeleteModalOpen(
+                                                true
+                                            )
                                         }
-                                        disabled={deleteLpMutation.isPending}
+                                        disabled={
+                                            deleteLpMutation.isPending
+                                        }
                                         className='inline-flex items-center gap-1 rounded-full border border-red-400 px-3 py-1 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed'
                                     >
                                         <span>🗑️</span>
@@ -240,10 +313,25 @@ const LpDetailPage = () => {
                             )}
                             <button
                                 type='button'
-                                className='inline-flex items-center gap-1 rounded-full border border-pink-500 px-3 py-1 text-xs font-medium text-pink-300 transition-colors hover:bg-pink-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-pink-400'
+                                onClick={handleToggleLike}
+                                disabled={
+                                    likeMutation.isPending ||
+                                    deleteLikeMutation.isPending
+                                }
+                                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 ${
+                                    isLiked
+                                        ? 'border-pink-500 bg-pink-500/20 text-pink-300 hover:bg-pink-500/30'
+                                        : 'border-pink-500 text-pink-300 hover:bg-pink-500 hover:text-white'
+                                } disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
-                                <span>♡</span>
-                                {likesCount}
+                                <span>
+                                    {isLiked ? '❤️' : '♡'}
+                                </span>
+                                {likeMutation.isPending ||
+                                deleteLikeMutation.isPending
+                                    ? '...'
+                                    : data.likes?.length ??
+                                      0}
                             </button>
                         </div>
                     </div>
@@ -430,7 +518,9 @@ const LpDetailPage = () => {
             {isEditModalOpen && (
                 <EditLpModal
                     isOpen={isEditModalOpen}
-                    onClose={() => setIsEditModalOpen(false)}
+                    onClose={() =>
+                        setIsEditModalOpen(false)
+                    }
                     lp={{
                         id: data.id,
                         title: data.title,
@@ -451,7 +541,9 @@ const LpDetailPage = () => {
                 <>
                     <div
                         className='fixed inset-0 z-50 bg-black/50'
-                        onClick={() => setIsDeleteModalOpen(false)}
+                        onClick={() =>
+                            setIsDeleteModalOpen(false)
+                        }
                         aria-hidden
                     />
                     <div className='fixed left-1/2 top-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-800 p-6 shadow-xl'>
@@ -459,14 +551,16 @@ const LpDetailPage = () => {
                             정말 삭제하시겠습니까?
                         </h2>
                         <p className='mb-6 text-sm text-gray-300'>
-                            삭제하시면 복구할 수 없습니다. 정말
-                            삭제하시겠습니까?
+                            삭제하시면 복구할 수 없습니다.
+                            정말 삭제하시겠습니까?
                         </p>
                         <div className='flex justify-end gap-3'>
                             <button
                                 type='button'
                                 onClick={() =>
-                                    setIsDeleteModalOpen(false)
+                                    setIsDeleteModalOpen(
+                                        false
+                                    )
                                 }
                                 className='rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500'
                             >
@@ -475,7 +569,9 @@ const LpDetailPage = () => {
                             <button
                                 type='button'
                                 onClick={handleDelete}
-                                disabled={deleteLpMutation.isPending}
+                                disabled={
+                                    deleteLpMutation.isPending
+                                }
                                 className='rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed'
                             >
                                 {deleteLpMutation.isPending

@@ -22,4 +22,3 @@ function useDeleteLp() {
 }
 
 export default useDeleteLp;
-

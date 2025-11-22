@@ -3,6 +3,7 @@ import type {
     RequestCreateLpDto,
     RequestUpdateLpDto,
     ResponseCreateLpDto,
+    ResponseLikeDto,
     ResponseLpDetailDto,
     ResponseLpListDto,
     ResponseUpdateLpDto,
@@ -56,4 +57,22 @@ export const deleteLp = async (
     lpId: number
 ): Promise<void> => {
     await axiosInstance.delete(`/v1/lps/${lpId}`);
+};
+
+export const postLike = async (
+    lpId: number
+): Promise<ResponseLikeDto> => {
+    const { data } = await axiosInstance.post(
+        `/v1/lps/${lpId}/likes`
+    );
+    return data;
+};
+
+export const deleteLike = async (
+    lpId: number
+): Promise<ResponseLikeDto> => {
+    const { data } = await axiosInstance.delete(
+        `/v1/lps/${lpId}/likes`
+    );
+    return data;
 };
