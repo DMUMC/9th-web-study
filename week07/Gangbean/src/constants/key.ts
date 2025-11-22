@@ -8,4 +8,5 @@ export const QUERY_KEY = {
     lpDetail: 'lpDetail',
     myInfo: 'myInfo',
     lpComments: 'lpComments',
+    login: 'login',
 };

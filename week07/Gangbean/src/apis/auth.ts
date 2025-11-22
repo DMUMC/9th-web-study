@@ -59,3 +59,7 @@ export const updateMyInfo = async (
 
     return data;
 };
+
+export const deleteAccount = async (): Promise<void> => {
+    await axiosInstance.delete(`/v1/users`);
+};

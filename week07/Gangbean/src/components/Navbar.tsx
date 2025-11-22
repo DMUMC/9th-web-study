@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import useGetMyInfo from '../hooks/queries/useGetMyInfo';
-import { QUERY_KEY } from '../constants/key';
+import useLogout from '../hooks/mutations/useLogout';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { LOCAL_STORAGE_KEY } from '../constants/key';
 
 type NavbarProps = {
     onToggleSidebar?: () => void;
@@ -10,18 +11,35 @@ type NavbarProps = {
 
 const Navbar = ({ onToggleSidebar }: NavbarProps) => {
     const navigate = useNavigate();
-    const { logout, accessToken } = useAuth();
-    const queryClient = useQueryClient();
+    const { accessToken } = useAuth();
     const { data: myInfo } = useGetMyInfo({
         enabled: Boolean(accessToken),
     });
+    const logoutMutation = useLogout();
+    const { removeItem: removeAccessTokenFromStorage } =
+        useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
+    const { removeItem: removeRefreshTokenFromStorage } =
+        useLocalStorage(LOCAL_STORAGE_KEY.refreshToken);
 
-    const handleLogout = async () => {
-        await logout();
-        queryClient.removeQueries({
-            queryKey: [QUERY_KEY.myInfo],
+    const handleLogout = () => {
+        if (logoutMutation.isPending) return;
+
+        logoutMutation.mutate(undefined, {
+            onSuccess: () => {
+                // 토큰 제거
+                removeAccessTokenFromStorage();
+                removeRefreshTokenFromStorage();
+                // 홈으로 리다이렉트
+                navigate('/');
+                alert('로그아웃 성공');
+                // 페이지 새로고침하여 상태 초기화
+                window.location.reload();
+            },
+            onError: (error) => {
+                console.error('로그아웃 실패:', error);
+                alert('로그아웃 실패');
+            },
         });
-        navigate('/');
     };
 
     return (
@@ -81,10 +99,13 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
                                 마이페이지
                             </Link>
                             <button
-                                className='cursor-pointer bg-blue-300 rounded-sm px-3 py-1 hover:scale-90'
+                                className='cursor-pointer bg-blue-300 rounded-sm px-3 py-1 hover:scale-90 disabled:opacity-50 disabled:cursor-not-allowed'
                                 onClick={handleLogout}
+                                disabled={logoutMutation.isPending}
                             >
-                                로그아웃
+                                {logoutMutation.isPending
+                                    ? '로그아웃 중...'
+                                    : '로그아웃'}
                             </button>
                         </>
                     ) : (

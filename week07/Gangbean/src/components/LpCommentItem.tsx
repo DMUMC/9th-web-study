@@ -111,7 +111,7 @@ const LpCommentItem = ({ comment }: LpCommentItemProps) => {
                         {comment.author.name}
                     </span>
                     <div className='flex items-center gap-2'>
-                        <span>{createdAt}</span>
+                    <span>{createdAt}</span>
                         {isMyComment && (
                             <div className='relative' ref={menuRef}>
                                 <button
@@ -203,9 +203,9 @@ const LpCommentItem = ({ comment }: LpCommentItemProps) => {
                         </div>
                     </div>
                 ) : (
-                    <p className='mt-2 text-sm leading-relaxed text-gray-200'>
-                        {comment.content}
-                    </p>
+                <p className='mt-2 text-sm leading-relaxed text-gray-200'>
+                    {comment.content}
+                </p>
                 )}
             </div>
         </article>
