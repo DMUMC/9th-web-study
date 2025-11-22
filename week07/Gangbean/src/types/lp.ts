@@ -71,3 +71,23 @@ export type ResponseCreateLpDto = CommonResponse<{
     createdAt: Date;
     updatedAt: Date;
 }>;
+
+export type RequestUpdateLpDto = {
+    title: string;
+    content: string;
+    thumbnail?: string;
+    tags: string[];
+    published: boolean;
+};
+
+export type ResponseUpdateLpDto = CommonResponse<{
+    id: number;
+    title: string;
+    content: string;
+    thumbnail: string;
+    published: boolean;
+    authorId: number;
+    createdAt: Date;
+    updatedAt: Date;
+    tags: Tags[];
+}>;

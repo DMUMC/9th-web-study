@@ -1,9 +1,11 @@
 import type { PaginationDto } from '../types/common';
 import type {
     RequestCreateLpDto,
+    RequestUpdateLpDto,
     ResponseCreateLpDto,
     ResponseLpDetailDto,
     ResponseLpListDto,
+    ResponseUpdateLpDto,
 } from '../types/lp';
 import { axiosInstance } from './axios';
 
@@ -36,4 +38,22 @@ export const postCreateLp = async (
     );
 
     return data;
+};
+
+export const patchUpdateLp = async (
+    lpId: number,
+    body: RequestUpdateLpDto
+): Promise<ResponseUpdateLpDto> => {
+    const { data } = await axiosInstance.patch(
+        `/v1/lps/${lpId}`,
+        body
+    );
+
+    return data;
+};
+
+export const deleteLp = async (
+    lpId: number
+): Promise<void> => {
+    await axiosInstance.delete(`/v1/lps/${lpId}`);
 };

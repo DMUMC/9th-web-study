@@ -3,9 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import LpCommentItem from '../components/LpCommentItem';
 import SkeletonCard from '../components/SkeletonCard';
+import EditLpModal from '../components/EditLpModal';
 import useGetLpDetail from '../hooks/queries/useGetLpDetail';
 import useGetInfiniteLpComments from '../hooks/queries/useGetInfiniteLpComments';
 import useCreateLpComment from '../hooks/mutations/useCreateLpComment';
+import useGetMyInfo from '../hooks/queries/useGetMyInfo';
+import useDeleteLp from '../hooks/mutations/useDeleteLp';
 
 const COMMENT_SKELETON_BASE_COUNT = 4;
 
@@ -28,7 +31,11 @@ const LpDetailPage = () => {
     const { data, isPending, isError } =
         useGetLpDetail(numericLpId);
 
+    const { data: myInfo } = useGetMyInfo();
     const createLpCommentMutation = useCreateLpComment();
+    const deleteLpMutation = useDeleteLp();
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const {
         data: commentsData,
@@ -157,6 +164,27 @@ const LpDetailPage = () => {
         'day'
     );
 
+    const isMyLp = myInfo?.id === data.authorId;
+
+    const handleDelete = () => {
+        if (!numericLpId) return;
+
+        if (!window.confirm('정말 이 LP를 삭제하시겠습니까?')) {
+            return;
+        }
+
+        deleteLpMutation.mutate(numericLpId, {
+            onSuccess: () => {
+                navigate('/');
+                alert('LP가 삭제되었습니다.');
+            },
+            onError: (error) => {
+                console.error('LP 삭제 실패:', error);
+                alert('LP 삭제에 실패했습니다.');
+            },
+        });
+    };
+
     return (
         <div className='mx-auto max-w-5xl px-4 pb-16 pt-10 sm:px-6 lg:px-10'>
             <button
@@ -185,20 +213,31 @@ const LpDetailPage = () => {
                     <div className='flex flex-col items-end gap-3 text-sm text-gray-400'>
                         <p>{formattedDate}</p>
                         <div className='flex flex-wrap items-center justify-end gap-2'>
-                            <button
-                                type='button'
-                                className='inline-flex items-center gap-1 rounded-full border border-gray-600 px-3 py-1 text-xs font-medium text-gray-200 transition-colors hover:border-gray-500 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300'
-                            >
-                                <span>✏️</span>
-                                수정
-                            </button>
-                            <button
-                                type='button'
-                                className='inline-flex items-center gap-1 rounded-full border border-red-400 px-3 py-1 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-400'
-                            >
-                                <span>🗑️</span>
-                                삭제
-                            </button>
+                            {isMyLp && (
+                                <>
+                                    <button
+                                        type='button'
+                                        onClick={() => setIsEditModalOpen(true)}
+                                        className='inline-flex items-center gap-1 rounded-full border border-gray-600 px-3 py-1 text-xs font-medium text-gray-200 transition-colors hover:border-gray-500 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300'
+                                    >
+                                        <span>✏️</span>
+                                        수정
+                                    </button>
+                                    <button
+                                        type='button'
+                                        onClick={() =>
+                                            setIsDeleteModalOpen(true)
+                                        }
+                                        disabled={deleteLpMutation.isPending}
+                                        className='inline-flex items-center gap-1 rounded-full border border-red-400 px-3 py-1 text-xs font-medium text-red-200 transition-colors hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed'
+                                    >
+                                        <span>🗑️</span>
+                                        {deleteLpMutation.isPending
+                                            ? '삭제 중...'
+                                            : '삭제'}
+                                    </button>
+                                </>
+                            )}
                             <button
                                 type='button'
                                 className='inline-flex items-center gap-1 rounded-full border border-pink-500 px-3 py-1 text-xs font-medium text-pink-300 transition-colors hover:bg-pink-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-pink-400'
@@ -386,6 +425,67 @@ const LpDetailPage = () => {
                     </div>
                 )}
             </section>
+
+            {/* 수정 모달 */}
+            {isEditModalOpen && (
+                <EditLpModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    lp={{
+                        id: data.id,
+                        title: data.title,
+                        content: data.content,
+                        thumbnail: data.thumbnail,
+                        published: data.published,
+                        authorId: data.authorId,
+                        createdAt: data.createdAt,
+                        updatedAt: data.updatedAt,
+                        tags: data.tags,
+                        likes: data.likes,
+                    }}
+                />
+            )}
+
+            {/* 삭제 확인 모달 */}
+            {isDeleteModalOpen && (
+                <>
+                    <div
+                        className='fixed inset-0 z-50 bg-black/50'
+                        onClick={() => setIsDeleteModalOpen(false)}
+                        aria-hidden
+                    />
+                    <div className='fixed left-1/2 top-1/2 z-50 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-800 p-6 shadow-xl'>
+                        <h2 className='mb-4 text-xl font-semibold text-white'>
+                            정말 삭제하시겠습니까?
+                        </h2>
+                        <p className='mb-6 text-sm text-gray-300'>
+                            삭제하시면 복구할 수 없습니다. 정말
+                            삭제하시겠습니까?
+                        </p>
+                        <div className='flex justify-end gap-3'>
+                            <button
+                                type='button'
+                                onClick={() =>
+                                    setIsDeleteModalOpen(false)
+                                }
+                                className='rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500'
+                            >
+                                취소
+                            </button>
+                            <button
+                                type='button'
+                                onClick={handleDelete}
+                                disabled={deleteLpMutation.isPending}
+                                className='rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed'
+                            >
+                                {deleteLpMutation.isPending
+                                    ? '삭제 중...'
+                                    : '삭제하기'}
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
