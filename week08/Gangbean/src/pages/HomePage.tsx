@@ -5,6 +5,7 @@ import SkeletonCard from '../components/SkeletonCard';
 import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList';
 import AddLpModal from '../components/AddLpModal';
 import useDebounce from '../hooks/useDebounce';
+import useThrottle from '../hooks/useThrottle';
 
 const SKELETON_BASE_COUNT = 8;
 
@@ -16,7 +17,7 @@ const HomePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { ref, inView } = useInView();
 
-    // 검색어 디바운스 처리 (300ms 지연)
+    // 검색어 디바운스 처리 (500ms 지연)
     const debouncedQuery = useDebounce(search.trim(), 500);
 
     // 빈 검색어일 때도 전체 목록을 보여주기 위해 항상 쿼리 실행
@@ -46,17 +47,22 @@ const HomePage = () => {
         [data]
     );
 
+    // fetchNextPage를 1초 간격으로 throttle
+    const throttledFetchNextPage = useThrottle(() => {
+        if (!hasNextPage || isFetchingNextPage) return;
+        fetchNextPage();
+    }, 1500);
+
     useEffect(() => {
         if (!inView) return;
         if (!hasNextPage) return;
         if (isFetchingNextPage) return;
-
-        fetchNextPage();
+        throttledFetchNextPage();
     }, [
-        fetchNextPage,
-        hasNextPage,
         inView,
+        hasNextPage,
         isFetchingNextPage,
+        throttledFetchNextPage,
     ]);
 
     const getRelativeTime = (value: string | Date) => {
