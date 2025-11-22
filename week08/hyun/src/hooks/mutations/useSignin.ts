@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { postSignin } from '../../apis/auth';
 import type { RequestSigninDto } from '../../types/auth';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { useLocalStorage } from '../useLocalStorage';
 import { LOCAL_STORAGE_KEY } from '../../constant/key';
 import { useNavigate, useLocation } from 'react-router-dom';
 
