@@ -11,7 +11,7 @@ export const SortButtons = ({ order, onChangeOrder }: SortButtonsProps) => {
       <button
         type="button"
         onClick={() => onChangeOrder("asc")}
-        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap ${
           order === "asc"
             ? "bg-[#ff00b3] text-white"
             : "bg-[#1f1f1f] text-gray-300 hover:bg-[#2d2d2d]"
@@ -22,7 +22,7 @@ export const SortButtons = ({ order, onChangeOrder }: SortButtonsProps) => {
       <button
         type="button"
         onClick={() => onChangeOrder("desc")}
-        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+        className={`rounded-md px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap ${
           order === "desc"
             ? "bg-[#ff00b3] text-white"
             : "bg-[#1f1f1f] text-gray-300 hover:bg-[#2d2d2d]"

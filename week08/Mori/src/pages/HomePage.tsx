@@ -8,6 +8,7 @@ import { CreateLpModal } from "../components/CreateLpModal"
 import { SortButtons } from "../components/SortButtons"
 import type { LpOrder, ResponseLpListDto } from "../types/lp"
 import useDebounce from "../hooks/useDebounce"
+import { FaSearch } from "react-icons/fa";
 
 export const HomePage = () => {
   const [sort, setSort] = useState<LpOrder>("desc")
@@ -133,14 +134,17 @@ export const HomePage = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 text-white">
-      <header className="flex justify-between">
-        <input
-          type="text"
-          placeholder="검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-[80%] rounded-md border border-gray-300 p-2"
-        />
+      <header className="flex justify-between items-center gap-4">
+        <div className="relative flex items-center w-[80%]">
+          <FaSearch className="absolute left-3 text-gray-400 w-5 h-5 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="검색"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-600 bg-[#1a1a1a] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff00b3] focus:border-transparent transition-all"
+          />
+        </div>
         <SortButtons order={sort} onChangeOrder={setSort} />
       </header>
 
