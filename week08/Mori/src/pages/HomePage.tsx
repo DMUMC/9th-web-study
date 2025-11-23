@@ -8,6 +8,7 @@ import { CreateLpModal } from "../components/CreateLpModal"
 import { SortButtons } from "../components/SortButtons"
 import type { LpOrder, ResponseLpListDto } from "../types/lp"
 import useDebounce from "../hooks/useDebounce"
+import useThrottle from "../hooks/useThrottle"
 import { FaSearch } from "react-icons/fa";
 
 export const HomePage = () => {
@@ -109,28 +110,34 @@ export const HomePage = () => {
     return infiniteData.pages.flatMap((page) => page.data.data)
   }, [infiniteData])
 
+  const [scrollY, setScrollY] = useState(0)
+  // 스크롤을 2초에 한 번만 업데이트
+  const throttledScrollY = useThrottle(scrollY, 2000)
+
   useEffect(() => {
-    const target = sentinelRef.current
-    if (!target) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          void fetchNextPage()
-        }
-      },
-      {
-        rootMargin: "200px",
-      }
-    )
-
-    observer.observe(target)
-
-    return () => {
-      observer.disconnect()
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
     }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, sort, trimmedSearch])
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return
+
+    const windowHeight = window.innerHeight
+    const documentHeight = document.documentElement.scrollHeight
+    const scrollPosition = throttledScrollY + windowHeight
+
+    // 하단에서 100px 이내에 도달했을 때 다음 페이지 불러오기
+    if (scrollPosition >= documentHeight - 100) {
+      console.log("다음 페이지 불러오기 시작 :  interval 2000ms")
+      void fetchNextPage()
+    }
+  }, [throttledScrollY, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 text-white">
