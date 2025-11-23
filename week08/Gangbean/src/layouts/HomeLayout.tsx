@@ -1,29 +1,17 @@
 import { Outlet } from 'react-router-dom';
-import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
+import useSidebar from '../hooks/useSidebar';
 
 const HomeLayout = () => {
-    const [isSidebarOpen, setIsSidebarOpen] =
-        useState(false);
-
-    const toggleSidebar = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
-
-    const closeSidebar = () => {
-        setIsSidebarOpen(false);
-    };
+    const { isOpen, toggle, close } = useSidebar();
 
     return (
         <>
-            <Sidebar
-                isOpen={isSidebarOpen}
-                onClose={closeSidebar}
-            />
+            <Sidebar isOpen={isOpen} onClose={close} />
             <div className='h-dvh flex flex-col'>
-                <Navbar onToggleSidebar={toggleSidebar} />
+                <Navbar onToggleSidebar={toggle} />
                 <main className='flex-1 mt-20 px-4 pb-8 lg:px-8'>
                     <Outlet />
                 </main>

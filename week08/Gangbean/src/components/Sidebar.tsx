@@ -47,15 +47,19 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
     return (
         <>
-            {isOpen && (
-                <div
-                    className='fixed inset-0 z-30 cursor-pointer'
-                    onClick={onClose}
-                    aria-hidden
-                />
-            )}
+            {/* 배경 오버레이 - 자연스러운 페이드 인/아웃 */}
+            <div
+                className={`fixed inset-0 z-30 bg-black/50 transition-opacity duration-300 ease-in-out ${
+                    isOpen
+                        ? 'opacity-100'
+                        : 'pointer-events-none opacity-0'
+                }`}
+                onClick={onClose}
+                aria-hidden
+            />
+            {/* Sidebar - 자연스러운 슬라이드 애니메이션 */}
             <aside
-                className={`fixed left-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-64 flex-col bg-gray-900 text-white shadow-2xl transition-transform duration-300 ${
+                className={`fixed left-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-64 flex-col bg-gray-900 text-white shadow-2xl transition-all duration-300 ease-in-out ${
                     isOpen
                         ? 'translate-x-0'
                         : '-translate-x-full'
