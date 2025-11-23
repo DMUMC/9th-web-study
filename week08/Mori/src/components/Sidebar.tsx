@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { FiSearch, FiUser } from "react-icons/fi"
 import { deleteMyAccount } from "../apis/auth"
 import { useAuthStore } from "../store/authStore"
 import { ConfirmModal } from "./ConfirmModal"
@@ -45,18 +46,20 @@ export const Sidebar = ({ onNavigate }: SidebarProps) => {
   return (
     <>
       <nav className="flex h-full w-full flex-col justify-between bg-[#171717] p-6 text-white shadow-lg md:h-full md:shadow-none">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-8 my-4">
           <div
             onClick={handleNavigate}
-            className="w-full text-sm font-medium"
+            className="flex items-center gap-2 w-full text-sm font-medium cursor-pointer hover:text-gray-300 transition-colors"
           >
+            <FiSearch className="w-5 h-5" />
             검색
           </div>
           <Link
             to="/mypage"
             onClick={handleNavigate}
-            className="w-full text-sm font-medium"
+            className="flex items-center gap-2 w-full text-sm font-medium hover:text-gray-300 transition-colors"
           >
+            <FiUser className="w-5 h-5" />
             마이페이지
           </Link>
         </div>
