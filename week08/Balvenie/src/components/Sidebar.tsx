@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import useDeleteAccount from '../hooks/mutations/useDeleteAccount';
@@ -21,6 +21,25 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
         { label: '마이페이지', to: '/mypage' },
     ];
 
+    // ✅ ESC 키 이벤트 핸들러 추가
+    useEffect(() => {
+        const handleEscKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && isOpen && onClose) {
+                onClose();
+            }
+        };
+
+        // 사이드바가 열려있을 때만 리스너 등록
+        if (isOpen) {
+            window.addEventListener('keydown', handleEscKey);
+        }
+
+        // 언마운트되거나 닫힐 때 리스너 정리
+        return () => {
+            window.removeEventListener('keydown', handleEscKey);
+        };
+    }, [isOpen, onClose]);
+
     const handleDeleteAccount = () => {
         deleteAccount();
     };
@@ -36,7 +55,6 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
                 />
             )}
 
-            {/* 🔥 md:block, md:translate-x-0 제거 → 버튼을 누르기 전까지 사이드바는 항상 숨김 */}
             <aside
                 className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-200 bg-gray-50 pt-24 transition-transform duration-200 ease-in-out ${
                     isOpen ? 'translate-x-0' : '-translate-x-full'
