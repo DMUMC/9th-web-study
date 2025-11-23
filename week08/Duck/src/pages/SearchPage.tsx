@@ -44,10 +44,12 @@ const SearchPage = () => {
   const { data: myInfo } = useGetMyInfo();
   const { mutate: toggleLike, isPending: isTogglingLike } = useToggleLike();
 
-  // useDebounce 적용: 300ms 지연
-  const debouncedQuery = useDebounce(searchQuery.trim(), 300);
+  // useDebounce 적용: 500ms 지연 (입력 후 일정 시간 대기 후 요청 발생)
+  // 검색어 입력 직후 바로 요청이 발생하지 않고, 500ms 후에 요청이 발생하도록 설정
+  const debouncedQuery = useDebounce(searchQuery.trim(), 500);
 
-  // 빈 문자열/공백만 입력일 때 요청이 나가지 않도록 enabled 옵션 사용
+  // debouncedQuery가 변경될 때만 API 요청이 발생하도록 설정
+  // 빈 문자열/공백만 입력일 때는 요청이 나가지 않도록 enabled 옵션 사용
   const {
     data,
     isPending,
@@ -56,7 +58,7 @@ const SearchPage = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useGetInfiniteLpList({
-    search: debouncedQuery || undefined, // 빈 문자열이면 undefined로 전달
+    search: debouncedQuery || undefined, // 빈 문자열이면 undefined로 전달하여 요청 방지
     order: sortOrder,
     limit: 12,
   });
@@ -149,8 +151,13 @@ const SearchPage = () => {
         <input
           type="text"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="LP 제목, 내용으로 검색..."
+          onChange={(e) => {
+            // 입력 즉시 상태 업데이트 (화면에는 바로 반영)
+            setSearchQuery(e.target.value);
+            // 실제 API 요청은 debouncedQuery를 통해 500ms 후에 발생
+            // 개발자 도구 Network 탭에서 요청 타이밍 확인 가능
+          }}
+          placeholder="LP 제목, 내용으로 검색... (입력 후 500ms 후 요청)"
           className="w-full rounded-lg border border-gray-300 px-4 py-3 pl-10 pr-4 text-gray-900 placeholder-gray-400 focus:border-[#807bff] focus:outline-none focus:ring-2 focus:ring-[#807bff]/20"
         />
         <svg
