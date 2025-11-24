@@ -1,32 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LpCard } from '../components/LpCard/LpCard'
 import { Spinner } from '../components/Spinner'
 //import useGetLpList from "../hooks/queries/useGetLpList"
 import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList'
 import LpCardSkeleton from '../components/LpCard/LpCardSkeleton'
+import { useDebounce } from '../hooks/useDebounce'
+import { useInView } from 'react-intersection-observer'
 
 const LpListPage = () => {
 	const [sort, setSort] = useState<'asc' | 'desc'>('desc')
 	const [search, setSearch] = useState('')
+	const debouncedSearch = useDebounce(search, 300)
 	//const {data, isLoading, error} = useGetLpList({cursor: undefined, limit: undefined, search: undefined, order: sort});
-	const { data: lps, isFetching, isFetchingNextPage, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpList(10, search, sort)
-	const sentinelRef = useRef<HTMLDivElement | null>(null)
+	const { data: lps, isFetching, isFetchingNextPage, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpList(10, debouncedSearch, sort)
+	const { ref, inView } = useInView({
+		threshold: 0,
+	})
 
 	useEffect(() => {
-		if (!sentinelRef.current) return
-
-		const el = sentinelRef.current
-		const observer = new IntersectionObserver((entries) => {
-			const first = entries[0]
-			if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
-				fetchNextPage()
-			}
-		})
-
-		observer.observe(el)
-
-		return () => observer.disconnect()
-	}, [hasNextPage, isFetchingNextPage, fetchNextPage])
+		if (inView && !isFetching && hasNextPage) {
+			fetchNextPage()
+		}
+	}, [inView, hasNextPage, isFetching, fetchNextPage])
 
 	if (isPending) {
 		return <Spinner />
@@ -43,6 +38,10 @@ const LpListPage = () => {
 
 	return (
 		<div className='flex flex-col gap-4 mt-10'>
+			<div className='flex items-center gap-2 border-1 border-gray-300 rounded-md p-2'>
+				<input type='text' placeholder='Search' className='w-full outline-none' value={search} onChange={(e) => setSearch(e.target.value)} />
+			</div>
+
 			<div className='flex items-center gap-2 justify-end'>
 				<button
 					className={`${
@@ -60,18 +59,16 @@ const LpListPage = () => {
 				</button>
 			</div>
 			<div className='grid grid-cols-3'>
-                <LpCardSkeleton />
+				<LpCardSkeleton />
 				{lps?.pages
 					?.map((page) => page.data.data)
 					?.flat()
 					?.map((lp) => (
 						<LpCard key={lp.id} lp={lp} />
 					))}
-                <div ref={sentinelRef} className='h-100'>
-                    {isFetching && Array.from({length: 10}).map((_, index) => (
-                        <LpCardSkeleton key={index} />
-                    ))}
-                </div>
+				<div ref={ref} className='h-100'>
+					{isFetching && Array.from({ length: 10 }).map((_, index) => <LpCardSkeleton key={index} />)}
+				</div>
 			</div>
 		</div>
 	)
