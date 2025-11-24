@@ -6,26 +6,41 @@ import useGetInfiniteLpList from '../hooks/queries/useGetInfiniteLpList'
 import LpCardSkeleton from '../components/LpCard/LpCardSkeleton'
 import { useDebounce } from '../hooks/useDebounce'
 import { useInView } from 'react-intersection-observer'
+import { useThrottleCallback } from '../hooks/useThrottle'
 
 const LpListPage = () => {
 	const [sort, setSort] = useState<'asc' | 'desc'>('desc')
 	const [search, setSearch] = useState('')
 	const debouncedSearch = useDebounce(search, 300)
 	//const {data, isLoading, error} = useGetLpList({cursor: undefined, limit: undefined, search: undefined, order: sort});
-	const { data: lps, isFetching, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpList(10, debouncedSearch, sort)
+	const { data: lps, isFetchingNextPage, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpList(10, debouncedSearch, sort)
+
 	const { ref, inView } = useInView({
 		threshold: 0,
+		rootMargin: '200px', // 뷰포트 하단 200px 전에 미리 트리거
 	})
+
+	// fetchNextPage 호출을 throttle로 최적화
+	const throttledFetchNextPage = useThrottleCallback(
+		() => {
+			if (hasNextPage && !isFetchingNextPage) {
+				fetchNextPage()
+			}
+		},
+		1000, // 1000ms 간격
+		[hasNextPage, isFetchingNextPage, fetchNextPage]
+	)
 
 	const allLps = useMemo(() => {
 		return lps?.pages?.map((page) => page.data.data)?.flat() || []
 	}, [lps])
 
+	// inView가 true이고 다음 페이지가 있을 때 throttle된 fetchNextPage 호출
 	useEffect(() => {
-		if (inView && !isFetching && hasNextPage) {
-			fetchNextPage()
+		if (inView && hasNextPage && !isFetchingNextPage) {
+			throttledFetchNextPage()
 		}
-	}, [inView, hasNextPage, isFetching, fetchNextPage])
+	}, [inView, hasNextPage, isFetchingNextPage, throttledFetchNextPage])
 
 	if (isPending) {
 		return <Spinner />
@@ -64,9 +79,14 @@ const LpListPage = () => {
 			</div>
 			<div className='grid grid-cols-3 gap-6'>
 				{allLps.length > 0 ? allLps.map((lp) => <LpCard key={lp.id} lp={lp} />) : <p className='col-span-3 text-center text-gray-400'>검색 결과가 없습니다.</p>}
-				<div ref={ref} className='h-1 w-full col-span-3'>
-					{isFetching && Array.from({ length: 6 }).map((_, index) => <LpCardSkeleton key={index} />)}
-				</div>
+				{/* 다음 페이지가 있을 때만 ref 요소 렌더링 */}
+				{hasNextPage && (
+					<div ref={ref} className='h-1 w-full col-span-3'>
+						{isFetchingNextPage && Array.from({ length: 6 }).map((_, index) => <LpCardSkeleton key={index} />)}
+					</div>
+				)}
+				{/* 모든 데이터를 불러왔을 때 표시 */}
+				{!hasNextPage && allLps.length > 0 && <p className='col-span-3 text-center text-gray-400 mt-4'>모든 LP를 불러왔습니다.</p>}
 			</div>
 		</div>
 	)

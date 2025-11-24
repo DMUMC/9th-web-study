@@ -7,6 +7,7 @@ import LpModal from '../LpModal'
 import useLpModal from '../../store/useLpModal'
 import { useLeaveModal } from '../../store/useLeaveModal'
 import { LeaveModal } from './LeaveModal'
+import { useThrottleCallback } from '../../hooks/useThrottle'
 
 export const Layout = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -14,18 +15,25 @@ export const Layout = () => {
 	const { isOpen } = useLpModal()
 	const { isLeaveModalOpen } = useLeaveModal()
 
-	useEffect(() => {
-		const handleResize = () => {
+	// resize 이벤트에 throttle 적용 (300ms마다 한 번만 실행)
+	const handleResize = useThrottleCallback(
+		() => {
 			setIsDesktop(window.innerWidth >= 1024)
-		}
+		},
+		300,
+		[]
+	)
 
-		handleResize()
+	useEffect(() => {
+		// 초기값 설정
+		setIsDesktop(window.innerWidth >= 1024)
+
 		window.addEventListener('resize', handleResize)
 
 		return () => {
 			window.removeEventListener('resize', handleResize)
 		}
-	}, [])
+	}, [handleResize])
 
 	useEffect(() => {
 		if (isDesktop) {
