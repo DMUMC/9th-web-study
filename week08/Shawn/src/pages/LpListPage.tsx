@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { LpCard } from '../components/LpCard/LpCard'
 import { Spinner } from '../components/Spinner'
 //import useGetLpList from "../hooks/queries/useGetLpList"
@@ -12,10 +12,14 @@ const LpListPage = () => {
 	const [search, setSearch] = useState('')
 	const debouncedSearch = useDebounce(search, 300)
 	//const {data, isLoading, error} = useGetLpList({cursor: undefined, limit: undefined, search: undefined, order: sort});
-	const { data: lps, isFetching, isFetchingNextPage, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpList(10, debouncedSearch, sort)
+	const { data: lps, isFetching, isPending, isError, hasNextPage, fetchNextPage } = useGetInfiniteLpList(10, debouncedSearch, sort)
 	const { ref, inView } = useInView({
 		threshold: 0,
 	})
+
+	const allLps = useMemo(() => {
+		return lps?.pages?.map((page) => page.data.data)?.flat() || []
+	}, [lps])
 
 	useEffect(() => {
 		if (inView && !isFetching && hasNextPage) {
@@ -37,7 +41,7 @@ const LpListPage = () => {
 	}
 
 	return (
-		<div className='flex flex-col gap-4 mt-10'>
+		<div className='flex flex-col gap-4 mt-10 w-3/5'>
 			<div className='flex items-center gap-2 border-1 border-gray-300 rounded-md p-2'>
 				<input type='text' placeholder='Search' className='w-full outline-none' value={search} onChange={(e) => setSearch(e.target.value)} />
 			</div>
@@ -58,16 +62,10 @@ const LpListPage = () => {
 					오래된순
 				</button>
 			</div>
-			<div className='grid grid-cols-3'>
-				<LpCardSkeleton />
-				{lps?.pages
-					?.map((page) => page.data.data)
-					?.flat()
-					?.map((lp) => (
-						<LpCard key={lp.id} lp={lp} />
-					))}
-				<div ref={ref} className='h-100'>
-					{isFetching && Array.from({ length: 10 }).map((_, index) => <LpCardSkeleton key={index} />)}
+			<div className='grid grid-cols-3 gap-6'>
+				{allLps.length > 0 ? allLps.map((lp) => <LpCard key={lp.id} lp={lp} />) : <p className='col-span-3 text-center text-gray-400'>검색 결과가 없습니다.</p>}
+				<div ref={ref} className='h-1 w-full col-span-3'>
+					{isFetching && Array.from({ length: 6 }).map((_, index) => <LpCardSkeleton key={index} />)}
 				</div>
 			</div>
 		</div>
