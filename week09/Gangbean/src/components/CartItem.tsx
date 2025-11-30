@@ -1,5 +1,4 @@
-import { useDispatch } from '../hooks/useCustomRedux';
-import { decrease, increase, removeItem } from '../slices/cartslice';
+import { useCartActions } from '../hooks/useCartStore';
 import type { Lp } from '../types/cart';
 
 interface CartItemProps {
@@ -7,19 +6,20 @@ interface CartItemProps {
 }
 
 const CartItem = ({ lp }: CartItemProps) => {
-    const dispatch = useDispatch();
+    const { increase, decrease, removeItem } =
+        useCartActions();
 
     const handleIncreaseCount = () => {
-        dispatch(increase({ id: lp.id }));
+        increase(lp.id);
     };
 
     const handleDecreaseCount = () => {
         if (lp.amount === 1) {
-            dispatch(removeItem({ id: lp.id }));
+            removeItem(lp.id);
             return;
         }
 
-        dispatch(decrease({ id: lp.id }));
+        decrease(lp.id);
     };
 
     return (
@@ -30,9 +30,15 @@ const CartItem = ({ lp }: CartItemProps) => {
                 className='w-20 object-cover rounded mr-4'
             />
             <div className='flex-1 mr-4'>
-                <h3 className='text-xl font-semibold'>{lp.title}</h3>
-                <p className='text-sm text-gray-600'>{lp.singer}</p>
-                <p className='text-sm font-bold text-gray-600'>{lp.price} 원</p>
+                <h3 className='text-xl font-semibold'>
+                    {lp.title}
+                </h3>
+                <p className='text-sm text-gray-600'>
+                    {lp.singer}
+                </p>
+                <p className='text-sm font-bold text-gray-600'>
+                    {lp.price} 원
+                </p>
             </div>
             <div className='flex items-center'>
                 <button

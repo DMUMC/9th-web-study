@@ -1,24 +1,23 @@
-// src/components/Modal.tsx
+import { useCartActions } from '../hooks/useCartStore';
 import {
-    useDispatch,
-    useSelecter,
-} from '../hooks/useCustomRedux';
-import { closeModal } from '../slices/modalSlice';
-import { clearCart } from '../slices/cartslice';
+    useModalActions,
+    useModalInfo,
+} from '../hooks/useModalStore';
 
 const Modal = () => {
-    const { isOpen } = useSelecter((state) => state.modal);
-    const dispatch = useDispatch();
+    const { clearCart } = useCartActions();
+    const { closeModal } = useModalActions();
+    const isOpen = useModalInfo();
 
     if (!isOpen) return null;
 
     const handleNo = () => {
-        dispatch(closeModal());
+        closeModal();
     };
 
     const handleYes = () => {
-        dispatch(clearCart());
-        dispatch(closeModal());
+        clearCart();
+        closeModal();
     };
 
     return (
