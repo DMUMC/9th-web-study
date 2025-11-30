@@ -1,10 +1,15 @@
 import CartItems from "./CartItems";
-
-import { useSelector } from "react-redux";
-import type { RootState } from "../store/store";
+import { useCartInfo, useCartActions } from "../hooks/useCartStore";
+import { openModal } from "../slices/modalSlice";
 
 const CartList = () => {
-  const { cartItems } = useSelector((state: RootState) => state.cart);
+  const { cartItems } = useCartInfo();
+  const { clearCart } = useCartActions();
+
+  const handleClearCart = (): void => {
+    openModal();
+    clearCart();
+  };
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -13,6 +18,7 @@ const CartList = () => {
           <CartItems key={item.id} lp={item} />
         ))}
       </ul>
+      <button onClick={handleClearCart}>Clear Cart</button>
     </div>
   );
 };
