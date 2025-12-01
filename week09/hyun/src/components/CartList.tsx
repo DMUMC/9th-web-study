@@ -1,23 +1,19 @@
-import { useSelector, useDispatch } from 'react-redux';
-import type { RootState, AppDispatch } from '../store/store';
-import { increase, decrease, removeItem } from '../features/cart/cartSlice';
+import { useStore } from '../store/useStore';
 
 const CartList = () => {
-    const { cartItems, amount, total } = useSelector(
-        (state: RootState) => state.cart
-    );
-    const dispatch = useDispatch<AppDispatch>();
+    const { cartItems, amount, total, increase, decrease, removeItem } =
+        useStore();
 
     const handleIncrease = (id: string) => {
-        dispatch(increase(id));
+        increase(id);
     };
 
     const handleDecrease = (id: string) => {
-        dispatch(decrease(id));
+        decrease(id);
     };
 
     const handleRemoveItem = (id: string) => {
-        dispatch(removeItem(id));
+        removeItem(id);
     };
 
     if (cartItems.length === 0) {

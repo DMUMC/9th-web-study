@@ -1,12 +1,10 @@
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../store/store';
-import { openModal } from '../features/modal/modalSlice';
+import { useStore } from '../store/useStore';
 
 const Footer = () => {
-    const dispatch = useDispatch<AppDispatch>();
+    const { openModal } = useStore();
 
     const handleOpenModal = () => {
-        dispatch(openModal());
+        openModal();
     };
 
     return (

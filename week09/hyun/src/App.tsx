@@ -1,12 +1,11 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from './store/store';
+import { useStore } from './store/useStore';
 import Navbar from './components/Navbar';
 import CartList from './components/CartList';
 import Footer from './components/Footer';
 import Modal from './components/Modal';
 
 function App() {
-    const isModalOpen = useSelector((state: RootState) => state.modal.isOpen);
+    const { isOpen: isModalOpen } = useStore();
 
     return (
         <div className="h-screen flex flex-col">
