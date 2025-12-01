@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store/store';
-import { increase, decrease, removeItem } from '../store/cartSlice';
+import { increase, decrease, removeItem } from '../features/cart/cartSlice';
 
 const CartList = () => {
     const { cartItems, amount, total } = useSelector(
