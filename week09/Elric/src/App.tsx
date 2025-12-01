@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { calculateTotals, clearCart, decrease, increase, removeItem } from './store/cartSlice'
+import { calculateTotals, clearCart, decrease, increase, removeItem } from './features/cart/cartSlice'
+import { closeModal, openModal } from './features/modal/modalSlice'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 
 const formatPrice = (value: number) => `₩${value.toLocaleString('ko-KR')}`
@@ -7,6 +8,7 @@ const formatPrice = (value: number) => `₩${value.toLocaleString('ko-KR')}`
 function App() {
   const dispatch = useAppDispatch()
   const { cartItems, amount, total } = useAppSelector((state) => state.cart)
+  const { isOpen } = useAppSelector((state) => state.modal)
 
   useEffect(() => {
     dispatch(calculateTotals())
@@ -83,7 +85,7 @@ function App() {
 
         <div className="flex items-center justify-center border-t border-slate-200 bg-slate-50 px-6 py-6">
           <button
-            onClick={() => dispatch(clearCart())}
+            onClick={() => dispatch(openModal())}
             disabled={!hasItems}
             className="rounded border border-slate-800 px-5 py-2 text-sm font-semibold text-slate-800 transition enabled:hover:bg-slate-900 enabled:hover:text-white disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-300"
           >
@@ -91,6 +93,31 @@ function App() {
           </button>
         </div>
       </div>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+          <div className="rounded-xl bg-white p-6 shadow-2xl">
+            <p className="text-center text-lg font-semibold text-slate-900">정말 삭제하시겠습니까?</p>
+            <div className="mt-5 flex justify-center gap-3">
+              <button
+                onClick={() => dispatch(closeModal())}
+                className="rounded bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-300"
+              >
+                아니요
+              </button>
+              <button
+                onClick={() => {
+                  dispatch(clearCart())
+                  dispatch(closeModal())
+                }}
+                className="rounded bg-rose-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
+              >
+                네
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
