@@ -1,18 +1,27 @@
 import { useEffect } from 'react'
-import { calculateTotals, clearCart, decrease, increase, removeItem } from './features/cart/cartSlice'
-import { closeModal, openModal } from './features/modal/modalSlice'
-import { useAppDispatch, useAppSelector } from './store/hooks'
+import { type CartItem } from './constants/cartItems'
+import { useCartStore } from './stores/useCartStore'
 
 const formatPrice = (value: number) => `₩${value.toLocaleString('ko-KR')}`
 
 function App() {
-  const dispatch = useAppDispatch()
-  const { cartItems, amount, total } = useAppSelector((state) => state.cart)
-  const { isOpen } = useAppSelector((state) => state.modal)
+  const {
+    cartItems,
+    amount,
+    total,
+    isModalOpen,
+    increase,
+    decrease,
+    removeItem,
+    clearCart,
+    calculateTotals,
+    openModal,
+    closeModal,
+  } = useCartStore()
 
   useEffect(() => {
-    dispatch(calculateTotals())
-  }, [cartItems, dispatch])
+    calculateTotals()
+  }, [cartItems, calculateTotals])
 
   const hasItems = cartItems.length > 0
 
@@ -36,7 +45,7 @@ function App() {
 
         <section className="divide-y divide-slate-200">
           {hasItems ? (
-            cartItems.map((item) => (
+            cartItems.map((item: CartItem) => (
               <article key={item.id} className="flex items-center gap-4 px-6 py-4">
                 <img src={item.img} alt={item.title} className="h-20 w-20 rounded-lg object-cover shadow-sm" />
                 <div className="flex flex-1 flex-col gap-1">
@@ -47,7 +56,7 @@ function App() {
                 <div className="flex items-center gap-3">
                   <button
                     aria-label={`${item.title} 수량 감소`}
-                    onClick={() => dispatch(decrease(item.id))}
+                    onClick={() => decrease(item.id)}
                     className="h-8 w-8 rounded bg-slate-200 text-lg font-semibold text-slate-700 transition hover:bg-slate-300"
                   >
                     −
@@ -57,14 +66,14 @@ function App() {
                   </span>
                   <button
                     aria-label={`${item.title} 수량 증가`}
-                    onClick={() => dispatch(increase(item.id))}
+                    onClick={() => increase(item.id)}
                     className="h-8 w-8 rounded bg-slate-200 text-lg font-semibold text-slate-700 transition hover:bg-slate-300"
                   >
                     +
                   </button>
                 </div>
                 <button
-                  onClick={() => dispatch(removeItem(item.id))}
+                  onClick={() => removeItem(item.id)}
                   className="text-xs font-medium uppercase tracking-wide text-slate-400 transition hover:text-rose-500"
                 >
                   삭제
@@ -84,31 +93,31 @@ function App() {
         </div>
 
         <div className="flex items-center justify-center border-t border-slate-200 bg-slate-50 px-6 py-6">
-          <button
-            onClick={() => dispatch(openModal())}
-            disabled={!hasItems}
-            className="rounded border border-slate-800 px-5 py-2 text-sm font-semibold text-slate-800 transition enabled:hover:bg-slate-900 enabled:hover:text-white disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-300"
-          >
-            전체 삭제
-          </button>
+            <button
+              onClick={() => openModal()}
+              disabled={!hasItems}
+              className="rounded border border-slate-800 px-5 py-2 text-sm font-semibold text-slate-800 transition enabled:hover:bg-slate-900 enabled:hover:text-white disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-300"
+            >
+              전체 삭제
+            </button>
         </div>
       </div>
 
-      {isOpen && (
+      {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
           <div className="rounded-xl bg-white p-6 shadow-2xl">
             <p className="text-center text-lg font-semibold text-slate-900">정말 삭제하시겠습니까?</p>
             <div className="mt-5 flex justify-center gap-3">
               <button
-                onClick={() => dispatch(closeModal())}
+                onClick={() => closeModal()}
                 className="rounded bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-300"
               >
                 아니요
               </button>
               <button
                 onClick={() => {
-                  dispatch(clearCart())
-                  dispatch(closeModal())
+                  clearCart()
+                  closeModal()
                 }}
                 className="rounded bg-rose-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-rose-600"
               >
