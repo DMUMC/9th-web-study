@@ -1,17 +1,14 @@
 import { useEffect } from "react";
 import { FaShoppingCart } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import { calculateTotals } from "../slices/cartSlice";
-import type { RootState } from "../store/store";
+import { useCartInfo, useCartActions } from "../hooks/useCartStore";
 
 const Navbar = () => {
-  const { amount, cartItems } = useSelector((state: RootState) => state.cart);
-
-  const dispatch = useDispatch();
+  const { amount, cartItems } = useCartInfo();
+  const { calculateTotals } = useCartActions();
 
   useEffect((): void => {
-    dispatch(calculateTotals());
-  }, [dispatch, cartItems]);
+    calculateTotals();
+  }, [cartItems, calculateTotals]);
 
   return (
     <div className="flex justify-between items-center p-4 bg-gray-800 text-white">
@@ -21,7 +18,7 @@ const Navbar = () => {
         }}
         className="text-2xl font-semibold cursor-pointer"
       >
-        Balvenie List
+        UMC DUCk
       </h1>
       <div className="flex items-center gap-2">
         <FaShoppingCart className="text-2xl" />

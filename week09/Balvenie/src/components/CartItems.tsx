@@ -1,24 +1,22 @@
-import { useDispatch } from "react-redux";
 import type { Lp } from "../types/cart";
-import { decrease, increase, removeItem } from "../slices/cartSlice";
-
+import { useCartActions } from "../hooks/useCartStore";
 interface CartItemsProps {
   lp: Lp;
 }
 
 const CartItems = ({ lp }: CartItemsProps) => {
-  const dispatch = useDispatch();
+  const { increase, decrease, removeItem } = useCartActions();
 
   const handleIncreaseCount = (): void => {
-    dispatch(increase({ id: lp.id }));
+    increase(lp.id);
   };
 
   const handleDecreaseCount = (): void => {
     if (lp.amount === 1) {
-      dispatch(removeItem({ id: lp.id }));
+      removeItem(lp.id);
       return;
     }
-    dispatch(decrease({ id: lp.id }));
+    decrease(lp.id);
   };
   return (
     <div className="flex item-center p-4 border-b border-gray-200">
