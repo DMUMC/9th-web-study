@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import MovieFilter from '../components/MovieFilter';
 import MovieList from '../components/MovieList';
+import MovieModal from '../components/MovieModal';
 import useFetch from '../hooks/useFetch';
 import type {
+    Movie,
     MovieFilters,
     MovieResponse,
 } from '../types/movie';
@@ -13,6 +15,9 @@ const HomePage = () => {
         include_adult: false,
         language: 'ko-KR',
     });
+    const [selectedMovie, setSelectedMovie] =
+        useState<Movie | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const axiosRequestConfig = useMemo(
         () => ({
@@ -34,6 +39,16 @@ const HomePage = () => {
         [setFilters]
     );
 
+    const handleMovieClick = useCallback((movie: Movie) => {
+        setSelectedMovie(movie);
+        setIsModalOpen(true);
+    }, []);
+
+    const handleCloseModal = useCallback(() => {
+        setIsModalOpen(false);
+        setSelectedMovie(null);
+    }, []);
+
     if (error) {
         return <div>{error}</div>;
     }
@@ -48,8 +63,16 @@ const HomePage = () => {
                     로딩 중...
                 </div>
             ) : (
-                <MovieList movies={data?.results || []} />
+                <MovieList
+                    movies={data?.results || []}
+                    onMovieClick={handleMovieClick}
+                />
             )}
+            <MovieModal
+                movie={selectedMovie}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+            />
         </div>
     );
 };
