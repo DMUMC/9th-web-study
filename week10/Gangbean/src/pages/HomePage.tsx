@@ -39,12 +39,14 @@ const HomePage = () => {
     }
 
     return (
-        <div className='container'>
+        <div className='container mx-auto px-4 py-8'>
             <MovieFilter
                 onChange={handleChangeMovieFilters}
             />
             {isLoading ? (
-                <div>로딩 중...</div>
+                <div className='text-center py-8'>
+                    로딩 중...
+                </div>
             ) : (
                 <MovieList movies={data?.results || []} />
             )}
