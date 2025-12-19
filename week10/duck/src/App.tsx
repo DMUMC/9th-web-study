@@ -1,9 +1,9 @@
 import "./App.css";
-import UseCallbackPage from "./useCallback/useCallbackPage";
+import UseMemoPage from "./usememo/Usememo";
 function App() {
   return (
     <>
-      <UseCallbackPage />
+      <UseMemoPage />
     </>
   );
 }
