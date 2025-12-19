@@ -1,4 +1,5 @@
 import { ChangeEvent, FormEvent, useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Movie } from '../components/MovieCard';
 import { MovieCard } from '../components/MovieCard';
 
@@ -27,6 +28,7 @@ type SearchResponse = {
 };
 
 const HomePage = () => {
+    const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const [includeAdult, setIncludeAdult] = useState(false);
     const [language, setLanguage] = useState<string>(LANGUAGE_OPTIONS[0].value);
@@ -179,6 +181,13 @@ const HomePage = () => {
         if (!query) return '#';
         return `https://www.imdb.com/find?q=${encodeURIComponent(query.replace(/\s+/g, ' '))}`;
     }, [selected]);
+
+    const handleGoDetail = useCallback(() => {
+        if (!selected) return;
+        const id = selected.id;
+        setSelected(null);
+        navigate(`/movies/${id}`);
+    }, [navigate, selected]);
 
     const backdropUrl = useMemo(() => {
         if (!selected?.backdrop_path) return null;
@@ -358,20 +367,27 @@ const HomePage = () => {
                                         {selected.overview || '줄거리가 제공되지 않습니다.'}
                                     </div>
 
-                                    <div className='flex flex-wrap gap-3 pt-2'>
-                                        <a
-                                            className='inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-                                            href={imdbUrl}
-                                            rel='noreferrer'
-                                            target='_blank'
-                                        >
-                                            IMDb에서 검색
-                                        </a>
-                                        <button
-                                            className='inline-flex items-center justify-center rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50'
-                                            onClick={handleClose}
-                                            type='button'
-                                        >
+                                <div className='flex flex-wrap gap-3 pt-2'>
+                                    <a
+                                        className='inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+                                        href={imdbUrl}
+                                        rel='noreferrer'
+                                        target='_blank'
+                                    >
+                                        IMDb에서 검색
+                                    </a>
+                                    <button
+                                        className='inline-flex items-center justify-center rounded-lg border border-indigo-200 px-5 py-2.5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50'
+                                        onClick={handleGoDetail}
+                                        type='button'
+                                    >
+                                        상세 페이지 이동
+                                    </button>
+                                    <button
+                                        className='inline-flex items-center justify-center rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50'
+                                        onClick={handleClose}
+                                        type='button'
+                                    >
                                             닫기
                                         </button>
                                     </div>
