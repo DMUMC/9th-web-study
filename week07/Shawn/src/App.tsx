@@ -1,0 +1,90 @@
+import './App.css'
+import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
+import { Layout } from './components/layout/Layout'
+import LoginPage from './pages/LoginPage'
+import MainPage from './pages/MainPage'
+import SignupPage from './pages/SignupPage'
+import MyPage from './pages/MyPage'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedLayout from './components/layout/ProtectedLayout'
+import GoogleLoginRedirectPage from './pages/GoogleLoginRedirectPage'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import LpListPage from './pages/LpListPage'
+import LpDetailPage from './pages/LpDetailPage'
+
+function App() {
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+      {import.meta.env.DEV && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
+    </QueryClientProvider>
+  )
+}
+
+const publicRoutes: RouteObject[] = [
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      {
+        index: true,
+        element: <MainPage />
+      },
+      {
+        path: '/login',
+        element: <LoginPage />
+      },
+      {
+        path: '/signup',
+        element: <SignupPage />
+      },
+      {
+        path: '/v1/auth/google/callback',
+        element: <GoogleLoginRedirectPage />
+      },
+      {
+        path: '/lps',
+        element: <LpListPage />,
+      }
+    ]
+  }
+]
+
+const protectedRoutes: RouteObject[] = [
+  {
+    path: '/',
+    element: <ProtectedLayout />,
+    children: [
+      {
+        path: 'mypage',
+        element: <MyPage />
+      },
+      {
+        path: '/lps/:lpid',
+        element: <LpDetailPage />
+      }
+    ]
+  }
+]
+
+const router = createBrowserRouter([
+  ...publicRoutes,
+  ...protectedRoutes
+])
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 3,
+    }
+  }
+})
+
+export default App
