@@ -1,0 +1,3 @@
+# Ignore macOS metadata and environment variables
+.DS_Store
+.env
