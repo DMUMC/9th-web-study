@@ -1,3 +1,6 @@
 # Ignore macOS metadata and environment variables
 .DS_Store
 .env
+
+# week06 backend artifacts
+week06/back/
