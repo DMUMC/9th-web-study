@@ -2,13 +2,17 @@ import type { Movie } from "../types/movie";
 
 interface MovieCardProps {
   movie: Movie;
+  onClick?: () => void;
 }
 
-const MovieCard = ({ movie }: MovieCardProps) => {
+const MovieCard = ({ movie, onClick }: MovieCardProps) => {
   const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
   const fallbackImage = "https://parniangostar.com/_next/static/media/imgFallBack.581a9fe3.png";
   return (
-    <div className="overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+    <div
+      className="overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      onClick={onClick}
+    >
       <div className="relative h-80 overflow-hidden">
         <img src={
           movie.poster_path ? `${imageBaseUrl}${movie.poster_path}` : fallbackImage

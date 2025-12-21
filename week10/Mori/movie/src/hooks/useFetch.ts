@@ -10,6 +10,7 @@ const useFetch = <T>(url: string, options?: AxiosRequestConfig) => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const { data } = await axiosClient.get(url, {
           ...options,
@@ -22,7 +23,8 @@ const useFetch = <T>(url: string, options?: AxiosRequestConfig) => {
       }
     }
     fetchData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url, JSON.stringify(options?.params)]);
 
   return { data, error, isLoading };
 }
