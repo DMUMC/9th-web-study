@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { MovieList } from "../components/MovieList";
 import MovieFilter from "../components/MovieFilter";
 import MovieModal from "../components/MovieModal";
@@ -13,33 +13,44 @@ export default function HomePage() {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, error, isLoading } = useFetch<MovieResponse>("/search/movie", {
-    params: {
-      query,
-      include_adult: includeAdult,
-      language,
+  const fetchOptions = useMemo(
+    () => ({
+      params: {
+        query,
+        include_adult: includeAdult,
+        language,
+      },
+    }),
+    [query, includeAdult, language]
+  );
+
+  const { data, error, isLoading } = useFetch<MovieResponse>(
+    "/search/movie",
+    fetchOptions
+  );
+
+  const handleFilterChange = useCallback(
+    (filters: {
+      query: string;
+      includeAdult: boolean;
+      language: string;
+    }) => {
+      setQuery(filters.query || "코난");
+      setIncludeAdult(filters.includeAdult);
+      setLanguage(filters.language);
     },
-  });
+    []
+  );
 
-  const handleFilterChange = (filters: {
-    query: string;
-    includeAdult: boolean;
-    language: string;
-  }) => {
-    setQuery(filters.query || "코난");
-    setIncludeAdult(filters.includeAdult);
-    setLanguage(filters.language);
-  };
-
-  const handleMovieClick = (movie: Movie) => {
+  const handleMovieClick = useCallback((movie: Movie) => {
     setSelectedMovie(movie);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedMovie(null);
-  };
+  }, []);
 
   if (error) return <div>Error: {error}</div>;
   

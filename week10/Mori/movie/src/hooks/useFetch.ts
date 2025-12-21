@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { AxiosRequestConfig } from "axios";
 import { axiosClient } from "../apis/axiosClients";
 
@@ -6,6 +6,11 @@ const useFetch = <T>(url: string, options?: AxiosRequestConfig) => {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const paramsString = useMemo(
+    () => JSON.stringify(options?.params),
+    [options?.params]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,10 +26,10 @@ const useFetch = <T>(url: string, options?: AxiosRequestConfig) => {
       } finally {
         setIsLoading(false);
       }
-    }
+    };
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url, JSON.stringify(options?.params)]);
+  }, [url, paramsString]);
 
   return { data, error, isLoading };
 }

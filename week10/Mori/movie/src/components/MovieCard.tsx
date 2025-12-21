@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Movie } from "../types/movie";
 
 interface MovieCardProps {
@@ -5,7 +6,7 @@ interface MovieCardProps {
   onClick?: () => void;
 }
 
-const MovieCard = ({ movie, onClick }: MovieCardProps) => {
+const MovieCard = memo(({ movie, onClick }: MovieCardProps) => {
   const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
   const fallbackImage = "https://parniangostar.com/_next/static/media/imgFallBack.581a9fe3.png";
   return (
@@ -31,7 +32,9 @@ const MovieCard = ({ movie, onClick }: MovieCardProps) => {
         </p>
       </div>
     </div>
-  )
-}
+  );
+});
 
-export default MovieCard
+MovieCard.displayName = "MovieCard";
+
+export default MovieCard;

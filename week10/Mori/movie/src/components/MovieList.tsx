@@ -20,7 +20,7 @@ export const MovieList = ({ movies, onMovieClick }: MovieListProps) => {
         <MovieCard
           key={movie.id}
           movie={movie}
-          onClick={() => onMovieClick?.(movie)}
+          onClick={onMovieClick ? () => onMovieClick(movie) : undefined}
         />
       ))}
     </div>
