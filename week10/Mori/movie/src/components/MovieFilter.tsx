@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 
 interface MovieFilterProps {
   onFilterChange?: (filters: {
@@ -13,34 +13,34 @@ export default function MovieFilter({ onFilterChange }: MovieFilterProps) {
   const [includeAdult, setIncludeAdult] = useState(false);
   const [language, setLanguage] = useState("ko-KR");
 
-  const notifyFilterChange = useCallback(() => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     onFilterChange?.({
       query: searchQuery,
       includeAdult,
       language,
     });
-  }, [searchQuery, includeAdult, language, onFilterChange]);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    notifyFilterChange();
   };
-
-  useEffect(() => {
-    notifyFilterChange();
-  }, [includeAdult, language, notifyFilterChange]);
 
   return (
     <div className="mb-6">
       <form onSubmit={handleSubmit}>
         <div className="search-area space-y-4">
-          <input
-            type="text"
-            placeholder="영화 제목을 입력하세요"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="영화 제목을 입력하세요"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md font-semibold transition-colors"
+            >
+              검색
+            </button>
+          </div>
           
           <div className="flex items-center space-x-4">
             <label className="flex items-center space-x-2 cursor-pointer">
